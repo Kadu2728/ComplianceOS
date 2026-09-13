@@ -1,0 +1,42 @@
+# Secrets / environment
+.env
+.env.*
+!.env.example
+
+# Node / Next.js
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+next-env.d.ts
+
+# Python / FastAPI
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+
+# Tooling
+.claude/settings.local.json
+coverage/
+htmlcov/
+.coverage
+playwright-report/
+test-results/
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Embedded PostgreSQL data (dev only)
+apps/api/.pgdata/
+
+# Local evidence storage (dev only)
+apps/api/.storage/

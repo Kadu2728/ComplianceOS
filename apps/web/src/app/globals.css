@@ -1,0 +1,126 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens — single source: docs/design/tokens.md (derived from .claude/brand-system.md).
+ * Light mode only (decision D16). Components must reference tokens, never raw hex.
+ */
+@theme {
+  /* Core (brand §8) */
+  --color-obsidian: #0b0d0f;
+  --color-off-white: #f4f4f0;
+  --color-electric-blue: #356ae6;
+
+  /* Neutrals, light (brand §10) */
+  --color-surface-base: #f4f4f0;
+  --color-surface-elevated: #ffffff;
+  --color-surface-hover: #ebebe7;
+  --color-border: #d9d9d3;
+  --color-text-primary: #0b0d0f;
+  --color-text-secondary: #52575c;
+  --color-text-muted: #73787d;
+
+  /* Semantic (brand §9) + text-safe variants (decision D14) */
+  --color-info-fill: #356ae6;
+  --color-info-text: #3264d9;
+  --color-info-tint: #ebf0fc;
+  --color-info-border: #aec3f5;
+  --color-success-fill: #28a36a;
+  --color-success-text: #207c52;
+  --color-success-tint: #eaf6f0;
+  --color-success-border: #a9dac3;
+  --color-warning-fill: #d99a2b;
+  --color-warning-text: #8f6721;
+  --color-warning-tint: #fbf5ea;
+  --color-warning-border: #f0d7aa;
+  --color-danger-fill: #d95757;
+  --color-danger-text: #b44a4a;
+  --color-danger-tint: #fbeeee;
+  --color-danger-border: #f0bcbc;
+
+  /* Action states (tokens.md §2, §5) */
+  --color-primary-hover: #3263d5;
+  --color-primary-active: #2e5bc4;
+
+  /* Typography (brand §13–§15; app rows only) */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --text-h1: 2rem;
+  --text-h1--line-height: 1.18;
+  --text-h1--letter-spacing: -0.02em;
+  --text-h1--font-weight: 600;
+  --text-h2: 1.5rem;
+  --text-h2--line-height: 1.25;
+  --text-h2--letter-spacing: -0.02em;
+  --text-h2--font-weight: 600;
+  --text-h3: 1.125rem;
+  --text-h3--line-height: 1.4;
+  --text-h3--letter-spacing: -0.01em;
+  --text-h3--font-weight: 600;
+  --text-score: 3rem;
+  --text-score--line-height: 1;
+  --text-score--letter-spacing: -0.03em;
+  --text-score--font-weight: 600;
+  --text-body-lg: 1.125rem;
+  --text-body-lg--line-height: 1.55;
+  --text-body: 1rem;
+  --text-body--line-height: 1.5;
+  --text-body-sm: 0.875rem;
+  --text-body-sm--line-height: 1.45;
+  --text-label: 0.75rem;
+  --text-label--line-height: 1.3;
+  --text-label--letter-spacing: 0.04em;
+  --text-label--font-weight: 500;
+  --text-caption: 0.6875rem;
+  --text-caption--line-height: 1.3;
+
+  /* Radius (brand §17) */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+  --radius-pill: 9999px;
+
+  /* Shadows (brand §19) — exactly two */
+  --shadow-popover: 0 4px 12px rgb(11 13 15 / 0.08), 0 1px 2px rgb(11 13 15 / 0.06);
+  --shadow-modal: 0 16px 40px rgb(11 13 15 / 0.16);
+
+  /* Motion (brand §33, decision D22) */
+  --duration-fast: 150ms;
+  --duration-base: 200ms;
+  --duration-slow: 250ms;
+  --duration-complex: 400ms;
+  --ease-out: cubic-bezier(0.2, 0, 0, 1);
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+  }
+
+  body {
+    background: var(--color-surface-base);
+    color: var(--color-text-primary);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Visible focus everywhere (brand §49). Never removed. */
+  :focus-visible {
+    outline: 2px solid var(--color-electric-blue);
+    outline-offset: 2px;
+  }
+
+  /* Native dialog used for the mobile drawer: lock scroll while open. */
+  body:has(dialog[open]) {
+    overflow: hidden;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0ms !important;
+      transition-duration: 0ms !important;
+    }
+  }
+}
