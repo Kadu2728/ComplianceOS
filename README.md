@@ -34,13 +34,19 @@ Evidence files are stored under `apps/api/.storage` in development (git-ignored)
 
 Open `http://localhost:3000/criar-conta` to create the first account and organization. Password-reset and invitation e-mails are printed to the API console in development.
 
+### Demo organization
+
+`uv run python scripts/seed_demo.py` (with `DATABASE_URL` set, or from `.env`) builds **Acme Tecnologia Ltda.** — a full diagnostic, 28 risks, 28 actions, 18 documents (five with a generated PDF), evidence, a five-person team and an audit trail — entirely through the regular services, so the score (77, "Organizado" at seed time) is computed from the records, never typed in (CLAUDE.md §23). Sign in as `ana@acme.example` (default password `acme-demo-2026` outside production; `--password`/`DEMO_PASSWORD` is required in production). `--also-owner you@company.com` adds an existing account as owner so you can switch between your organization and the demo from the sidebar. `--remove` deletes it again (development only). Timestamps are real: the activity feed shows the seed run and score history accrues from that day.
+
 ## Production notes (pre-beta)
 
 - `APP_ENV=production` requires `JWT_SECRET` (≥ 32 chars) and `COOKIE_SECURE=true`; the API refuses to start otherwise. Interactive docs are disabled in production.
 - Run the API behind the web app's `/api/v1` proxy with `uvicorn app.main:app --proxy-headers --forwarded-allow-ips=<web server IP>`, so per-IP rate limits (signup, login, password reset) see the real client from `X-Forwarded-For` rather than the proxy. Never trust forwarded headers from arbitrary addresses.
 - Both services send hardening headers (API: `nosniff`, `X-Frame-Options: DENY`, `no-referrer`, `default-src 'none'`, `Cache-Control: no-store`; web: CSP with `frame-ancestors 'none'`, `form-action 'self'`, `object-src 'none'`, plus `nosniff`, `Referrer-Policy`, `Permissions-Policy`). The web CSP still allows inline scripts (Next hydration); a nonce-based policy is a follow-up.
 - Known accepted risk: `npm audit` reports postcss ≤ 8.5.22 bundled by Next 15 (build-tool exposure; our CSS is not user-controlled). Fixing it means Next 16 — decision D18a. Python production dependencies: `pip-audit` clean (2026-09-13).
-- Still pending before real customers: production e-mail (D11), database/object storage/region (D12), human legal review of assessment content and score labels (F1–F5).
+- E-mail: production requires `EMAIL_PROVIDER=smtp` with `SMTP_HOST`/`SMTP_FROM` (plus credentials and `SMTP_SECURITY` as the relay needs). Any transactional provider's SMTP relay works; a delivery failure returns `503 email_unavailable` and rolls the invitation/reset back, so nothing is created that nobody was told about.
+- Files: `STORAGE_BACKEND=s3` with `S3_BUCKET` (and `S3_ENDPOINT_URL` for non-AWS providers, `S3_REGION`, keys or the platform's credential chain) stores evidence and documents as private objects in any S3-compatible store; keep `local` only on a persistent volume. Verified against an in-process S3 (moto), not yet against a real bucket.
+- Still pending before real customers: the e-mail vendor (D11), the storage/database provider and region (D12, needs the international-transfer review), human legal review of assessment content and score labels (F1–F5).
 
 ## Quality gates (same commands CI runs)
 

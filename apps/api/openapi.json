@@ -1566,6 +1566,37 @@
         "title": "InvitationAccept",
         "type": "object"
       },
+      "InvitationAcceptedOut": {
+        "description": "The account plus the organization joined, so the app can open that organization.",
+        "properties": {
+          "email": {
+            "title": "Email",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "organization_id": {
+            "format": "uuid",
+            "title": "Organization Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "name",
+          "organization_id"
+        ],
+        "title": "InvitationAcceptedOut",
+        "type": "object"
+      },
       "InvitationOut": {
         "properties": {
           "accepted_at": {
@@ -3223,7 +3254,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserOut"
+                  "$ref": "#/components/schemas/InvitationAcceptedOut"
                 }
               }
             },

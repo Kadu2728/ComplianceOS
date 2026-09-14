@@ -137,4 +137,5 @@ def invite_and_accept(
         json={"token": token, "name": "Bruno", "password": "another-good-password"},
     )
     assert r.status_code == 200, r.text
+    assert r.json()["organization_id"] == org_id  # the app opens the organization just joined
     return member

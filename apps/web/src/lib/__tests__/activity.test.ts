@@ -25,6 +25,8 @@ describe("activity sentences", () => {
     expect(describeActivity(entry("document.file_uploaded", { entity_type: "document", entity_title: "Política" }))).toBe("enviou um arquivo para o documento “Política”");
     expect(describeActivity(entry("document.deleted", { entity_type: "document", entity_title: null, data: { name: "Antiga" } }))).toBe("removeu o documento “Antiga”");
     expect(describeActivity(entry("evidence.added", { data: { kind: "document" } }))).toBe("anexou uma evidência (documento)");
+    expect(describeActivity(entry("membership.created", { entity_type: "membership", data: { role: "admin", source: "demo_seed" } }))).toBe("adicionou um membro como Administrador");
+    expect(describeActivity(entry("membership.role_changed", { entity_type: "membership", data: { from: "member", to: "viewer" } }))).toBe("alterou o papel de um membro para Leitura");
     expect(describeActivity(entry("something.new"))).toBe("something.new");
   });
 

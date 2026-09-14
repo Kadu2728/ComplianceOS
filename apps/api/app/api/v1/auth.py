@@ -5,6 +5,7 @@ from app.core.cookies import REFRESH_COOKIE, clear_auth_cookies, set_auth_cookie
 from app.core.rate_limit import limiter
 from app.schemas.identity import (
     InvitationAccept,
+    InvitationAcceptedOut,
     LoginRequest,
     MessageOut,
     PasswordResetConfirm,
@@ -128,13 +129,15 @@ def password_reset_confirm(
     return MessageOut(message="Password updated. Please log in again.")
 
 
-@router.post("/invitations/accept", response_model=UserOut, summary="Accept an invitation")
+@router.post(
+    "/invitations/accept", response_model=InvitationAcceptedOut, summary="Accept an invitation"
+)
 def invitation_accept(
     payload: InvitationAccept, request: Request, response: Response, db: DbSession
-) -> UserOut:
+) -> InvitationAcceptedOut:
     _limit(request, "invite-accept", limit=10, window=60)
     try:
-        user, _ = accept_invitation(
+        user, membership = accept_invitation(
             db, token=payload.token, name=payload.name, password=payload.password
         )
     except MembershipRuleViolation as exc:
@@ -142,4 +145,6 @@ def invitation_accept(
     access, refresh = auth.issue_session(db, user)
     db.commit()
     set_auth_cookies(response, access, refresh)
-    return UserOut.model_validate(user)
+    return InvitationAcceptedOut(
+        id=user.id, email=user.email, name=user.name, organization_id=membership.organization_id
+    )

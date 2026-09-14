@@ -1,14 +1,17 @@
 import { ICON_STROKE, NAV_ITEMS } from "./nav-items";
 import { NavLink } from "./nav-link";
 import { OrgFooter } from "./org-footer";
+import type { OrganizationOption } from "./org-switcher";
 import { Wordmark } from "./wordmark";
 
-/** Desktop/tablet sidebar. Server component; NavLink is the only client child. */
+/** Desktop/tablet sidebar. Server component; NavLink and the switcher are the client children. */
 export function Sidebar({
-  organizationName,
+  currentId,
+  organizations,
   userName,
 }: {
-  organizationName: string;
+  currentId: string;
+  organizations: OrganizationOption[];
   userName: string;
 }) {
   return (
@@ -24,7 +27,7 @@ export function Sidebar({
           />
         ))}
       </nav>
-      <OrgFooter organizationName={organizationName} userName={userName} />
+      <OrgFooter currentId={currentId} organizations={organizations} userName={userName} />
     </aside>
   );
 }

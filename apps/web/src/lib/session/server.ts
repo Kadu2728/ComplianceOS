@@ -3,6 +3,7 @@ import "server-only";
 import { cookies, headers } from "next/headers";
 import { cache } from "react";
 import type { paths } from "@/lib/api/schema";
+import { readPreferredOrganization } from "@/lib/session/org-cookie";
 
 /**
  * Server-side session (server components only). Reads the auth cookies the browser sent to
@@ -13,7 +14,9 @@ import type { paths } from "@/lib/api/schema";
 const API_BASE_URL = process.env.API_BASE_URL ?? "http://127.0.0.1:8000";
 
 export type Me = paths["/api/v1/me"]["get"]["responses"]["200"]["content"]["application/json"];
-export type Session = { user: Me["user"]; membership: Me["memberships"][number] } | null;
+export type Membership = Me["memberships"][number];
+/** `membership` is the current organization; `memberships` every one the person belongs to. */
+export type Session = { user: Me["user"]; membership: Membership; memberships: Membership[] } | null;
 
 export const getSession = cache(async (): Promise<Session> => {
   const cookieHeader = (await cookies()).toString();
@@ -25,7 +28,9 @@ export const getSession = cache(async (): Promise<Session> => {
   });
   if (!res.ok) return null;
   const me = (await res.json()) as Me;
-  const membership = me.memberships[0];
-  // Phase 2: a user with several organizations sees the first one (no switcher yet — D9/app-shell §1).
-  return membership ? { user: me.user, membership } : null;
+  const preferred = await readPreferredOrganization();
+  // The preference cookie picks among the person's own memberships; otherwise the oldest one.
+  const membership =
+    me.memberships.find((m) => m.organization.id === preferred) ?? me.memberships[0];
+  return membership ? { user: me.user, membership, memberships: me.memberships } : null;
 });

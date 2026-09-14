@@ -1170,6 +1170,26 @@ export interface components {
             /** Token */
             token: string;
         };
+        /**
+         * InvitationAcceptedOut
+         * @description The account plus the organization joined, so the app can open that organization.
+         */
+        InvitationAcceptedOut: {
+            /** Email */
+            email: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /**
+             * Organization Id
+             * Format: uuid
+             */
+            organization_id: string;
+        };
         /** InvitationOut */
         InvitationOut: {
             /** Accepted At */
@@ -1753,7 +1773,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["UserOut"];
+                    "application/json": components["schemas"]["InvitationAcceptedOut"];
                 };
             };
             /** @description Validation Error */

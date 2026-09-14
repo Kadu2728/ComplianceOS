@@ -6,6 +6,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+from app.core.email import EmailDeliveryError
 from app.core.request_id import REQUEST_ID_HEADER, get_request_id
 
 logger = logging.getLogger(__name__)
@@ -59,6 +60,16 @@ def register_error_handlers(app: FastAPI) -> None:
                 {"loc": list(e.get("loc", ())), "msg": e.get("msg"), "type": e.get("type")}
                 for e in exc.errors()
             ],
+        )
+
+    @app.exception_handler(EmailDeliveryError)
+    async def _email_unavailable(_: Request, exc: EmailDeliveryError) -> JSONResponse:
+        # The service transaction is rolled back by the request scope, so nothing was created.
+        logger.warning("email delivery unavailable request_id=%s", get_request_id())
+        return error_response(
+            503,
+            "The e-mail could not be sent right now. Try again in a few minutes.",
+            code="email_unavailable",
         )
 
     @app.exception_handler(Exception)

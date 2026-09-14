@@ -7,6 +7,8 @@ import { getSession } from "@/lib/session/server";
 export default async function AppLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const session = await getSession();
   if (!session) redirect("/entrar");
+  const organizations = session.memberships.map((m) => ({ id: m.organization.id, name: m.organization.name }));
+  const currentId = session.membership.organization.id;
   return (
     <div className="flex min-h-dvh flex-col md:flex-row">
       <a
@@ -15,9 +17,9 @@ export default async function AppLayout({ children }: Readonly<{ children: React
       >
         Ir para o conteúdo
       </a>
-      <TopBar />
+      <TopBar currentId={currentId} organizations={organizations} />
       <SessionRefresher />
-      <Sidebar organizationName={session.membership.organization.name} userName={session.user.name} />
+      <Sidebar currentId={currentId} organizations={organizations} userName={session.user.name} />
       <main id="conteudo" className="mx-auto w-full max-w-[1200px] flex-1 p-4 md:p-6 lg:p-8">
         {children}
       </main>

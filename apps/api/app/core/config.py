@@ -1,7 +1,7 @@
 from functools import lru_cache
 from typing import Literal
 
-from pydantic import Field, field_validator
+from pydantic import Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -32,12 +32,27 @@ class Settings(BaseSettings):
     cookie_secure: bool = False
     cookie_domain: str | None = None
 
-    # E-mail (decision D11): "console" logs messages; "capture" is for tests.
-    email_provider: Literal["console", "capture"] = "console"
+    # E-mail (decision D11): "console" logs messages; "capture" is for tests; "smtp" delivers
+    # through any provider's relay (the vendor is still an open decision).
+    email_provider: Literal["console", "capture", "smtp"] = "console"
+    smtp_host: str = ""
+    smtp_port: int = 587
+    smtp_username: str | None = None
+    smtp_password: str | None = None
+    smtp_from: str = ""
+    smtp_security: Literal["starttls", "ssl", "none"] = "starttls"
+    smtp_timeout_seconds: float = 10.0
 
-    # Evidence files (decision D9/D12): local disk until an S3-compatible backend is chosen.
-    storage_backend: Literal["local"] = "local"
+    # Evidence and document files (decisions D9/D12): local disk for development and tests,
+    # "s3" for any S3-compatible object store (the provider and region are still open).
+    storage_backend: Literal["local", "s3"] = "local"
     storage_local_root: str = ".storage"
+    s3_bucket: str = ""
+    s3_region: str | None = None
+    s3_endpoint_url: str | None = None
+    s3_access_key_id: str | None = None
+    s3_secret_access_key: str | None = None
+    s3_key_prefix: str = ""
     evidence_max_bytes: int = 10 * 1024 * 1024
 
     # Calendar day used for "overdue" and snapshot buckets (D10). Per-organization timezone is
@@ -60,6 +75,17 @@ class Settings(BaseSettings):
         if info.data.get("app_env") == "production" and not value:
             raise ValueError("COOKIE_SECURE must be true in production (HTTPS only).")
         return value
+
+    @model_validator(mode="after")
+    def _providers_configured(self) -> "Settings":
+        if self.email_provider == "smtp" and not (self.smtp_host and self.smtp_from):
+            raise ValueError("EMAIL_PROVIDER=smtp requires SMTP_HOST and SMTP_FROM.")
+        if self.storage_backend == "s3" and not self.s3_bucket:
+            raise ValueError("STORAGE_BACKEND=s3 requires S3_BUCKET.")
+        if self.app_env == "production" and self.email_provider != "smtp":
+            # Invitations and password resets would silently go to the log.
+            raise ValueError("EMAIL_PROVIDER must be smtp in production.")
+        return self
 
 
 @lru_cache

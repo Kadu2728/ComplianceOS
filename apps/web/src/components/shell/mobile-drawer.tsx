@@ -4,12 +4,19 @@ import { PanelLeft, X } from "lucide-react";
 import { useRef } from "react";
 import { ICON_STROKE, NAV_ITEMS } from "./nav-items";
 import { NavLink } from "./nav-link";
+import { type OrganizationOption, OrgSwitcher } from "./org-switcher";
 
 /**
  * Mobile navigation as a native <dialog>: focus trap, Escape, backdrop and inert page
  * come from the platform — no library (docs/design/app-shell.md §2, §7).
  */
-export function MobileDrawer() {
+export function MobileDrawer({
+  currentId,
+  organizations,
+}: {
+  currentId: string;
+  organizations: OrganizationOption[];
+}) {
   const ref = useRef<HTMLDialogElement>(null);
   const open = () => ref.current?.showModal();
   const close = () => ref.current?.close();
@@ -57,6 +64,9 @@ export function MobileDrawer() {
           />
           ))}
         </nav>
+        <div className="mt-auto border-t border-border p-3">
+          <OrgSwitcher currentId={currentId} organizations={organizations} />
+        </div>
       </dialog>
     </>
   );

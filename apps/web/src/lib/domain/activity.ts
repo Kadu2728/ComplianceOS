@@ -1,5 +1,5 @@
 import type { paths } from "@/lib/api/schema";
-import { ACTION_STATUS_LABELS, RISK_STATUS_LABELS } from "@/lib/domain/labels";
+import { ACTION_STATUS_LABELS, RISK_STATUS_LABELS, ROLE_LABEL } from "@/lib/domain/labels";
 
 export type AuditEntry =
   paths["/api/v1/orgs/{org_id}/audit-log"]["get"]["responses"]["200"]["content"]["application/json"]["items"][number];
@@ -81,8 +81,10 @@ export function describeActivity(entry: AuditEntry): string {
       return `convidou ${String(d.email ?? "um membro")} como ${String(d.role ?? "")}`;
     case "membership.accepted":
       return "entrou na organização";
+    case "membership.created":
+      return `adicionou um membro como ${ROLE_LABEL[String(d.role)] ?? String(d.role ?? "")}`;
     case "membership.role_changed":
-      return `alterou o papel de um membro para ${String(d.to ?? d.role ?? "")}`;
+      return `alterou o papel de um membro para ${ROLE_LABEL[String(d.to ?? d.role)] ?? String(d.to ?? d.role ?? "")}`;
     case "membership.removed":
       return "removeu um membro";
     default:

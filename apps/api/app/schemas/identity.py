@@ -60,6 +60,12 @@ class UserOut(BaseModel):
     name: str
 
 
+class InvitationAcceptedOut(UserOut):
+    """The account plus the organization joined, so the app can open that organization."""
+
+    organization_id: uuid.UUID
+
+
 class OrganizationOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: uuid.UUID

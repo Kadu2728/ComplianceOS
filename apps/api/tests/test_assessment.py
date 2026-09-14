@@ -202,3 +202,18 @@ def test_audit_trail_for_assessment(org) -> None:  # noqa: ANN001
     ]
     assert "assessment.started" in actions and "assessment.completed" in actions
     assert actions.count("assessment.answered") == 12
+
+
+def test_audit_entries_of_one_request_keep_their_order(org) -> None:  # noqa: ANN001
+    """Completing writes many entries in one transaction; the feed must still show the
+    completion first and the derived risks in question order (application-side timestamps)."""
+    o, base = org["owner"], _base(org)
+    o.post(f"{base}/start", json={"mode": "short"})
+    _answer_all(o, base, SHORT_CODES, "nao")
+    o.post(f"{base}/complete")
+    items = o.get(f"/api/v1/orgs/{org['id']}/audit-log", params={"limit": 50}).json()["items"]
+    assert items[0]["action"] == "assessment.completed"
+    created = [e["data"]["question"] for e in items if e["action"] == "risk.created"]
+    assert created == list(reversed(SHORT_CODES))
+    stamps = [e["created_at"] for e in items]
+    assert stamps == sorted(stamps, reverse=True) and len(set(stamps)) == len(stamps)

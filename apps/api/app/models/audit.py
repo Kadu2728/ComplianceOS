@@ -29,6 +29,8 @@ class AuditLog(Base, UUIDPrimaryKey):
     entity_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
     data: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
     request_id: Mapped[str | None] = mapped_column(String(128))
+    # Set by `services.audit.record` (strictly increasing per process); the server default only
+    # covers rows inserted outside the application.
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )

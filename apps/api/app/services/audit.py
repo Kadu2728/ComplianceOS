@@ -1,12 +1,15 @@
 """Audit trail writer. Append-only: this module exposes no update/delete."""
 
+import threading
 import uuid
+from datetime import datetime, timedelta
 from typing import Any
 
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.core.request_id import get_request_id
+from app.core.security import utcnow
 from app.models.audit import AuditLog
 from app.models.document import Document
 from app.models.domain import Action, Risk
@@ -20,6 +23,23 @@ def _redact(data: dict[str, Any] | None) -> dict[str, Any] | None:
     if not data:
         return data
     return {k: ("[redacted]" if k in _REDACT else v) for k, v in data.items()}
+
+
+_stamp_lock = threading.Lock()
+_last_stamp: datetime | None = None
+
+
+def _stamp() -> datetime:
+    """Strictly increasing timestamps within this process, so entries written by one request
+    (completing an assessment writes dozens) keep the order in which they happened even when the
+    clock ties. PostgreSQL's `now()` cannot do this: it is the transaction start."""
+    global _last_stamp
+    with _stamp_lock:
+        now = utcnow()
+        if _last_stamp is not None and now <= _last_stamp:
+            now = _last_stamp + timedelta(microseconds=1)
+        _last_stamp = now
+        return now
 
 
 def record(
@@ -44,6 +64,7 @@ def record(
         entity_id=entity_id,
         data=_redact(data),
         request_id=get_request_id(),
+        created_at=_stamp(),
     )
     db.add(entry)
     return entry

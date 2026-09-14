@@ -63,6 +63,9 @@ def test_production_requires_secure_cookies(monkeypatch) -> None:  # noqa: ANN00
     monkeypatch.setenv("APP_ENV", "production")
     monkeypatch.setenv("JWT_SECRET", "x" * 40)
     monkeypatch.setenv("COOKIE_SECURE", "false")
+    monkeypatch.setenv("EMAIL_PROVIDER", "smtp")
+    monkeypatch.setenv("SMTP_HOST", "relay")
+    monkeypatch.setenv("SMTP_FROM", "no-reply@example.com")
     with pytest.raises(ValueError, match="COOKIE_SECURE"):
         Settings(_env_file=None)
     monkeypatch.setenv("COOKIE_SECURE", "true")

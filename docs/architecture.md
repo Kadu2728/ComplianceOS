@@ -23,10 +23,10 @@ apps/api/                FastAPI, SQLAlchemy 2, Pydantic v2, Alembic, Python 3.1
   app/core/csrf.py       Origin check on unsafe methods when cookies are present
   app/core/permissions.py  role x permission matrix as data (D8)
   app/core/rate_limit.py in-memory limiter (D23) - single instance only
-  app/core/email.py      EmailSender: console (dev) / capture (tests); production provider pending (D11)
+  app/core/email.py      EmailSender: console (dev) / capture (tests) / smtp (production; vendor pending D11)
   app/models/            identity (User, Organization, Membership, tokens, Invitation, AuditLog) + domain (Risk, Action, Evidence)
   app/services/          auth, membership, audit (append-only), domain (severity, state machines, ownership, evidence)
-  app/core/storage.py    StorageBackend protocol; LocalDiskStorage for dev/test (S3-compatible pending D12)
+  app/core/storage.py    StorageBackend protocol; LocalDiskStorage (dev/test) and S3Storage (provider/region pending D12)
   app/api/v1/risks.py    risks + actions routes; app/api/v1/evidence.py notes/links/files + authenticated download
   app/db/base.py         DeclarativeBase with deterministic constraint naming
   app/db/session.py      lazy engine; get_db() dependency
@@ -273,6 +273,41 @@ Browser ──HTTP──▶ Next.js (Vercel)  ──server-side fetch──▶ F
 - **Dependency audit.** `pip-audit` on the locked production set: clean. `npm audit --omit=dev`:
   postcss advisory through Next 15 (build-time; D18a).
 
+## Beta preparation (Phase 9)
+
+- **E-mail (D11, vendor still open).** `SmtpEmailSender` (stdlib `smtplib`, STARTTLS / implicit TLS /
+  none, optional credentials, 10 s timeout) behind the same `EmailSender` protocol; `EMAIL_PROVIDER=smtp`
+  is mandatory in production and refused without `SMTP_HOST` + `SMTP_FROM`. The send happens inside the
+  service transaction: a relay failure raises `EmailDeliveryError` → `503 email_unavailable` and the
+  invitation / reset token is rolled back, so the caller is never told "sent" when it was not.
+- **Files (D12, provider and region still open).** `S3Storage` (boto3, one bucket, optional key prefix,
+  private objects, custom `endpoint_url` for non-AWS providers, credentials from explicit keys or the
+  platform chain) behind `StorageBackend`; `STORAGE_BACKEND=s3` requires `S3_BUCKET`. Keys are still
+  server-generated and organization-prefixed; the size cap is enforced before the object is sent.
+  Verified against moto's in-process S3 through the evidence upload → download → delete routes.
+- **Organization switcher.** A person with several memberships picks the current organization from
+  the sidebar / drawer (`components/shell/org-switcher.tsx`). The choice lives in an httpOnly `cos_org`
+  preference cookie written by a Server Action (`lib/session/actions.ts`, same-origin checked by
+  Next, only ids present in `/me` accepted); `getSession()` resolves it against the person's own
+  memberships and falls back to the oldest one, so a stale or forged value cannot open anything the
+  API would not authorize anyway. The form is bound directly to the action, so it also works as a
+  plain form post. Accepting an invitation returns the joined `organization_id`
+  (`InvitationAcceptedOut`) and the app opens that organization.
+- **Demo organization (CLAUDE.md §23).** `scripts/seed_demo.py` builds "Acme Tecnologia Ltda." from
+  `app/content/demo_acme_data.py` through the regular services (`demo_acme.build`): full diagnostic
+  (42 answers) → 26 derived + 2 manual risks with owners, treatments and status transitions, 28
+  actions (11 done, 3 overdue, 1 blocked), 18 documents across every status (5 with a generated
+  one-page PDF), evidence of every kind including document citations, a five-person team with one
+  role each, audit entries by different actors, and two score snapshots (40 after the diagnostic → 77
+  today). Nothing is backdated: the audit trail is append-only and shows the seed run; history
+  accrues from that day. Reserved `.example` addresses; random passwords for everyone but the owner;
+  `--also-owner` adds an existing account; `--remove` (development only) deletes organization, users
+  and stored files. `tests/test_demo.py` pins the story (score 77, factor values, counts) so a change
+  in assessment content or weights forces the dataset to be re-read.
+- **Audit ordering.** Entries are stamped by `services/audit.record` with a strictly increasing
+  per-process timestamp instead of PostgreSQL's `now()` (transaction start): entries written in one
+  request — completing an assessment writes dozens — now keep the order in which they happened.
+
 ## Request-ID propagation
 
 - `X-Request-ID` is accepted inbound when it matches `^[A-Za-z0-9-]{8,128}$`, otherwise a UUID4 is generated.
@@ -311,14 +346,14 @@ Every non-2xx response has the same JSON shape:
   git-ignored) — no Docker required. Production database/region is decision D12 (pending).
 - Tests run migrations on a fresh embedded database and truncate all tables between tests.
 
-## Deliberately absent after Phase 7
+## Deliberately absent after Phase 9
 
 Document version history, expiry reminders and expected-document seeding (Documents v2) ·
 list filters in the UI for risks and actions (the API supports status/severity/owner/overdue) ·
 per-question regulatory basis in the UI (hidden until `last_verified`, D6) · template v2 tooling (a new
-JSON version + seed; no admin UI) · organization switcher UI (model supports several memberships; the
-first one is shown) · production e-mail provider (D11) · production
-database, object storage and region (D12) · Postgres RLS (defense in depth, revisit) · shared rate-limit
+JSON version + seed; no admin UI) · e-mail vendor and storage provider/region choices (D11, D12 — the
+SMTP and S3 adapters exist) · nonce-based CSP · marketing landing page and Compliance OS's own legal
+documents (D13) · Postgres RLS (defense in depth, revisit) · shared rate-limit
 store (needed before a second API instance) · dark mode (D16) · Framer Motion (D22) · Compliance Room,
 AI copilot, integrations, billing (§5–§6 future direction).
 

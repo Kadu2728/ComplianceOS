@@ -4,12 +4,17 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { TextField } from "@/components/ui/text-field";
+import type { paths } from "@/lib/api/schema";
+import { rememberOrganization } from "@/lib/session/actions";
 import { useSubmit } from "./use-submit";
+
+type Accepted =
+  paths["/api/v1/auth/invitations/accept"]["post"]["responses"]["200"]["content"]["application/json"];
 
 export function InviteForm() {
   const router = useRouter();
   const token = useSearchParams().get("token") ?? "";
-  const { pending, error, fields, submit } = useSubmit<unknown>();
+  const { pending, error, fields, submit } = useSubmit<Accepted>();
 
   if (!token) return <Alert tone="danger">Convite inválido. Peça um novo convite ao administrador.</Alert>;
   return (
@@ -23,7 +28,9 @@ export function InviteForm() {
         void submit(
           "/api/v1/auth/invitations/accept",
           { token, name: name || undefined, password: password || undefined },
-          () => {
+          async (accepted) => {
+            // Open the organization just joined, not the oldest membership.
+            await rememberOrganization(accepted.organization_id);
             router.replace("/");
             router.refresh();
           },
