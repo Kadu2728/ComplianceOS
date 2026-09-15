@@ -8,7 +8,8 @@ export function Pagination({ total, limit, offset, href }: { total: number; limi
   const last = Math.ceil(total / limit);
   const from = offset + 1;
   const to = Math.min(offset + limit, total);
-  const link = (p: number) => (p === 1 ? href : `${href}?page=${p}`);
+  // `href` may already carry filters (`/riscos?status=abertos`): append with the right separator.
+  const link = (p: number) => (p === 1 ? href : `${href}${href.includes("?") ? "&" : "?"}page=${p}`);
   const cls = "inline-flex h-9 items-center gap-1 rounded-md border border-border px-3 text-body-sm text-text-primary hover:bg-surface-hover";
   const disabled = "inline-flex h-9 items-center gap-1 rounded-md border border-border px-3 text-body-sm text-text-secondary opacity-40";
   return (

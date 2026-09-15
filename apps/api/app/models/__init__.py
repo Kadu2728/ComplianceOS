@@ -14,6 +14,7 @@ from app.models.document import Document
 from app.models.domain import Action, Evidence, Risk
 from app.models.membership import Membership
 from app.models.organization import Organization
+from app.models.reminder import ReminderDelivery
 from app.models.score import ScoreSnapshot
 from app.models.user import User
 
@@ -31,6 +32,7 @@ __all__ = [
     "Invitation",
     "Membership",
     "Organization",
+    "ReminderDelivery",
     "PasswordResetToken",
     "RefreshToken",
     "Risk",

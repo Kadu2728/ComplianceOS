@@ -308,6 +308,35 @@ Browser ──HTTP──▶ Next.js (Vercel)  ──server-side fetch──▶ F
   per-process timestamp instead of PostgreSQL's `now()` (transaction start): entries written in one
   request — completing an assessment writes dozens — now keep the order in which they happened.
 
+## List filters, expiry digest, nonce CSP (Phase 10)
+
+- **List filters.** `/riscos` (status group, severity, responsible) and `/acoes` (status group,
+  responsible, "só atrasadas") read URL search params, validated by `lib/domain/filters.ts`
+  (unknown values are dropped, owner must be a UUID) and mapped onto the API's existing
+  `status[]`/`severity[]`/`owner_membership_id`/`overdue` parameters. The bar is a GET form
+  (`components/domain/filter-form.tsx`): selects apply on change through `router.push`, and the
+  same form submits without JavaScript. Pagination hrefs keep the filters; the Visão geral counters
+  deep-link into the filtered lists (Críticos → `?status=abertos&severity=critico`, Atrasadas →
+  `?overdue=1`).
+- **Document-expiry digest** (`services/reminders.py`, `scripts/send_reminders.py`). A scheduled
+  job, not a request: for every organization with expired or expiring documents it sends one
+  plain-text digest to managers and to the responsible people of the listed documents, then
+  records `reminder_deliveries(organization_id, kind, sent_on)` (migration 0007, unique per day) and
+  skips the organization for `REMINDER_INTERVAL_DAYS`. Commits per organization; a relay failure
+  records nothing, so the next run retries. Wording is operational ("requer revisão"), never a
+  legal conclusion.
+- **Nonce-based CSP.** `src/middleware.ts` issues a per-request nonce, sets the CSP on the request
+  (Next stamps every script it emits with it) and on the response: `script-src 'self' 'nonce-…'
+  'strict-dynamic'` (+ `'unsafe-eval'` under `next dev`), `style-src 'self' 'unsafe-inline'` (React
+  inline styles), `frame-ancestors 'none'`, `form-action 'self'`, `base-uri 'self'`, `object-src
+  'none'`, `upgrade-insecure-requests`. Static assets and `/api/v1` (JSON from the API, which sets
+  its own headers) are excluded; prefetches skip it. The other headers stay in `next.config.ts`.
+  Verified: header served, 20/20 script tags nonced on `/entrar`, 105/107 in the hydrated
+  overview (the two without are the test's own injected scripts). Not yet verified: actual
+  blocking in a regular browser — the in-app test browser does not enforce CSP.
+- **Audit ordering** (carried from Phase 9): `services/audit.record` stamps entries with a
+  strictly increasing per-process time.
+
 ## Request-ID propagation
 
 - `X-Request-ID` is accepted inbound when it matches `^[A-Za-z0-9-]{8,128}$`, otherwise a UUID4 is generated.
@@ -346,13 +375,13 @@ Every non-2xx response has the same JSON shape:
   git-ignored) — no Docker required. Production database/region is decision D12 (pending).
 - Tests run migrations on a fresh embedded database and truncate all tables between tests.
 
-## Deliberately absent after Phase 9
+## Deliberately absent after Phase 10
 
-Document version history, expiry reminders and expected-document seeding (Documents v2) ·
-list filters in the UI for risks and actions (the API supports status/severity/owner/overdue) ·
+Document version history and expected-document seeding (Documents v2) · per-document reminder
+thresholds (the digest is per organization) ·
 per-question regulatory basis in the UI (hidden until `last_verified`, D6) · template v2 tooling (a new
 JSON version + seed; no admin UI) · e-mail vendor and storage provider/region choices (D11, D12 — the
-SMTP and S3 adapters exist) · nonce-based CSP · marketing landing page and Compliance OS's own legal
+SMTP and S3 adapters exist) · CSP enforcement check in a regular browser · marketing landing page and Compliance OS's own legal
 documents (D13) · Postgres RLS (defense in depth, revisit) · shared rate-limit
 store (needed before a second API instance) · dark mode (D16) · Framer Motion (D22) · Compliance Room,
 AI copilot, integrations, billing (§5–§6 future direction).

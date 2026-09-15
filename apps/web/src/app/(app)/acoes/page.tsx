@@ -1,32 +1,53 @@
 import { Clock } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { FilterBar } from "@/components/domain/filter-bar";
 import { Badge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
 import { Pagination } from "@/components/ui/pagination";
 import { apiGet } from "@/lib/api/server";
+import {
+  ACTION_STATUS_FILTER_LABELS,
+  ACTION_STATUS_FILTERS,
+  actionQuery,
+  filterHref,
+  hasFilters,
+  parseActionFilters,
+} from "@/lib/domain/filters";
 import { ACTION_STATUS, formatDate, isOverdue } from "@/lib/domain/labels";
 import { pageQuery } from "@/lib/domain/paging";
-import { type ActionPage, type Overview, isManager } from "@/lib/domain/queries";
+import { type ActionPage, type Overview, isManager, memberOptions } from "@/lib/domain/queries";
 import { getSession } from "@/lib/session/server";
 
 export const metadata: Metadata = { title: "Ações" };
 
-export default async function AcoesPage({ searchParams }: { searchParams: Promise<{ page?: string }> }) {
+type Search = { page?: string; status?: string; overdue?: string; owner?: string };
+
+export default async function AcoesPage({ searchParams }: { searchParams: Promise<Search> }) {
   const session = await getSession();
   if (!session) return null;
   const orgId = session.membership.organization.id;
-  const { limit, offset } = pageQuery((await searchParams).page);
-  const [pageData, overview] = await Promise.all([
-    apiGet<ActionPage>(`/api/v1/orgs/${orgId}/actions?limit=${limit}&offset=${offset}`),
+  const params = await searchParams;
+  const { limit, offset } = pageQuery(params.page);
+  const filters = parseActionFilters(params);
+  const filtered = hasFilters(filters);
+  const [pageData, overview, members] = await Promise.all([
+    apiGet<ActionPage>(`/api/v1/orgs/${orgId}/actions?limit=${limit}&offset=${offset}${actionQuery(filters)}`),
     apiGet<Overview>(`/api/v1/orgs/${orgId}/overview`),
+    memberOptions(orgId),
   ]);
   const page = pageData ?? { items: [], total: 0, limit, offset };
   const canCreate = isManager(session.membership.role);
   const overdue = overview?.actions.overdue ?? 0;
   const open = overview?.actions.pending ?? 0;
+  const href = filterHref("/acoes", filters);
+  const me = session.membership.id;
+  const owners = [
+    { value: me, label: "Minhas ações" },
+    ...members.filter((m) => m.membership_id !== me).map((m) => ({ value: m.membership_id, label: m.name })),
+  ];
 
   return (
     <>
@@ -35,7 +56,28 @@ export default async function AcoesPage({ searchParams }: { searchParams: Promis
         description={page.total === 0 ? "Quem faz o quê, até quando." : `${open} ${open === 1 ? "ação aberta" : "ações abertas"}${overdue ? ` · ${overdue} ${overdue === 1 ? "atrasada" : "atrasadas"}` : ""}`}
         action={canCreate ? <ButtonLink href="/acoes/nova">Nova ação</ButtonLink> : undefined}
       />
-      {page.items.length === 0 ? (
+      {page.total > 0 || filtered ? (
+        <FilterBar
+          action="/acoes"
+          count={page.total}
+          noun={["ação", "ações"]}
+          active={filtered}
+          selects={[
+            {
+              name: "status",
+              label: "Status",
+              value: filters.status,
+              all: "Todos os status",
+              options: (Object.keys(ACTION_STATUS_FILTERS) as (keyof typeof ACTION_STATUS_FILTERS)[]).map((k) => ({ value: k, label: ACTION_STATUS_FILTER_LABELS[k] })),
+            },
+            { name: "owner", label: "Responsável", value: filters.owner, all: "Qualquer responsável", options: owners },
+          ]}
+          toggles={[{ name: "overdue", label: "Só atrasadas", checked: filters.overdue === true }]}
+        />
+      ) : null}
+      {page.items.length === 0 && filtered ? (
+        <p className="text-body-sm text-text-secondary">Nenhuma ação com estes filtros.</p>
+      ) : page.items.length === 0 ? (
         <EmptyState
           title="Nenhuma ação planejada."
           description="As ações nascem dos riscos: cada risco aberto pode gerar ações com responsável e prazo."
@@ -71,7 +113,7 @@ export default async function AcoesPage({ searchParams }: { searchParams: Promis
             );
           })}
           </ul>
-          <Pagination total={page.total} limit={page.limit} offset={page.offset} href="/acoes" />
+          <Pagination total={page.total} limit={page.limit} offset={page.offset} href={href} />
         </>
       )}
     </>

@@ -60,6 +60,8 @@ class Settings(BaseSettings):
     default_timezone: str = "America/Sao_Paulo"
     # A document whose validity ends within this many days is "vencendo" (D26).
     document_expiring_days: int = 30
+    # Document-expiry digest: at most one per organization every this many days (Phase 10).
+    reminder_interval_days: int = 7
 
     @field_validator("jwt_secret")
     @classmethod

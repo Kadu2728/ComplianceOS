@@ -54,11 +54,11 @@ export default async function OverviewPage() {
           <section aria-labelledby="status-atual" className="rounded-lg border border-border bg-surface-elevated p-5">
             <h2 id="status-atual" className="text-h3">Status atual</h2>
             <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 text-body-sm">
-              <Stat label="Riscos abertos" value={risks?.open ?? 0} href="/riscos" />
-              <Stat label="Críticos" value={risks?.by_severity.critico ?? 0} tone={risks?.by_severity.critico ? "danger" : undefined} href="/riscos" />
-              <Stat label="Ações pendentes" value={actions?.pending ?? 0} href="/acoes" />
-              <Stat label="Atrasadas" value={actions?.overdue ?? 0} tone={actions?.overdue ? "danger" : undefined} href="/acoes" />
-              <Stat label="Em revisão" value={risks?.in_review ?? 0} href="/riscos" />
+              <Stat label="Riscos abertos" value={risks?.open ?? 0} href="/riscos?status=abertos" />
+              <Stat label="Críticos" value={risks?.by_severity.critico ?? 0} tone={risks?.by_severity.critico ? "danger" : undefined} href="/riscos?status=abertos&severity=critico" />
+              <Stat label="Ações pendentes" value={actions?.pending ?? 0} href="/acoes?status=pendentes" />
+              <Stat label="Atrasadas" value={actions?.overdue ?? 0} tone={actions?.overdue ? "danger" : undefined} href="/acoes?overdue=1" />
+              <Stat label="Em revisão" value={risks?.in_review ?? 0} href="/riscos?status=em_revisao" />
               <Stat label="Sem responsável" value={risks?.without_owner ?? 0} tone={risks?.without_owner ? "warning" : undefined} href="/riscos" />
             </dl>
             <p className="mt-4 text-caption text-text-secondary">
@@ -109,7 +109,7 @@ export default async function OverviewPage() {
           <section aria-labelledby="acoes-pendentes" className="rounded-lg border border-border bg-surface-elevated p-5">
             <div className="flex items-baseline justify-between gap-3">
               <h2 id="acoes-pendentes" className="text-h3">Ações pendentes</h2>
-              <Link href="/acoes" className="text-body-sm text-info-text hover:underline">Ver todas</Link>
+              <Link href="/acoes?status=pendentes" className="text-body-sm text-info-text hover:underline">Ver todas</Link>
             </div>
             {!actions || actions.items.length === 0 ? (
               <p className="mt-3 text-body-sm text-text-secondary">Nenhuma ação pendente. Cada risco aberto pode gerar ações com responsável e prazo.</p>
