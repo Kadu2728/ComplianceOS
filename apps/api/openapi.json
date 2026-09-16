@@ -3,6 +3,18 @@
     "schemas": {
       "ActionCreate": {
         "properties": {
+          "control_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Control Id"
+          },
           "description": {
             "anyOf": [
               {
@@ -26,6 +38,16 @@
               }
             ],
             "title": "Due Date"
+          },
+          "effort": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ActionEffort"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "owner_membership_id": {
             "anyOf": [
@@ -64,6 +86,16 @@
         "title": "ActionCreate",
         "type": "object"
       },
+      "ActionEffort": {
+        "description": "Relative effort, used by prioritization (decision D30). Optional; unset reads as m\u00e9dio.",
+        "enum": [
+          "baixo",
+          "medio",
+          "alto"
+        ],
+        "title": "ActionEffort",
+        "type": "string"
+      },
       "ActionOut": {
         "properties": {
           "completed_at": {
@@ -77,6 +109,18 @@
               }
             ],
             "title": "Completed At"
+          },
+          "control_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Control Id"
           },
           "created_at": {
             "format": "date-time",
@@ -105,6 +149,16 @@
               }
             ],
             "title": "Due Date"
+          },
+          "effort": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ActionEffort"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "id": {
             "format": "uuid",
@@ -186,6 +240,18 @@
       "ActionUpdate": {
         "additionalProperties": false,
         "properties": {
+          "control_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Control Id"
+          },
           "description": {
             "anyOf": [
               {
@@ -209,6 +275,16 @@
               }
             ],
             "title": "Due Date"
+          },
+          "effort": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ActionEffort"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "owner_membership_id": {
             "anyOf": [
@@ -285,6 +361,113 @@
           "items"
         ],
         "title": "ActionsOverview",
+        "type": "object"
+      },
+      "AgentAnswerOut": {
+        "properties": {
+          "answer": {
+            "title": "Answer",
+            "type": "string"
+          },
+          "basis": {
+            "items": {
+              "$ref": "#/components/schemas/AgentRefOut"
+            },
+            "title": "Basis",
+            "type": "array"
+          },
+          "caveat": {
+            "title": "Caveat",
+            "type": "string"
+          },
+          "computed_at": {
+            "title": "Computed At",
+            "type": "string"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "question": {
+            "title": "Question",
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "question",
+          "answer",
+          "basis",
+          "caveat",
+          "computed_at"
+        ],
+        "title": "AgentAnswerOut",
+        "type": "object"
+      },
+      "AgentContextOut": {
+        "additionalProperties": true,
+        "description": "Free-form by design: the shape evolves with the engines. Managers only.",
+        "properties": {
+          "caveat": {
+            "title": "Caveat",
+            "type": "string"
+          },
+          "organization_id": {
+            "title": "Organization Id",
+            "type": "string"
+          },
+          "today": {
+            "title": "Today",
+            "type": "string"
+          }
+        },
+        "required": [
+          "organization_id",
+          "today",
+          "caveat"
+        ],
+        "title": "AgentContextOut",
+        "type": "object"
+      },
+      "AgentQuestionOut": {
+        "properties": {
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "question": {
+            "title": "Question",
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "question"
+        ],
+        "title": "AgentQuestionOut",
+        "type": "object"
+      },
+      "AgentRefOut": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "id",
+          "title"
+        ],
+        "title": "AgentRefOut",
         "type": "object"
       },
       "AnswerOut": {
@@ -652,6 +835,18 @@
             ],
             "title": "Action Id"
           },
+          "control_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Control Id"
+          },
           "file": {
             "contentMediaType": "application/octet-stream",
             "title": "File",
@@ -680,6 +875,18 @@
               }
             ],
             "title": "Risk Id"
+          },
+          "valid_until": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valid Until"
           }
         },
         "required": [
@@ -717,6 +924,432 @@
           "by_severity"
         ],
         "title": "CompleteOut",
+        "type": "object"
+      },
+      "ControlCreate": {
+        "properties": {
+          "category": {
+            "$ref": "#/components/schemas/RiskCategory"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "maxLength": 5000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "document_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Document Id"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/ControlKind",
+            "default": "preventivo"
+          },
+          "owner_membership_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Owner Membership Id"
+          },
+          "review_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Review Date"
+          },
+          "risk_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Risk Id"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ControlStatus",
+            "default": "planejado"
+          },
+          "title": {
+            "maxLength": 200,
+            "minLength": 3,
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "title",
+          "category"
+        ],
+        "title": "ControlCreate",
+        "type": "object"
+      },
+      "ControlGraphOut": {
+        "description": "Everything connected to one control: the Control Graph neighbourhood (D27).",
+        "properties": {
+          "actions": {
+            "items": {
+              "$ref": "#/components/schemas/ActionOut"
+            },
+            "title": "Actions",
+            "type": "array"
+          },
+          "control": {
+            "$ref": "#/components/schemas/ControlOut"
+          },
+          "evidence": {
+            "items": {
+              "$ref": "#/components/schemas/EvidenceOut"
+            },
+            "title": "Evidence",
+            "type": "array"
+          },
+          "evidence_count": {
+            "title": "Evidence Count",
+            "type": "integer"
+          },
+          "risks": {
+            "items": {
+              "$ref": "#/components/schemas/RiskRefOut"
+            },
+            "title": "Risks",
+            "type": "array"
+          }
+        },
+        "required": [
+          "control",
+          "risks",
+          "actions",
+          "evidence",
+          "evidence_count"
+        ],
+        "title": "ControlGraphOut",
+        "type": "object"
+      },
+      "ControlKind": {
+        "enum": [
+          "preventivo",
+          "detectivo",
+          "corretivo"
+        ],
+        "title": "ControlKind",
+        "type": "string"
+      },
+      "ControlLinkOut": {
+        "properties": {
+          "control_id": {
+            "format": "uuid",
+            "title": "Control Id",
+            "type": "string"
+          },
+          "linked": {
+            "title": "Linked",
+            "type": "boolean"
+          },
+          "risk_id": {
+            "format": "uuid",
+            "title": "Risk Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "linked",
+          "control_id",
+          "risk_id"
+        ],
+        "title": "ControlLinkOut",
+        "type": "object"
+      },
+      "ControlOut": {
+        "properties": {
+          "category": {
+            "$ref": "#/components/schemas/RiskCategory"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "document": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DocumentLinkOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/ControlKind"
+          },
+          "owner": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OwnerOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "review_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Review Date"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ControlStatus"
+          },
+          "template_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Template Code"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "description",
+          "category",
+          "kind",
+          "status",
+          "template_code",
+          "review_date",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "ControlOut",
+        "type": "object"
+      },
+      "ControlStatus": {
+        "description": "Maturity ladder. `verificado` requires evidence linked to the control (service rule).",
+        "enum": [
+          "planejado",
+          "parcial",
+          "implementado",
+          "verificado",
+          "inativo"
+        ],
+        "title": "ControlStatus",
+        "type": "string"
+      },
+      "ControlUpdate": {
+        "additionalProperties": false,
+        "properties": {
+          "category": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RiskCategory"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "description": {
+            "anyOf": [
+              {
+                "maxLength": 5000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "document_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Document Id"
+          },
+          "kind": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ControlKind"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "owner_membership_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Owner Membership Id"
+          },
+          "review_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Review Date"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ControlStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "minLength": 3,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          }
+        },
+        "title": "ControlUpdate",
+        "type": "object"
+      },
+      "CustomerType": {
+        "enum": [
+          "b2b",
+          "b2c",
+          "ambos"
+        ],
+        "title": "CustomerType",
+        "type": "string"
+      },
+      "DataCategory": {
+        "enum": [
+          "cadastrais",
+          "contato",
+          "financeiros",
+          "saude",
+          "biometricos",
+          "criancas_adolescentes",
+          "geolocalizacao",
+          "comportamentais",
+          "credenciais"
+        ],
+        "title": "DataCategory",
+        "type": "string"
+      },
+      "DecisionOut": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "why": {
+            "title": "Why",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "id",
+          "title",
+          "why"
+        ],
+        "title": "DecisionOut",
         "type": "object"
       },
       "DeltaOut": {
@@ -843,6 +1476,25 @@
           "category"
         ],
         "title": "DocumentCreate",
+        "type": "object"
+      },
+      "DocumentLinkOut": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ],
+        "title": "DocumentLinkOut",
         "type": "object"
       },
       "DocumentOut": {
@@ -1211,6 +1863,18 @@
             ],
             "title": "Action Id"
           },
+          "control_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Control Id"
+          },
           "document_id": {
             "anyOf": [
               {
@@ -1264,6 +1928,18 @@
               }
             ],
             "title": "Url"
+          },
+          "valid_until": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valid Until"
           }
         },
         "required": [
@@ -1318,6 +1994,18 @@
               }
             ],
             "title": "Content Type"
+          },
+          "control_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Control Id"
           },
           "created_at": {
             "format": "date-time",
@@ -1409,6 +2097,23 @@
               }
             ],
             "title": "Url"
+          },
+          "valid_until": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valid Until"
+          },
+          "validity": {
+            "default": "vigente",
+            "title": "Validity",
+            "type": "string"
           }
         },
         "required": [
@@ -1425,6 +2130,171 @@
           "created_at"
         ],
         "title": "EvidenceOut",
+        "type": "object"
+      },
+      "ExecutiveSummaryOut": {
+        "properties": {
+          "caveat": {
+            "title": "Caveat",
+            "type": "string"
+          },
+          "computed_at": {
+            "format": "date-time",
+            "title": "Computed At",
+            "type": "string"
+          },
+          "controls": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Controls",
+            "type": "object"
+          },
+          "decisions": {
+            "items": {
+              "$ref": "#/components/schemas/DecisionOut"
+            },
+            "title": "Decisions",
+            "type": "array"
+          },
+          "documents": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Documents",
+            "type": "object"
+          },
+          "exposures": {
+            "items": {
+              "$ref": "#/components/schemas/ExposureOut"
+            },
+            "title": "Exposures",
+            "type": "array"
+          },
+          "improved": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Improved",
+            "type": "object"
+          },
+          "next_30_days": {
+            "items": {
+              "$ref": "#/components/schemas/PriorityItemOut"
+            },
+            "title": "Next 30 Days",
+            "type": "array"
+          },
+          "score": {
+            "additionalProperties": true,
+            "title": "Score",
+            "type": "object"
+          },
+          "trend": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TrendOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "unplanned": {
+            "items": {
+              "$ref": "#/components/schemas/UnplannedRiskOut"
+            },
+            "title": "Unplanned",
+            "type": "array"
+          },
+          "window_days": {
+            "title": "Window Days",
+            "type": "integer"
+          },
+          "worsened": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Worsened",
+            "type": "object"
+          }
+        },
+        "required": [
+          "computed_at",
+          "window_days",
+          "score",
+          "trend",
+          "exposures",
+          "improved",
+          "worsened",
+          "decisions",
+          "next_30_days",
+          "unplanned",
+          "controls",
+          "documents",
+          "caveat"
+        ],
+        "title": "ExecutiveSummaryOut",
+        "type": "object"
+      },
+      "ExposureOut": {
+        "properties": {
+          "category": {
+            "$ref": "#/components/schemas/RiskCategory"
+          },
+          "coverage": {
+            "title": "Coverage",
+            "type": "number"
+          },
+          "due_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Due Date"
+          },
+          "owner": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OwnerOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "planned": {
+            "title": "Planned",
+            "type": "boolean"
+          },
+          "risk_id": {
+            "format": "uuid",
+            "title": "Risk Id",
+            "type": "string"
+          },
+          "severity": {
+            "$ref": "#/components/schemas/RiskSeverity"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "risk_id",
+          "title",
+          "severity",
+          "category",
+          "planned",
+          "coverage",
+          "due_date"
+        ],
+        "title": "ExposureOut",
         "type": "object"
       },
       "FactorOut": {
@@ -1490,6 +2360,16 @@
         },
         "title": "HTTPValidationError",
         "type": "object"
+      },
+      "HeadcountBand": {
+        "enum": [
+          "ate_9",
+          "de_10_a_49",
+          "de_50_a_199",
+          "acima_de_200"
+        ],
+        "title": "HeadcountBand",
+        "type": "string"
       },
       "HealthResponse": {
         "properties": {
@@ -1994,6 +2874,40 @@
         "title": "Page[AuditLogOut]",
         "type": "object"
       },
+      "Page_ControlOut_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ControlOut"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "limit": {
+            "maximum": 50.0,
+            "minimum": 1.0,
+            "title": "Limit",
+            "type": "integer"
+          },
+          "offset": {
+            "minimum": 0.0,
+            "title": "Offset",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "limit",
+          "offset"
+        ],
+        "title": "Page[ControlOut]",
+        "type": "object"
+      },
       "Page_DocumentOut_": {
         "properties": {
           "items": {
@@ -2096,6 +3010,501 @@
           "email"
         ],
         "title": "PasswordResetRequest",
+        "type": "object"
+      },
+      "PlanOut": {
+        "properties": {
+          "action": {
+            "$ref": "#/components/schemas/ActionOut"
+          },
+          "control": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ControlOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "risk_id": {
+            "format": "uuid",
+            "title": "Risk Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "risk_id",
+          "action"
+        ],
+        "title": "PlanOut",
+        "type": "object"
+      },
+      "PlanRequest": {
+        "properties": {
+          "due_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Due Date"
+          },
+          "owner_membership_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Owner Membership Id"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "minLength": 3,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          }
+        },
+        "title": "PlanRequest",
+        "type": "object"
+      },
+      "PrioritiesOut": {
+        "properties": {
+          "computed_at": {
+            "format": "date-time",
+            "title": "Computed At",
+            "type": "string"
+          },
+          "current_score": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Score"
+          },
+          "due_soon_days": {
+            "title": "Due Soon Days",
+            "type": "integer"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/PriorityItemOut"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "profile_complete": {
+            "title": "Profile Complete",
+            "type": "boolean"
+          },
+          "total_pending": {
+            "title": "Total Pending",
+            "type": "integer"
+          },
+          "unplanned": {
+            "items": {
+              "$ref": "#/components/schemas/UnplannedRiskOut"
+            },
+            "title": "Unplanned",
+            "type": "array"
+          }
+        },
+        "required": [
+          "computed_at",
+          "current_score",
+          "profile_complete",
+          "items",
+          "total_pending",
+          "unplanned",
+          "due_soon_days"
+        ],
+        "title": "PrioritiesOut",
+        "type": "object"
+      },
+      "PriorityItemOut": {
+        "properties": {
+          "action_id": {
+            "format": "uuid",
+            "title": "Action Id",
+            "type": "string"
+          },
+          "control_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Control Id"
+          },
+          "due_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Due Date"
+          },
+          "effort": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ActionEffort"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "owner": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OwnerOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "points": {
+            "title": "Points",
+            "type": "number"
+          },
+          "reasons": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Reasons",
+            "type": "array"
+          },
+          "risk_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Risk Id"
+          },
+          "risk_severity": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RiskSeverity"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "risk_title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Risk Title"
+          },
+          "score_gain": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score Gain"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ActionStatus"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "action_id",
+          "title",
+          "status",
+          "due_date",
+          "risk_id",
+          "risk_title",
+          "risk_severity",
+          "control_id",
+          "effort",
+          "points",
+          "score_gain",
+          "reasons"
+        ],
+        "title": "PriorityItemOut",
+        "type": "object"
+      },
+      "ProfileOut": {
+        "properties": {
+          "complete": {
+            "title": "Complete",
+            "type": "boolean"
+          },
+          "customer_type": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CustomerType"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "data_categories": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Data Categories",
+            "type": "array"
+          },
+          "headcount_band": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HeadcountBand"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "international_transfers": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Tristate"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "organization_id": {
+            "format": "uuid",
+            "title": "Organization Id",
+            "type": "string"
+          },
+          "processes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Processes",
+            "type": "array"
+          },
+          "segment": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Segment"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sells_to_enterprise": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sells To Enterprise"
+          },
+          "systems": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Systems",
+            "type": "array"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "organization_id",
+          "segment",
+          "headcount_band",
+          "customer_type",
+          "data_categories",
+          "sells_to_enterprise",
+          "international_transfers",
+          "systems",
+          "processes",
+          "notes",
+          "complete",
+          "updated_at"
+        ],
+        "title": "ProfileOut",
+        "type": "object"
+      },
+      "ProfileUpdate": {
+        "additionalProperties": false,
+        "description": "Partial update; every field optional so the form can be filled in steps.",
+        "properties": {
+          "customer_type": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CustomerType"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "data_categories": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/DataCategory"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data Categories"
+          },
+          "headcount_band": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HeadcountBand"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "international_transfers": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Tristate"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "maxLength": 2000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "processes": {
+            "anyOf": [
+              {
+                "items": {
+                  "maxLength": 80,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "maxItems": 20,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Processes"
+          },
+          "segment": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Segment"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sells_to_enterprise": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sells To Enterprise"
+          },
+          "systems": {
+            "anyOf": [
+              {
+                "items": {
+                  "maxLength": 80,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "maxItems": 20,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Systems"
+          }
+        },
+        "title": "ProfileUpdate",
         "type": "object"
       },
       "ProgressOut": {
@@ -2212,6 +3621,222 @@
           "sections"
         ],
         "title": "QuestionsOut",
+        "type": "object"
+      },
+      "RadarItemOut": {
+        "properties": {
+          "count": {
+            "title": "Count",
+            "type": "integer"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "route": {
+            "title": "Route",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "tone": {
+            "title": "Tone",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "count",
+          "tone",
+          "title",
+          "reason",
+          "route"
+        ],
+        "title": "RadarItemOut",
+        "type": "object"
+      },
+      "RadarOut": {
+        "properties": {
+          "all_clear": {
+            "title": "All Clear",
+            "type": "boolean"
+          },
+          "computed_at": {
+            "format": "date",
+            "title": "Computed At",
+            "type": "string"
+          },
+          "counts": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Counts",
+            "type": "object"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/RadarItemOut"
+            },
+            "title": "Items",
+            "type": "array"
+          }
+        },
+        "required": [
+          "computed_at",
+          "items",
+          "counts",
+          "all_clear"
+        ],
+        "title": "RadarOut",
+        "type": "object"
+      },
+      "RecommendationOut": {
+        "properties": {
+          "action_title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Action Title"
+          },
+          "basis": {
+            "title": "Basis",
+            "type": "string"
+          },
+          "control": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RecommendedControlOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "default_due_date": {
+            "format": "date",
+            "title": "Default Due Date",
+            "type": "string"
+          },
+          "default_owner_membership_id": {
+            "format": "uuid",
+            "title": "Default Owner Membership Id",
+            "type": "string"
+          },
+          "existing_action": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ActionOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "expected_evidence": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected Evidence"
+          },
+          "linked_controls": {
+            "items": {
+              "$ref": "#/components/schemas/ControlOut"
+            },
+            "title": "Linked Controls",
+            "type": "array"
+          },
+          "planned": {
+            "title": "Planned",
+            "type": "boolean"
+          },
+          "risk_id": {
+            "format": "uuid",
+            "title": "Risk Id",
+            "type": "string"
+          },
+          "severity": {
+            "$ref": "#/components/schemas/RiskSeverity"
+          }
+        },
+        "required": [
+          "risk_id",
+          "severity",
+          "planned",
+          "linked_controls",
+          "default_due_date",
+          "default_owner_membership_id",
+          "basis"
+        ],
+        "title": "RecommendationOut",
+        "type": "object"
+      },
+      "RecommendedControlOut": {
+        "properties": {
+          "already_linked": {
+            "title": "Already Linked",
+            "type": "boolean"
+          },
+          "category": {
+            "$ref": "#/components/schemas/RiskCategory"
+          },
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "existing_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Existing Id"
+          },
+          "exists": {
+            "title": "Exists",
+            "type": "boolean"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/ControlKind"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "title",
+          "description",
+          "category",
+          "kind",
+          "exists",
+          "already_linked"
+        ],
+        "title": "RecommendedControlOut",
         "type": "object"
       },
       "ReducerOut": {
@@ -2589,6 +4214,44 @@
           "updated_at"
         ],
         "title": "RiskOut",
+        "type": "object"
+      },
+      "RiskRefOut": {
+        "description": "A risk as seen from a control (no description; the risk page has it).",
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "owner": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OwnerOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "severity": {
+            "$ref": "#/components/schemas/RiskSeverity"
+          },
+          "status": {
+            "$ref": "#/components/schemas/RiskStatus"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "severity",
+          "status"
+        ],
+        "title": "RiskRefOut",
         "type": "object"
       },
       "RiskSeverity": {
@@ -3036,6 +4699,20 @@
         "title": "SectionProgressOut",
         "type": "object"
       },
+      "Segment": {
+        "enum": [
+          "software_saas",
+          "servicos",
+          "comercio",
+          "industria",
+          "saude",
+          "educacao",
+          "financeiro",
+          "outro"
+        ],
+        "title": "Segment",
+        "type": "string"
+      },
       "SignupRequest": {
         "properties": {
           "email": {
@@ -3162,6 +4839,94 @@
           "verified"
         ],
         "title": "TemplateOut",
+        "type": "object"
+      },
+      "TrendOut": {
+        "properties": {
+          "diff": {
+            "title": "Diff",
+            "type": "integer"
+          },
+          "from_": {
+            "title": "From",
+            "type": "integer"
+          },
+          "since": {
+            "format": "date-time",
+            "title": "Since",
+            "type": "string"
+          },
+          "to": {
+            "title": "To",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "from_",
+          "to",
+          "diff",
+          "since"
+        ],
+        "title": "TrendOut",
+        "type": "object"
+      },
+      "Tristate": {
+        "enum": [
+          "sim",
+          "nao",
+          "nao_sei"
+        ],
+        "title": "Tristate",
+        "type": "string"
+      },
+      "UnplannedRiskOut": {
+        "properties": {
+          "has_control": {
+            "title": "Has Control",
+            "type": "boolean"
+          },
+          "owner": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OwnerOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "risk_id": {
+            "format": "uuid",
+            "title": "Risk Id",
+            "type": "string"
+          },
+          "score_gain": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score Gain"
+          },
+          "severity": {
+            "$ref": "#/components/schemas/RiskSeverity"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "risk_id",
+          "title",
+          "severity",
+          "has_control",
+          "score_gain"
+        ],
+        "title": "UnplannedRiskOut",
         "type": "object"
       },
       "UserOut": {
@@ -3992,6 +5757,148 @@
         ]
       }
     },
+    "/api/v1/orgs/{org_id}/agent/answers/{key}": {
+      "get": {
+        "operationId": "agent_answer_api_v1_orgs__org_id__agent_answers__key__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "key",
+            "required": true,
+            "schema": {
+              "title": "Key",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "org_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Org Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentAnswerOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Agent Answer",
+        "tags": [
+          "insights"
+        ]
+      }
+    },
+    "/api/v1/orgs/{org_id}/agent/context": {
+      "get": {
+        "operationId": "agent_context_api_v1_orgs__org_id__agent_context_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "org_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Org Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentContextOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Agent Context",
+        "tags": [
+          "insights"
+        ]
+      }
+    },
+    "/api/v1/orgs/{org_id}/agent/questions": {
+      "get": {
+        "operationId": "agent_questions_api_v1_orgs__org_id__agent_questions_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "org_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Org Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AgentQuestionOut"
+                  },
+                  "title": "Response Agent Questions Api V1 Orgs  Org Id  Agent Questions Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Agent Questions",
+        "tags": [
+          "insights"
+        ]
+      }
+    },
     "/api/v1/orgs/{org_id}/assessment": {
       "get": {
         "operationId": "state_api_v1_orgs__org_id__assessment_get",
@@ -4395,6 +6302,484 @@
         "summary": "Audit Log",
         "tags": [
           "organizations"
+        ]
+      }
+    },
+    "/api/v1/orgs/{org_id}/controls": {
+      "get": {
+        "operationId": "list_controls_api_v1_orgs__org_id__controls_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "org_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Org Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "items": {
+                    "$ref": "#/components/schemas/ControlStatus"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "in": "query",
+            "name": "category",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "items": {
+                    "$ref": "#/components/schemas/RiskCategory"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Category"
+            }
+          },
+          {
+            "in": "query",
+            "name": "owner_membership_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Owner Membership Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "risk_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Risk Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 25,
+              "maximum": 50,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_ControlOut_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Controls",
+        "tags": [
+          "controls"
+        ]
+      },
+      "post": {
+        "operationId": "create_control_api_v1_orgs__org_id__controls_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "org_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Org Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ControlCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ControlOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Control",
+        "tags": [
+          "controls"
+        ]
+      }
+    },
+    "/api/v1/orgs/{org_id}/controls/{control_id}": {
+      "delete": {
+        "operationId": "delete_control_api_v1_orgs__org_id__controls__control_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "control_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Control Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "org_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Org Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Delete Control",
+        "tags": [
+          "controls"
+        ]
+      },
+      "get": {
+        "operationId": "get_control_api_v1_orgs__org_id__controls__control_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "control_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Control Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "org_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Org Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ControlGraphOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Control",
+        "tags": [
+          "controls"
+        ]
+      },
+      "patch": {
+        "operationId": "update_control_api_v1_orgs__org_id__controls__control_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "control_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Control Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "org_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Org Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ControlUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ControlOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Update Control",
+        "tags": [
+          "controls"
+        ]
+      }
+    },
+    "/api/v1/orgs/{org_id}/controls/{control_id}/risks/{risk_id}": {
+      "delete": {
+        "operationId": "unlink_control_risk_api_v1_orgs__org_id__controls__control_id__risks__risk_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "control_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Control Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "risk_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Risk Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "org_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Org Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ControlLinkOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Unlink Control Risk",
+        "tags": [
+          "controls"
+        ]
+      },
+      "post": {
+        "operationId": "link_control_risk_api_v1_orgs__org_id__controls__control_id__risks__risk_id__post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "control_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Control Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "risk_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Risk Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "org_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Org Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ControlLinkOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Link Control Risk",
+        "tags": [
+          "controls"
         ]
       }
     },
@@ -4897,6 +7282,23 @@
               ],
               "title": "Action Id"
             }
+          },
+          {
+            "in": "query",
+            "name": "control_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Control Id"
+            }
           }
         ],
         "responses": {
@@ -5136,6 +7538,49 @@
         "summary": "Download",
         "tags": [
           "evidence"
+        ]
+      }
+    },
+    "/api/v1/orgs/{org_id}/executive-summary": {
+      "get": {
+        "operationId": "get_executive_summary_api_v1_orgs__org_id__executive_summary_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "org_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Org Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExecutiveSummaryOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Executive Summary",
+        "tags": [
+          "insights"
         ]
       }
     },
@@ -5494,6 +7939,198 @@
         ]
       }
     },
+    "/api/v1/orgs/{org_id}/priorities": {
+      "get": {
+        "operationId": "get_priorities_api_v1_orgs__org_id__priorities_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "org_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Org Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 10,
+              "maximum": 50,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrioritiesOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Priorities",
+        "tags": [
+          "insights"
+        ]
+      }
+    },
+    "/api/v1/orgs/{org_id}/profile": {
+      "get": {
+        "operationId": "get_profile_api_v1_orgs__org_id__profile_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "org_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Org Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Profile",
+        "tags": [
+          "profile"
+        ]
+      },
+      "put": {
+        "operationId": "update_profile_api_v1_orgs__org_id__profile_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "org_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Org Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProfileUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Update Profile",
+        "tags": [
+          "profile"
+        ]
+      }
+    },
+    "/api/v1/orgs/{org_id}/radar": {
+      "get": {
+        "operationId": "get_radar_api_v1_orgs__org_id__radar_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "org_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Org Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RadarOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Radar",
+        "tags": [
+          "insights"
+        ]
+      }
+    },
     "/api/v1/orgs/{org_id}/risks": {
       "get": {
         "operationId": "list_risks_api_v1_orgs__org_id__risks_get",
@@ -5839,6 +8476,179 @@
         "tags": [
           "risks",
           "actions"
+        ]
+      }
+    },
+    "/api/v1/orgs/{org_id}/risks/{risk_id}/controls": {
+      "get": {
+        "operationId": "list_risk_controls_api_v1_orgs__org_id__risks__risk_id__controls_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "risk_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Risk Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "org_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Org Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ControlOut"
+                  },
+                  "title": "Response List Risk Controls Api V1 Orgs  Org Id  Risks  Risk Id  Controls Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Risk Controls",
+        "tags": [
+          "controls"
+        ]
+      }
+    },
+    "/api/v1/orgs/{org_id}/risks/{risk_id}/plan": {
+      "post": {
+        "operationId": "plan_risk_api_v1_orgs__org_id__risks__risk_id__plan_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "risk_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Risk Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "org_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Org Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlanRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Plan Risk",
+        "tags": [
+          "controls"
+        ]
+      }
+    },
+    "/api/v1/orgs/{org_id}/risks/{risk_id}/recommendation": {
+      "get": {
+        "operationId": "risk_recommendation_api_v1_orgs__org_id__risks__risk_id__recommendation_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "risk_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Risk Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "org_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Org Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecommendationOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Risk Recommendation",
+        "tags": [
+          "controls"
         ]
       }
     },

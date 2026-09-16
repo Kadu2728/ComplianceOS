@@ -185,13 +185,13 @@ class Assessment(Base, UUIDPrimaryKey, Timestamps):
             ["organization_id", "started_by_membership_id"],
             ["memberships.organization_id", "memberships.id"],
             name="fk_assessments_started_by",
-            ondelete="SET NULL",
+            ondelete="SET NULL (started_by_membership_id)",
         ),
         ForeignKeyConstraint(
             ["organization_id", "completed_by_membership_id"],
             ["memberships.organization_id", "memberships.id"],
             name="fk_assessments_completed_by",
-            ondelete="SET NULL",
+            ondelete="SET NULL (completed_by_membership_id)",
         ),
     )
 
@@ -229,7 +229,7 @@ class AssessmentResponse(Base, UUIDPrimaryKey):
             ["organization_id", "answered_by_membership_id"],
             ["memberships.organization_id", "memberships.id"],
             name="fk_responses_answered_by",
-            ondelete="SET NULL",
+            ondelete="SET NULL (answered_by_membership_id)",
         ),
         Index("ix_responses_org_assessment", "organization_id", "assessment_id"),
     )

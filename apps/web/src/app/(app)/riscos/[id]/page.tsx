@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ActionForm } from "@/components/domain/action-form";
+import { LinkRiskControl } from "@/components/domain/control-graph-actions";
 import { EvidencePanel } from "@/components/domain/evidence-panel";
+import { PlanPanel } from "@/components/domain/plan-panel";
 import { StatusControl } from "@/components/domain/status-control";
 import { Badge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button";
@@ -11,6 +13,7 @@ import { apiGet } from "@/lib/api/server";
 import {
   ACTION_STATUS,
   CATEGORY,
+  CONTROL_STATUS,
   IMPACT,
   PROBABILITY,
   RISK_STATUS,
@@ -19,7 +22,16 @@ import {
   formatDate,
   isOverdue,
 } from "@/lib/domain/labels";
-import { type Action, type EvidenceList, type Risk, isManager, memberOptions } from "@/lib/domain/queries";
+import {
+  type Action,
+  type Control,
+  type EvidenceList,
+  type Recommendation,
+  type Risk,
+  controlOptions,
+  isManager,
+  memberOptions,
+} from "@/lib/domain/queries";
 import { documentOptions } from "@/lib/domain/queries";
 import { getSession } from "@/lib/session/server";
 
@@ -33,17 +45,22 @@ export default async function RiscoPage({ params }: { params: Promise<{ id: stri
   const base = `/api/v1/orgs/${orgId}`;
   const risk = await apiGet<Risk>(`${base}/risks/${id}`);
   if (!risk) notFound();
-  const [actions, evidence, members, documents] = await Promise.all([
+  const [actions, evidence, members, documents, linked, rec, allControls] = await Promise.all([
     apiGet<Action[]>(`${base}/risks/${id}/actions`),
     apiGet<EvidenceList>(`${base}/evidence?risk_id=${id}`),
     memberOptions(orgId),
     documentOptions(orgId),
+    apiGet<Control[]>(`${base}/risks/${id}/controls`),
+    apiGet<Recommendation>(`${base}/risks/${id}/recommendation`),
+    controlOptions(orgId),
   ]);
   const sev = SEVERITY[risk.severity]!;
   const st = RISK_STATUS[risk.status]!;
   const manager = isManager(session.membership.role);
   const canEdit = manager || risk.owner?.membership_id === session.membership.id;
   const closed = risk.status === "resolvido" || risk.status === "aceito";
+  const linkedIds = new Set((linked ?? []).map((c) => c.id));
+  const linkable = allControls.filter((c) => !linkedIds.has(c.id)).map((c) => ({ id: c.id, label: c.title }));
 
   return (
     <>
@@ -85,12 +102,47 @@ export default async function RiscoPage({ params }: { params: Promise<{ id: stri
             </dl>
           </section>
 
+          {!closed && rec ? (
+            <div id="plano">
+              <PlanPanel orgId={orgId} riskId={risk.id} rec={rec} members={members} canPlan={manager} />
+            </div>
+          ) : null}
+
+          <section aria-labelledby="controles" className="flex flex-col gap-3">
+            <div className="flex items-center justify-between gap-3">
+              <h2 id="controles" className="text-h3">Controles que mitigam</h2>
+              {manager ? <ButtonLink href={`/controles/novo?risco=${risk.id}`} variant="secondary">Novo controle</ButtonLink> : null}
+            </div>
+            {!linked || linked.length === 0 ? (
+              <p className="text-body-sm text-text-secondary">
+                Nenhum controle vinculado. Sem um controle implementado, o risco continua em aberto mesmo com ações concluídas — o score considera isso.
+              </p>
+            ) : (
+              <ul className="divide-y divide-border rounded-lg border border-border bg-surface-elevated">
+                {linked.map((c) => {
+                  const cs = CONTROL_STATUS[c.status]!;
+                  return (
+                    <li key={c.id} className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 text-body-sm">
+                      <Link href={`/controles/${c.id}`} className="font-medium text-text-primary hover:underline">{c.title}</Link>
+                      <span className="flex items-center gap-2 text-caption text-text-secondary">
+                        <Badge label={cs.label} tone={cs.tone} icon={cs.icon} />
+                        <span>{c.owner?.name ?? "Sem responsável"}</span>
+                        {manager ? <LinkRiskControl orgId={orgId} controlId={c.id} riskId={risk.id} options={[]} mode="unlink" /> : null}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+            {manager && linkable.length > 0 ? <LinkRiskControl orgId={orgId} riskId={risk.id} options={linkable} mode="link" /> : null}
+          </section>
+
           <section aria-labelledby="acoes" className="flex flex-col gap-4">
             <div className="flex items-center justify-between">
               <h2 id="acoes" className="text-h3">
                 Ações
               </h2>
-              {manager ? <ActionForm orgId={orgId} members={members} riskId={risk.id} compact /> : null}
+              {manager ? <ActionForm orgId={orgId} members={members} riskId={risk.id} controls={(linked ?? []).map((c) => ({ id: c.id, title: c.title }))} compact /> : null}
             </div>
             {!actions || actions.length === 0 ? (
               <p className="text-body-sm text-text-secondary">
@@ -118,7 +170,7 @@ export default async function RiscoPage({ params }: { params: Promise<{ id: stri
             )}
           </section>
 
-          <EvidencePanel orgId={orgId} target={{ risk_id: risk.id }} items={evidence ?? []} canDelete={manager} documents={documents} />
+          <EvidencePanel orgId={orgId} target={{ risk_id: risk.id }} items={evidence ?? []} canDelete={manager} documents={documents} controls={(linked ?? []).map((c) => ({ id: c.id, title: c.title }))} />
         </div>
 
         <aside className="flex flex-col gap-4">

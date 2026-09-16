@@ -15,10 +15,17 @@ type Evidence =
 const ICON = { note: StickyNote, link: Link2, file: FileText, document: Files } as const;
 type Kind = keyof typeof ICON;
 export type DocumentOption = { id: string; name: string };
+export type ControlOption = { id: string; title: string };
+const VALIDITY: Record<string, { label: string; className: string }> = {
+  vencendo: { label: "vence em breve", className: "text-warning-text" },
+  vencida: { label: "vencida", className: "text-danger-text" },
+};
 
 /**
- * Evidence list + add (note / link / file / document citation) + delete for a risk or an action
- * (brand §34). `documents` are the organization's documents a citation can point to (D26).
+ * Evidence list + add (note / link / file / document citation) + delete for a risk, an action or
+ * a control (brand §34). `documents` are the organization's documents a citation can point to
+ * (D26); `controls` lets a proof also be attached to the control it demonstrates (D34), and an
+ * optional validity turns "proof" into "current proof".
  */
 export function EvidencePanel({
   orgId,
@@ -26,12 +33,14 @@ export function EvidencePanel({
   items,
   canDelete,
   documents = [],
+  controls = [],
 }: {
   orgId: string;
-  target: { risk_id?: string; action_id?: string };
+  target: { risk_id?: string; action_id?: string; control_id?: string };
   items: Evidence[];
   canDelete: boolean;
   documents?: DocumentOption[];
+  controls?: ControlOption[];
 }) {
   const router = useRouter();
   const [kind, setKind] = useState<Kind>("note");
@@ -52,8 +61,12 @@ export function EvidencePanel({
       if (file instanceof File && file.size > 0) body.append("file", file);
       if (target.risk_id) body.append("risk_id", target.risk_id);
       if (target.action_id) body.append("action_id", target.action_id);
+      const control = target.control_id ?? String(f.get("control_id") ?? "");
+      if (control) body.append("control_id", control);
       const note = String(f.get("note") ?? "").trim();
       if (note) body.append("note", note);
+      const valid = String(f.get("valid_until") ?? "");
+      if (valid) body.append("valid_until", valid);
       const res = await fetch(`${base}/files`, { method: "POST", body, credentials: "same-origin" });
       if (!res.ok) {
         const err = (await res.json().catch(() => null)) as { message?: string; code?: string } | null;
@@ -73,6 +86,8 @@ export function EvidencePanel({
           note: String(f.get("note") ?? "").trim() || null,
           url: kind === "link" ? String(f.get("url") ?? "") : null,
           document_id: kind === "document" ? String(f.get("document_id") ?? "") || null : null,
+          control_id: target.control_id ?? (String(f.get("control_id") ?? "") || null),
+          valid_until: String(f.get("valid_until") ?? "") || null,
         },
       });
       if (!r.ok) failed = r.error.message || humanMessage(r.error);
@@ -126,6 +141,13 @@ export function EvidencePanel({
                   <p className="mt-1 text-caption text-text-secondary">
                     {new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short", timeZone: "America/Sao_Paulo" }).format(new Date(ev.created_at))}
                     {ev.size_bytes ? ` · ${Math.max(1, Math.round(ev.size_bytes / 1024))} KB` : ""}
+                    {ev.valid_until ? (
+                      <span className={VALIDITY[ev.validity]?.className ?? ""}>
+                        {" · "}válida até {ev.valid_until.slice(8, 10)}/{ev.valid_until.slice(5, 7)}/{ev.valid_until.slice(0, 4)}
+                        {VALIDITY[ev.validity] ? ` (${VALIDITY[ev.validity]!.label})` : ""}
+                      </span>
+                    ) : null}
+                    {ev.control_id && !target.control_id ? <span> · comprova um controle</span> : null}
                   </p>
                 </div>
                 {canDelete ? (
@@ -169,6 +191,23 @@ export function EvidencePanel({
           <input name="file" type="file" required aria-label="Arquivo" accept=".pdf,.png,.jpg,.jpeg,.txt,.csv,.docx,.xlsx" className="text-body-sm" />
         ) : null}
         <textarea name="note" required={kind === "note"} placeholder={kind === "note" ? "O que foi feito e quando" : kind === "document" ? "Por que este documento comprova o controle (opcional)" : "Observação (opcional)"} aria-label="Nota" className="min-h-20 rounded-md border border-border bg-surface-elevated px-3 py-2 text-body" />
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+          {!target.control_id && controls.length > 0 ? (
+            <label className="flex flex-col gap-1 text-caption text-text-secondary">
+              Comprova o controle (opcional)
+              <select name="control_id" className="h-9 rounded-md border border-border bg-surface-elevated px-2 text-body-sm text-text-primary">
+                <option value="">Nenhum</option>
+                {controls.map((c) => (
+                  <option key={c.id} value={c.id}>{c.title}</option>
+                ))}
+              </select>
+            </label>
+          ) : null}
+          <label className="flex flex-col gap-1 text-caption text-text-secondary">
+            Válida até (opcional)
+            <input name="valid_until" type="date" className="h-9 rounded-md border border-border bg-surface-elevated px-2 text-body-sm text-text-primary" />
+          </label>
+        </div>
         {error ? <Alert tone="danger">{error}</Alert> : null}
         <div>
           <Button type="submit" variant="secondary" disabled={pending}>

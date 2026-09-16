@@ -4,6 +4,7 @@ endpoint — never a public URL (Diagnostic §9 item 3)."""
 
 import re
 import uuid
+from datetime import date
 from typing import Annotated
 
 from fastapi import APIRouter, File, Form, HTTPException, Query, UploadFile
@@ -17,6 +18,7 @@ from app.models.domain import Evidence, EvidenceKind
 from app.schemas.domain import EvidenceCreate, EvidenceOut
 from app.schemas.identity import MessageOut
 from app.services import domain, score
+from app.services.evidence_status import evidence_out
 
 router = APIRouter(tags=["evidence"])
 
@@ -79,16 +81,19 @@ def list_evidence(
     membership: CurrentMembership,
     risk_id: Annotated[uuid.UUID | None, Query()] = None,
     action_id: Annotated[uuid.UUID | None, Query()] = None,
+    control_id: Annotated[uuid.UUID | None, Query()] = None,
 ) -> list[EvidenceOut]:
-    if risk_id is None and action_id is None:
-        raise HTTPException(status_code=422, detail="Filter by risk_id or action_id.")
+    if risk_id is None and action_id is None and control_id is None:
+        raise HTTPException(status_code=422, detail="Filter by risk_id, action_id or control_id.")
     base = select(Evidence).where(Evidence.organization_id == membership.organization_id)
     if risk_id is not None:
         base = base.where(Evidence.risk_id == risk_id)
     if action_id is not None:
         base = base.where(Evidence.action_id == action_id)
+    if control_id is not None:
+        base = base.where(Evidence.control_id == control_id)
     rows = db.scalars(base.order_by(Evidence.created_at.desc()))
-    return [EvidenceOut.model_validate(e) for e in rows]
+    return [evidence_out(e) for e in rows]
 
 
 @router.post("/orgs/{org_id}/evidence", response_model=EvidenceOut, status_code=201)
@@ -111,12 +116,14 @@ def add_note_or_link(
             note=payload.note,
             url=str(payload.url) if payload.url else None,
             document_id=payload.document_id,
+            control_id=payload.control_id,
+            valid_until=payload.valid_until,
         )
     except domain.DomainRuleViolation as exc:
         raise _raise(exc) from None
     score.recalculate(db, membership.organization_id, "evidence.added")
     db.commit()
-    return EvidenceOut.model_validate(row)
+    return evidence_out(row)
 
 
 @router.post("/orgs/{org_id}/evidence/files", response_model=EvidenceOut, status_code=201)
@@ -126,7 +133,9 @@ def upload_file(
     file: Annotated[UploadFile, File()],
     risk_id: Annotated[uuid.UUID | None, Form()] = None,
     action_id: Annotated[uuid.UUID | None, Form()] = None,
+    control_id: Annotated[uuid.UUID | None, Form()] = None,
     note: Annotated[str | None, Form(max_length=5000)] = None,
+    valid_until: Annotated[date | None, Form()] = None,
 ) -> EvidenceOut:
     content_type, ext = validate_upload(file)
     try:
@@ -136,9 +145,11 @@ def upload_file(
             kind=EvidenceKind.FILE,
             risk_id=risk_id,
             action_id=action_id,
+            control_id=control_id,
             note=note,
             filename=safe_filename(file.filename),
             content_type=content_type,
+            valid_until=valid_until,
         )
     except domain.DomainRuleViolation as exc:
         raise _raise(exc) from None
@@ -147,7 +158,7 @@ def upload_file(
     row.storage_key = key
     score.recalculate(db, membership.organization_id, "evidence.added")
     db.commit()
-    return EvidenceOut.model_validate(row)
+    return evidence_out(row)
 
 
 @router.get("/orgs/{org_id}/evidence/{evidence_id}/download")

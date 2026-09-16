@@ -10,13 +10,16 @@ import { TextField } from "@/components/ui/text-field";
 import type { MemberOption } from "./risk-form";
 
 export type RiskOption = { id: string; title: string };
+export type ControlChoice = { id: string; title: string };
 export type ActionInitial = {
   id: string;
   title: string;
   description: string | null;
   risk_id: string | null;
+  control_id: string | null;
   owner_membership_id: string | null;
   due_date: string | null;
+  effort: string | null;
 };
 
 /**
@@ -28,6 +31,8 @@ export function ActionForm({
   members,
   riskId,
   risks,
+  controls = [],
+  controlId,
   compact = false,
   onDone,
   initial,
@@ -36,6 +41,8 @@ export function ActionForm({
   members: MemberOption[];
   riskId?: string;
   risks?: RiskOption[];
+  controls?: ControlChoice[]; // the control this action implements (Control Graph, D27)
+  controlId?: string; // preselected (from a control page)
   compact?: boolean;
   onDone?: () => void;
   initial?: ActionInitial; // edit mode → PATCH
@@ -60,14 +67,18 @@ export function ActionForm({
         const owner = String(f.get("owner_membership_id") ?? "");
         const due = String(f.get("due_date") ?? "");
         const risk = riskId ?? String(f.get("risk_id") ?? "");
+        const control = String(f.get("control_id") ?? "");
+        const effort = String(f.get("effort") ?? "");
         void submit(
           initial ? `/api/v1/orgs/${orgId}/actions/${initial.id}` : `/api/v1/orgs/${orgId}/actions`,
           {
             title: f.get("title"),
             description: String(f.get("description") ?? "").trim() || null,
             risk_id: risk || null,
+            control_id: control || null,
             owner_membership_id: owner || null,
             due_date: due || null,
+            effort: effort || null,
           },
           (action) => {
             if (compact) {
@@ -106,6 +117,20 @@ export function ActionForm({
           ))}
         </SelectField>
         <TextField id="action-due" name="due_date" type="date" label="Prazo" defaultValue={initial?.due_date ?? ""} />
+        {controls.length > 0 ? (
+          <SelectField id="action-control" name="control_id" label="Implementa o controle" hint="Opcional. Liga a ação ao controle que ela cria ou melhora." defaultValue={initial?.control_id ?? controlId ?? ""}>
+            <option value="">Nenhum</option>
+            {controls.map((c) => (
+              <option key={c.id} value={c.id}>{c.title}</option>
+            ))}
+          </SelectField>
+        ) : null}
+        <SelectField id="action-effort" name="effort" label="Esforço" hint="Usado na priorização: menor esforço para o mesmo risco vem primeiro." defaultValue={initial?.effort ?? ""}>
+          <option value="">Não informado (médio)</option>
+          <option value="baixo">Baixo — horas</option>
+          <option value="medio">Médio — dias</option>
+          <option value="alto">Alto — semanas ou terceiros</option>
+        </SelectField>
       </div>
       <div className="flex gap-3">
         <Button type="submit" disabled={pending}>

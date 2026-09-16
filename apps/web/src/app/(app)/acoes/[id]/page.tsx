@@ -7,8 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";
 import { apiGet } from "@/lib/api/server";
-import { ACTION_STATUS, ACTION_STATUS_LABELS, SEVERITY, formatDate, isOverdue } from "@/lib/domain/labels";
-import { type Action, type EvidenceList, type Risk, isManager } from "@/lib/domain/queries";
+import { ACTION_STATUS, ACTION_STATUS_LABELS, EFFORT, SEVERITY, formatDate, isOverdue } from "@/lib/domain/labels";
+import { type Action, type ControlGraph, type EvidenceList, type Risk, controlOptions, isManager } from "@/lib/domain/queries";
 import { documentOptions } from "@/lib/domain/queries";
 import { getSession } from "@/lib/session/server";
 
@@ -22,10 +22,12 @@ export default async function AcaoPage({ params }: { params: Promise<{ id: strin
   const base = `/api/v1/orgs/${orgId}`;
   const action = await apiGet<Action>(`${base}/actions/${id}`);
   if (!action) notFound();
-  const [risk, evidence, documents] = await Promise.all([
+  const [risk, evidence, documents, control, controls] = await Promise.all([
     action.risk_id ? apiGet<Risk>(`${base}/risks/${action.risk_id}`) : Promise.resolve(null),
     apiGet<EvidenceList>(`${base}/evidence?action_id=${id}`),
     documentOptions(orgId),
+    action.control_id ? apiGet<ControlGraph>(`${base}/controls/${action.control_id}`) : Promise.resolve(null),
+    controlOptions(orgId),
   ]);
   const st = ACTION_STATUS[action.status]!;
   const manager = isManager(session.membership.role);
@@ -62,6 +64,16 @@ export default async function AcaoPage({ params }: { params: Promise<{ id: strin
                   "—"
                 )}
               </dd>
+              <dt className="text-text-secondary">Implementa o controle</dt>
+              <dd>
+                {control ? (
+                  <Link href={`/controles/${control.control.id}`} className="text-info-text underline underline-offset-2">{control.control.title}</Link>
+                ) : (
+                  <span className="text-text-secondary">— {canEdit ? "vincule um controle ao editar" : ""}</span>
+                )}
+              </dd>
+              <dt className="text-text-secondary">Esforço</dt>
+              <dd>{action.effort ? EFFORT[action.effort] : <span className="text-text-secondary">não informado</span>}</dd>
               {action.completed_at ? (
                 <>
                   <dt className="text-text-secondary">Concluída em</dt>
@@ -70,7 +82,7 @@ export default async function AcaoPage({ params }: { params: Promise<{ id: strin
               ) : null}
             </dl>
           </section>
-          <EvidencePanel orgId={orgId} target={{ action_id: action.id }} items={evidence ?? []} canDelete={manager} documents={documents} />
+          <EvidencePanel orgId={orgId} target={{ action_id: action.id }} items={evidence ?? []} canDelete={manager} documents={documents} controls={controls.map((c) => ({ id: c.id, title: c.title }))} />
         </div>
         <aside className="flex flex-col gap-4">
           <section className="rounded-lg border border-border bg-surface-elevated p-5">

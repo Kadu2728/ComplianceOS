@@ -15,6 +15,7 @@ from app.core.permissions import Role, has_permission
 from app.core.security import utcnow
 from app.models.domain import (
     Action,
+    ActionEffort,
     ActionStatus,
     Evidence,
     EvidenceKind,
@@ -113,6 +114,21 @@ def _validate_owner(db: Session, actor: Membership, owner_membership_id: uuid.UU
     )
     if exists is None:
         raise DomainRuleViolation("Owner must be a member of this organization.", 422)
+
+
+def _validate_control(db: Session, actor: Membership, control_id: uuid.UUID | None) -> None:
+    """A linked control must be one of ours (Control Graph, D27); 422 keeps the FK from firing."""
+    if control_id is None:
+        return
+    from app.models.control import Control  # noqa: PLC0415 — controls import this module
+
+    exists = db.scalar(
+        select(Control.id).where(
+            Control.id == control_id, Control.organization_id == actor.organization_id
+        )
+    )
+    if exists is None:
+        raise DomainRuleViolation("Control must belong to this organization.", 422)
 
 
 def _audit(
@@ -258,17 +274,22 @@ def create_action(
     risk_id: uuid.UUID | None,
     owner_membership_id: uuid.UUID | None,
     due_date: date | None,
+    control_id: uuid.UUID | None = None,
+    effort: ActionEffort | None = None,
 ) -> Action:
     if not has_permission(actor.role, "action.create"):
         raise DomainRuleViolation("You do not have permission to create actions.", 403)
     if risk_id is not None:
         get_risk(db, actor, risk_id)  # 404 if it is not ours
+    _validate_control(db, actor, control_id)
     _validate_owner(db, actor, owner_membership_id)
     action = Action(
         organization_id=actor.organization_id,
         risk_id=risk_id,
+        control_id=control_id,
         title=title,
         description=description,
+        effort=effort,
         owner_membership_id=owner_membership_id,
         due_date=due_date,
         created_by_membership_id=actor.id,
@@ -297,6 +318,8 @@ def update_action(
         _validate_owner(db, actor, changes["owner_membership_id"])
     if changes.get("risk_id") is not None:
         get_risk(db, actor, changes["risk_id"])
+    if changes.get("control_id") is not None:
+        _validate_control(db, actor, changes["control_id"])
     diff: dict[str, Any] = {}
     for field, value in changes.items():
         before = getattr(action, field)
@@ -344,11 +367,14 @@ def add_evidence(
     filename: str | None = None,
     content_type: str | None = None,
     document_id: uuid.UUID | None = None,
+    control_id: uuid.UUID | None = None,
+    valid_until: date | None = None,
 ) -> Evidence:
     if not has_permission(actor.role, "evidence.upload"):
         raise DomainRuleViolation("You do not have permission to add evidence.", 403)
-    if risk_id is None and action_id is None:
-        raise DomainRuleViolation("Evidence must be attached to a risk or an action.", 422)
+    if risk_id is None and action_id is None and control_id is None:
+        raise DomainRuleViolation("Attach the evidence to a risk, an action or a control.", 422)
+    _validate_control(db, actor, control_id)
     if (kind == EvidenceKind.DOCUMENT) != (document_id is not None):
         raise DomainRuleViolation("A document citation requires document_id (and only then).", 422)
     if risk_id is not None:
@@ -363,12 +389,14 @@ def add_evidence(
         organization_id=actor.organization_id,
         risk_id=risk_id,
         action_id=action_id,
+        control_id=control_id,
         document_id=document_id,
         kind=kind,
         note=note,
         url=url,
         filename=filename,
         content_type=content_type,
+        valid_until=valid_until,
         added_by_membership_id=actor.id,
     )
     db.add(evidence)
@@ -383,6 +411,7 @@ def add_evidence(
             "kind": kind.value,
             "risk_id": _plain(risk_id),
             "action_id": _plain(action_id),
+            "control_id": _plain(control_id),
             "document_id": _plain(document_id),
         },
     )

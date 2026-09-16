@@ -1,17 +1,18 @@
-"""Score engine v1 (decision D10, docs/product/score-v1-proposal.md).
+"""Score engine v2 (decisions D10 and D31, docs/product/score-v1-proposal.md + D31).
 
 A maturity indicator computed from the organization's own records — never a legal claim. The
 pipeline is split so it stays testable and deterministic: `gather()` reads records, `compute()` is a
 pure function of those inputs (same records → same score, same explanation), `recalculate()`
 persists a snapshot for trends. Every number in the payload traces to a record the UI can link to.
 
-Factors (weights sum to 1): A Diagnóstico 0.15 · B Riscos 0.50 · C Execução 0.20 ·
-D Evidências 0.15.
+Factors (weights sum to 1): A Diagnóstico 0.10 · B Riscos 0.40 · K Controles 0.20 ·
+C Execução 0.15 · D Evidências 0.15. v1 snapshots (four factors) keep their version and are
+never recomputed; `simulate()` answers "what would I gain by doing X" with the same function.
 """
 
 import math
 import uuid
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import date, datetime, timedelta
 from typing import Any
 from zoneinfo import ZoneInfo
@@ -28,9 +29,15 @@ from app.services.assessment import current as current_assessment
 from app.services.assessment import responses_by_question, scoped_questions
 from app.services.domain import derive_severity
 
-SCORE_VERSION = "v1"
-WEIGHTS = {"A": 0.15, "B": 0.50, "C": 0.20, "D": 0.15}
-LABELS = {"A": "Diagnóstico", "B": "Riscos", "C": "Execução", "D": "Evidências"}
+SCORE_VERSION = "v2"
+WEIGHTS = {"A": 0.10, "B": 0.40, "K": 0.20, "C": 0.15, "D": 0.15}
+LABELS = {
+    "A": "Diagnóstico",
+    "B": "Riscos",
+    "K": "Controles",
+    "C": "Execução",
+    "D": "Evidências",
+}
 # Same P×I scale as the assessment derivation: a Crítico is worth two Altos, four Médios.
 SEVERITY_WEIGHT = {
     RiskSeverity.CRITICO: 12,
@@ -61,6 +68,7 @@ class RiskInput:
     status: RiskStatus
     planned: bool  # at least one action with an owner and a due date
     evidence: bool
+    coverage: float = 0.0  # best control credit: 1 implementado/verificado · 0.5 parcial · 0 (D31)
 
 
 @dataclass(frozen=True)
@@ -113,6 +121,7 @@ def _item(
         "title": title,
         "detail": detail,
         "points": round(points, 2),
+        "_raw": points,  # exact value for group sums; stripped from the payload by _factor()
     }
 
 
@@ -125,7 +134,7 @@ def _factor(key: str, value: float, summary: str, items: list[dict[str, Any]]) -
         "value": value,
         "contribution": round(WEIGHTS[key] * value, 1),
         "summary": summary,
-        "items": items[:ITEMS_PER_FACTOR],
+        "items": [{k: v for k, v in it.items() if k != "_raw"} for it in items[:ITEMS_PER_FACTOR]],
         "item_count": len(items),
     }
 
@@ -258,6 +267,33 @@ def compute(i: ScoreInputs) -> dict[str, Any]:
             for a in overdue
         ]
 
+    # K — Controles: are open critical/high risks covered by a control that exists in practice?
+    k_items: list[dict[str, Any]] = []
+    if not open_high:
+        k_value = 100.0
+        k_summary = "Nenhum risco crítico/alto em aberto"
+    else:
+        covered = sum(r.coverage for r in open_high)
+        k_value = 100.0 * covered / len(open_high)
+        full = sum(1 for r in open_high if r.coverage >= 1.0)
+        partial = sum(1 for r in open_high if 0 < r.coverage < 1.0)
+        k_summary = (
+            f"{full} de {len(open_high)} riscos críticos/altos com controle implementado"
+            + (f" · {partial} com controle parcial" if partial else "")
+        )
+        per_risk = WEIGHTS["K"] * 100 / len(open_high)
+        k_items += [
+            _item(
+                "risk",
+                r.id,
+                r.title,
+                "Sem controle implementado" if r.coverage == 0 else "Controle apenas parcial",
+                per_risk * (1 - r.coverage),
+            )
+            for r in open_high
+            if r.coverage < 1.0
+        ]
+
     # D — Evidências: closed critical/high risks and done actions that carry proof.
     d_items: list[dict[str, Any]] = []
     denominator = len(closed_high) + len(done)
@@ -293,6 +329,7 @@ def compute(i: ScoreInputs) -> dict[str, Any]:
 
     factors = [
         _factor("B", b_value, b_summary, b_items),
+        _factor("K", k_value, k_summary, k_items),
         _factor("C", c_value, c_summary, c_items),
         _factor("A", a_value, a_summary, a_items),
         _factor("D", d_value, d_summary, d_items),
@@ -324,6 +361,14 @@ def compute(i: ScoreInputs) -> dict[str, Any]:
             [it for it in b_items if it["detail"].startswith(label)],
             lambda n, one=one, many=many: _plural(n, one, many),
         )
+    _group(
+        groups,
+        "uncontrolled",
+        [it for it in k_items if it["detail"] == "Sem controle implementado"],
+        lambda n: _plural(
+            n, "risco crítico/alto sem controle implementado", "riscos críticos/altos sem controle"
+        ),
+    )
     _group(
         groups,
         "overdue",
@@ -361,6 +406,7 @@ PRIORITY = [
     "open_alto",
     "open_medio",
     "open_baixo",
+    "uncontrolled",
     "overdue",
     "no_evidence",
     "missing_evidence",
@@ -370,7 +416,7 @@ PRIORITY = [
 
 def _group(groups: list[dict[str, Any]], reason: str, items: list[dict[str, Any]], title) -> None:  # noqa: ANN001
     """`title` builds the label from the item count; None uses the single item's own title."""
-    points = round(sum(it["points"] for it in items), 2)
+    points = round(sum(it.get("_raw", it["points"]) for it in items), 2)
     if points <= 0:
         return
     groups.append(
@@ -422,6 +468,8 @@ def _next_actions(groups: list[dict[str, Any]]) -> list[dict[str, Any]]:
                 continue
             if reason == "unplanned":
                 label = f"Planejar ação para “{ref['title']}”"
+            elif reason == "uncontrolled":
+                label = f"Associar e implementar um controle para “{ref['title']}”"
             elif reason == "overdue":
                 label = f"Atualizar prazo ou concluir “{ref['title']}”"
             elif reason == "missing_evidence":
@@ -436,6 +484,34 @@ def _next_actions(groups: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
 def _ref(ref: dict[str, Any]) -> dict[str, Any]:
     return {"kind": ref["kind"], "id": ref["id"]}
+
+
+def simulate(
+    i: ScoreInputs,
+    *,
+    resolve_risk: uuid.UUID | None = None,
+    done_action: uuid.UUID | None = None,
+) -> int:
+    """Score if the given risk were resolved with evidence (and its control implemented) and/or
+    the given action were done with evidence. Pure; used for "what do I gain" (D30, D31)."""
+    risks = tuple(
+        replace(
+            r,
+            status=RiskStatus.RESOLVIDO,
+            evidence=True,
+            coverage=max(r.coverage, 1.0),
+            planned=True,
+        )
+        if r.id == resolve_risk
+        else r
+        for r in i.risks
+    )
+    actions = tuple(
+        replace(a, status=ActionStatus.CONCLUIDA, evidence=True) if a.id == done_action else a
+        for a in i.actions
+    )
+    payload = compute(replace(i, risks=risks, actions=actions))
+    return int(payload["score"]) if payload["available"] else 0
 
 
 # --- database side ------------------------------------------------------------------------------
@@ -480,6 +556,9 @@ def gather(db: Session, organization_id: uuid.UUID) -> ScoreInputs | None:
             )
         )
     )
+    from app.services.controls import coverage_by_risk  # noqa: PLC0415 — avoids an import cycle
+
+    coverage = coverage_by_risk(db, organization_id)
     risks = tuple(
         RiskInput(
             id=r.id,
@@ -488,6 +567,7 @@ def gather(db: Session, organization_id: uuid.UUID) -> ScoreInputs | None:
             status=r.status,
             planned=r.id in planned_risk_ids,
             evidence=r.id in evidenced_risks,
+            coverage=coverage.get(r.id, 0.0),
         )
         for r in db.execute(
             select(Risk.id, Risk.title, Risk.severity, Risk.status)

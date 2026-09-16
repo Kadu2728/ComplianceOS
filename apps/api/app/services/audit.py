@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 from app.core.request_id import get_request_id
 from app.core.security import utcnow
 from app.models.audit import AuditLog
+from app.models.control import Control
 from app.models.document import Document
 from app.models.domain import Action, Risk
 from app.models.user import User
@@ -91,7 +92,12 @@ def list_entries(
         else {}
     )
     titles: dict[tuple[str, uuid.UUID], str] = {}
-    for entity, model in (("risk", Risk), ("action", Action), ("document", Document)):
+    for entity, model in (
+        ("risk", Risk),
+        ("action", Action),
+        ("document", Document),
+        ("control", Control),
+    ):
         ids = {r.entity_id for r in rows if r.entity_type == entity and r.entity_id}
         if ids:
             for id_, title in db.execute(

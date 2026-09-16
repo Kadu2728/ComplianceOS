@@ -1,5 +1,5 @@
 import type { paths } from "@/lib/api/schema";
-import { ACTION_STATUS_LABELS, RISK_STATUS_LABELS, ROLE_LABEL } from "@/lib/domain/labels";
+import { ACTION_STATUS_LABELS, CONTROL_STATUS_LABELS, RISK_STATUS_LABELS, ROLE_LABEL } from "@/lib/domain/labels";
 
 export type AuditEntry =
   paths["/api/v1/orgs/{org_id}/audit-log"]["get"]["responses"]["200"]["content"]["application/json"]["items"][number];
@@ -21,6 +21,21 @@ const FIELD: Record<string, string> = {
   valid_until: "validade",
   tags: "tags",
   url: "link",
+  control_id: "controle",
+  effort: "esforço",
+  kind: "tipo",
+  status: "maturidade",
+  document_id: "documento",
+  review_date: "revisão",
+  segment: "segmento",
+  headcount_band: "tamanho",
+  customer_type: "clientes",
+  data_categories: "tipos de dados",
+  sells_to_enterprise: "vende para empresas",
+  international_transfers: "transferências internacionais",
+  systems: "sistemas",
+  processes: "processos",
+  notes: "observações",
 };
 
 function quoted(entry: AuditEntry): string {
@@ -65,6 +80,22 @@ export function describeActivity(entry: AuditEntry): string {
       return `removeu o documento “${String(d.name ?? "")}”`;
     case "evidence.deleted":
       return "removeu uma evidência";
+    case "control.created":
+      return `registrou o controle${quoted(entry)}`;
+    case "control.updated":
+      return typeof (d.status as { to?: string } | undefined)?.to === "string"
+        ? `mudou o controle${quoted(entry)} para ${CONTROL_STATUS_LABELS[String((d.status as { to: string }).to)] ?? String((d.status as { to: string }).to)}`
+        : `editou o controle${quoted(entry)}${changedFields(d)}`;
+    case "control.deleted":
+      return `removeu o controle “${String(d.title ?? "")}”`;
+    case "control.linked":
+      return `vinculou o controle${quoted(entry)} ao risco “${String(d.risk_title ?? "")}”`;
+    case "control.unlinked":
+      return `desvinculou o controle${quoted(entry)} de um risco`;
+    case "risk.planned":
+      return `planejou o risco${quoted(entry)} (controle e ação em um passo)`;
+    case "profile.updated":
+      return `atualizou o perfil da organização${changedFields(d)}`;
     case "assessment.started":
       return `iniciou o diagnóstico (${d.mode === "short" ? "rápido" : "completo"})`;
     case "assessment.answered":
@@ -97,6 +128,7 @@ export const ACTIVITY_ENTITY_HREF = (entry: AuditEntry): string | null => {
   if (entry.entity_type === "risk") return `/riscos/${entry.entity_id}`;
   if (entry.entity_type === "action") return `/acoes/${entry.entity_id}`;
   if (entry.entity_type === "document" && entry.action !== "document.deleted") return `/documentos/${entry.entity_id}`;
+  if (entry.entity_type === "control" && entry.action !== "control.deleted") return `/controles/${entry.entity_id}`;
   if (entry.entity_type === "assessment") return "/diagnostico";
   return null;
 };

@@ -24,8 +24,8 @@ apps/api/                FastAPI, SQLAlchemy 2, Pydantic v2, Alembic, Python 3.1
   app/core/permissions.py  role x permission matrix as data (D8)
   app/core/rate_limit.py in-memory limiter (D23) - single instance only
   app/core/email.py      EmailSender: console (dev) / capture (tests) / smtp (production; vendor pending D11)
-  app/models/            identity (User, Organization, Membership, tokens, Invitation, AuditLog) + domain (Risk, Action, Evidence)
-  app/services/          auth, membership, audit (append-only), domain (severity, state machines, ownership, evidence)
+  app/models/            identity (User, Organization, Membership, tokens, Invitation, AuditLog) + domain (Risk, Action, Evidence, Document, Control, RiskControl, OrganizationProfile)
+  app/services/          auth, membership, audit (append-only), domain, documents, controls, recommend (engine), priorities, radar, agent, executive, profile, score
   app/core/storage.py    StorageBackend protocol; LocalDiskStorage (dev/test) and S3Storage (provider/region pending D12)
   app/api/v1/risks.py    risks + actions routes; app/api/v1/evidence.py notes/links/files + authenticated download
   app/db/base.py         DeclarativeBase with deterministic constraint naming
@@ -337,6 +337,81 @@ Browser ──HTTP──▶ Next.js (Vercel)  ──server-side fetch──▶ F
 - **Audit ordering** (carried from Phase 9): `services/audit.record` stamps entries with a
   strictly increasing per-process time.
 
+## The Control Layer (Phase 11, decisions D27–D34)
+
+The brief of 2026-09-15 moved the domain from *assessment → risk → action → evidence → score* to
+*context → risk → control → action → evidence → score → monitoring* without breaking anything that
+existed. Diagnosis and gap map: `docs/product/control-layer-evolution.md`.
+
+- **Control Graph (D27).** `controls` (tenant-owned; title, description, `category` = risk
+  categories, `kind` preventivo · detectivo · corretivo, `status` = maturity ladder planejado →
+  parcial → implementado → verificado, plus inativo; owner; `document_id` = the policy/procedure
+  that formalizes it; `review_date`; `template_code` into the catalogue). `risk_controls` (M:N,
+  unique pair). `actions.control_id` (an action implements a control), `evidence.control_id` (proof
+  of a control), `evidence.valid_until` (D34). All composite FKs. Rules: `verificado` needs at
+  least one evidence on the control; deleting a control is refused (409) while proof hangs only off
+  it; links cascade, other rows keep working with `control_id` cleared. Permissions `control.*`
+  mirror `risk.*` (`control.link` managers). Endpoints: `GET/POST /controls`, `GET/PATCH/DELETE
+  /controls/{id}` (GET returns the graph neighbourhood: risks, actions, evidence, document),
+  `POST/DELETE /controls/{id}/risks/{risk_id}`, `GET /risks/{id}/controls`, `GET /evidence?control_id=`.
+- **Composite FK fix (P1, found in Phase 11).** PostgreSQL's `ON DELETE SET NULL` on a composite
+  foreign key nulls *every* referencing column — including `organization_id` — so removing a
+  member who owned a risk (or deleting a document referenced by a control) failed with a NOT NULL
+  violation. Migration 0008 recreates all eleven pre-existing composite SET NULL constraints as
+  `ON DELETE SET NULL (<column>)` (PostgreSQL 15+) and the new ones use the same form; the models
+  declare it (`ondelete="SET NULL (owner_membership_id)"`). Downgrade restores the old form.
+- **Catalogue v1** (`app/content/controls_v1.json`, `services/recommend.catalogue`): 24 operational
+  controls covering the 42 assessment questions exactly once (test-enforced), one
+  `category_default` per risk category for manual risks. Same human-review gate as the assessment
+  (`last_verified: null`); wording is operational, never a legal requirement.
+- **Risk-to-Action engine (D29).** `GET /risks/{id}/recommendation` (control from the catalogue,
+  action title from the risk or the catalogue, default due date by severity — 15/30/60/90 days,
+  product defaults —, default owner, expected evidence, basis, what already exists).
+  `POST /risks/{id}/plan` (managers): reuses or creates the control (planejado), links it, creates
+  the action linked to risk and control, audits `risk.planned`; 409 while an open action exists.
+- **Organization profile — Compliance DNA v1 (D28).** `organization_profiles` (1:1, created on
+  first read): segment, headcount band, customer type, data categories (fixed set), sells to
+  enterprise, international transfers (sim · nao · nao_sei), systems and processes (≤ 20 short
+  strings), notes; `complete` derived. `GET/PUT /profile` (`profile.update` managers). Used by
+  `services/profile.exposure_multiplier` (1.0 / 1.25 / 1.5 with a pt-BR reason) — never to assert an
+  obligation.
+- **Score v2 (D31).** `SCORE_VERSION = "v2"`; A 0.10 · B 0.40 · **K Controles 0.20** · C 0.15 ·
+  D 0.15. K = coverage of open crítico/alto risks by controls (1.0 implementado/verificado, 0.5
+  parcial, 0 otherwise; no open high risk → 100). Reducer `uncontrolled` and next step "Associar e
+  implementar um controle". `simulate()` (pure) gives the score if a risk were resolved with proof
+  and a covering control, or an action done with proof — the "what do I gain" number. v1 snapshots
+  keep their version; delta and the executive trend compare only same-version snapshots, so the
+  first v2 snapshot starts a new baseline. Engine tests re-derived by hand (13), API tests updated,
+  demo pinned at 69 (was 77 under v1).
+- **Priorities (D30).** `GET /priorities`: for every pending action, `points = severity weight ×
+  exposure × urgency (1.5 overdue · 1.25 due ≤ 7 days) ÷ effort (baixo 1 · médio 1.5 · alto 2.5;
+  `actions.effort` optional)` with `reasons[]` and `score_gain`; plus `unplanned` open high risks
+  with the gain of resolving them.
+- **Radar (D30).** `GET /radar`: live attention items (risk_critical, risk_uncontrolled,
+  risk_unplanned, risk_unowned, risk_in_review, action_overdue, action_due_soon, action_blocked,
+  control_without_evidence, evidence_expired/expiring, document_expired/missing/expiring,
+  profile_incomplete, assessment_missing/stale > 180 days), each with count, tone, reason and a
+  route hint the app maps (`lib/domain/radar.ts`). No persistence.
+- **Agent foundation (D32).** `services/agent.py` + `GET /agent/questions`, `/agent/answers/{key}`
+  (every role), `/agent/context` (managers): deterministic, grounded (`basis` refs), caveated. No
+  model; guardrails in `docs/ai.md`; provider is D35.
+- **Executive summary (D33).** `GET /executive-summary` (every role) + `/resumo`: score and
+  30-day trend, exposures (open high risks with plan/coverage state), improved / worsened counters
+  from the audit log and today's state, decisions needed (blocked actions, unowned high risks,
+  expired documents), next 30 days (priorities), control and document summaries. Compliance Room
+  stays a design (permission `room.manage` reserved; boundaries in D33).
+- **Frontend.** `/controles` (filters, table → cards), `/controles/novo`, `/controles/[id]` (ladder,
+  risks with link/unlink, actions, evidence with control target and validity, document),
+  `/controles/[id]/editar`; risk page gains "Plano recomendado" (one-step plan with owner and due
+  date) and "Controles que mitigam"; action pages gain control and effort; evidence panel gains
+  "comprova o controle" and "válida até" with derived validity; Visão geral becomes the Control
+  Room (score → radar → priorities with score gain → risks → controls maturity → documents →
+  activity) with a link to `/resumo`; `/configuracoes` gains the profile form; nav gains
+  "Controles" (icon: layers, brand §22). Activity sentences cover control/plan/profile events.
+- **Demo.** Acme gains a complete profile, 20 catalogue controls linked to their risks (5 planejado
+  · 7 parcial · 2 implementado · 6 verificado with proof), efforts on key actions; score 69
+  (A 100 · B 62.8 · K 37.5 · C 88.4 · D 87.5), first snapshot 30 right after the diagnostic.
+
 ## Request-ID propagation
 
 - `X-Request-ID` is accepted inbound when it matches `^[A-Za-z0-9-]{8,128}$`, otherwise a UUID4 is generated.
@@ -375,10 +450,12 @@ Every non-2xx response has the same JSON shape:
   git-ignored) — no Docker required. Production database/region is decision D12 (pending).
 - Tests run migrations on a fresh embedded database and truncate all tables between tests.
 
-## Deliberately absent after Phase 10
+## Deliberately absent after Phase 11
 
 Document version history and expected-document seeding (Documents v2) · per-document reminder
-thresholds (the digest is per organization) ·
+thresholds (the digest is per organization) · the LLM layer of the agent (D35) · a shareable
+Compliance Room (D33 boundaries; needs D13 and a threat model) · persisted radar snapshots for change
+detection · Process/Asset entities (profile lists until a workflow needs rows) ·
 per-question regulatory basis in the UI (hidden until `last_verified`, D6) · template v2 tooling (a new
 JSON version + seed; no admin UI) · e-mail vendor and storage provider/region choices (D11, D12 — the
 SMTP and S3 adapters exist) · CSP enforcement check in a regular browser · marketing landing page and Compliance OS's own legal
@@ -398,5 +475,8 @@ AI copilot, integrations, billing (§5–§6 future direction).
   tree kill with the database still running; `pg_ctl stop` still works. While postgres starts,
   `postmaster.pid` is written progressively — the readiness loop tolerates a partially written file.
 - `pytest.exe` may be blocked by Windows App Control; use `uv run python -m pytest`.
+- If the embedded PostgreSQL dies (a Ctrl+C reaching it), `postmaster.pid` may keep a pid that Windows
+  reuses for another process; `dev_api.py` now also checks that the port answers and starts a fresh
+  server otherwise.
 - `npm audit` reports postcss ≤ 8.5.22 (bundled by Next 15) — build-tool-only exposure, no user-supplied
   CSS is processed; the only upstream fix is Next 16 (see D18a).

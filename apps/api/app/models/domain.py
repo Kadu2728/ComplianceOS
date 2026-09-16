@@ -82,6 +82,14 @@ class EvidenceKind(enum.StrEnum):
     DOCUMENT = "document"  # cites one of the organization's documents (Phase 7)
 
 
+class ActionEffort(enum.StrEnum):
+    """Relative effort, used by prioritization (decision D30). Optional; unset reads as médio."""
+
+    BAIXO = "baixo"
+    MEDIO = "medio"
+    ALTO = "alto"
+
+
 def _org_fk() -> Mapped[uuid.UUID]:
     return mapped_column(
         UUID(as_uuid=True), ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False
@@ -136,13 +144,13 @@ class Risk(Base, UUIDPrimaryKey, Timestamps):
             ["organization_id", "owner_membership_id"],
             ["memberships.organization_id", "memberships.id"],
             name="fk_risks_owner_membership",
-            ondelete="SET NULL",
+            ondelete="SET NULL (owner_membership_id)",
         ),
         ForeignKeyConstraint(
             ["organization_id", "created_by_membership_id"],
             ["memberships.organization_id", "memberships.id"],
             name="fk_risks_created_by_membership",
-            ondelete="SET NULL",
+            ondelete="SET NULL (created_by_membership_id)",
         ),
         CheckConstraint("probability BETWEEN 1 AND 3", name="probability_range"),
         CheckConstraint("impact BETWEEN 1 AND 4", name="impact_range"),
@@ -159,6 +167,8 @@ class Action(Base, UUIDPrimaryKey, Timestamps):
 
     organization_id: Mapped[uuid.UUID] = _org_fk()
     risk_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    # The control this action implements or improves (Control Graph, decision D27).
+    control_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
     title: Mapped[str] = mapped_column(String(200), nullable=False)
     description: Mapped[str | None] = mapped_column(Text)
     status: Mapped[ActionStatus] = mapped_column(
@@ -166,6 +176,7 @@ class Action(Base, UUIDPrimaryKey, Timestamps):
         nullable=False,
         server_default=ActionStatus.A_FAZER.value,
     )
+    effort: Mapped[ActionEffort | None] = mapped_column(_enum(ActionEffort, "action_effort"))
     owner_membership_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
     created_by_membership_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
     due_date: Mapped[date | None] = mapped_column(Date)
@@ -186,22 +197,29 @@ class Action(Base, UUIDPrimaryKey, Timestamps):
             ["organization_id", "risk_id"],
             ["risks.organization_id", "risks.id"],
             name="fk_actions_risk",
-            ondelete="SET NULL",
+            ondelete="SET NULL (risk_id)",
+        ),
+        ForeignKeyConstraint(
+            ["organization_id", "control_id"],
+            ["controls.organization_id", "controls.id"],
+            name="fk_actions_control",
+            ondelete="SET NULL (control_id)",
         ),
         ForeignKeyConstraint(
             ["organization_id", "owner_membership_id"],
             ["memberships.organization_id", "memberships.id"],
             name="fk_actions_owner_membership",
-            ondelete="SET NULL",
+            ondelete="SET NULL (owner_membership_id)",
         ),
         ForeignKeyConstraint(
             ["organization_id", "created_by_membership_id"],
             ["memberships.organization_id", "memberships.id"],
             name="fk_actions_created_by_membership",
-            ondelete="SET NULL",
+            ondelete="SET NULL (created_by_membership_id)",
         ),
         Index("ix_actions_org_status_due", "organization_id", "status", "due_date"),
         Index("ix_actions_org_risk", "organization_id", "risk_id"),
+        Index("ix_actions_org_control", "organization_id", "control_id"),
         Index("ix_actions_org_owner", "organization_id", "owner_membership_id"),
     )
 
@@ -215,8 +233,12 @@ class Evidence(Base, UUIDPrimaryKey):
     organization_id: Mapped[uuid.UUID] = _org_fk()
     risk_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
     action_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    # The control this evidence proves (Evidence Vault v1, decision D34); optional context.
+    control_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
     document_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
     kind: Mapped[EvidenceKind] = mapped_column(_enum(EvidenceKind, "evidence_kind"), nullable=False)
+    # Until when this proof is considered current; NULL = no expiry (D34).
+    valid_until: Mapped[date | None] = mapped_column(Date)
     note: Mapped[str | None] = mapped_column(Text)
     url: Mapped[str | None] = mapped_column(String(2048))
     filename: Mapped[str | None] = mapped_column(String(255))
@@ -255,7 +277,13 @@ class Evidence(Base, UUIDPrimaryKey):
             ["organization_id", "added_by_membership_id"],
             ["memberships.organization_id", "memberships.id"],
             name="fk_evidence_added_by_membership",
-            ondelete="SET NULL",
+            ondelete="SET NULL (added_by_membership_id)",
+        ),
+        ForeignKeyConstraint(
+            ["organization_id", "control_id"],
+            ["controls.organization_id", "controls.id"],
+            name="fk_evidence_control",
+            ondelete="SET NULL (control_id)",
         ),
         # RESTRICT: a document cited as evidence cannot be deleted (the service answers 409).
         ForeignKeyConstraint(
@@ -265,9 +293,11 @@ class Evidence(Base, UUIDPrimaryKey):
             ondelete="RESTRICT",
         ),
         CheckConstraint(
-            "risk_id IS NOT NULL OR action_id IS NOT NULL", name="attached_to_something"
+            "risk_id IS NOT NULL OR action_id IS NOT NULL OR control_id IS NOT NULL",
+            name="attached_to_something",
         ),
         Index("ix_evidence_org_risk", "organization_id", "risk_id"),
         Index("ix_evidence_org_action", "organization_id", "action_id"),
         Index("ix_evidence_org_document", "organization_id", "document_id"),
+        Index("ix_evidence_org_control", "organization_id", "control_id"),
     )

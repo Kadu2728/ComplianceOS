@@ -1,6 +1,7 @@
-import { Clock } from "lucide-react";
 import Link from "next/link";
 import { ActivityList } from "@/components/domain/activity-list";
+import { PrioritiesList } from "@/components/domain/priorities-list";
+import { RadarPanel } from "@/components/domain/radar-panel";
 import { ScoreCard } from "@/components/score/score-card";
 import { ScoreTrend } from "@/components/score/score-trend";
 import { Badge } from "@/components/ui/badge";
@@ -8,23 +9,27 @@ import { ButtonLink } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
 import { apiGet } from "@/lib/api/server";
-import { ACTION_STATUS, RISK_STATUS, SEVERITY, formatDate, isOverdue } from "@/lib/domain/labels";
-import type { Overview, ScoreHistory } from "@/lib/domain/queries";
+import { CONTROL_STATUS, RISK_STATUS, SEVERITY, formatDate, isOverdue } from "@/lib/domain/labels";
+import type { ControlPage, Overview, Priorities, Radar, ScoreHistory } from "@/lib/domain/queries";
 import type { Score } from "@/lib/domain/score";
 import { getSession } from "@/lib/session/server";
 
 /**
- * Visão geral (CLAUDE.md §4, UX §12): "How protected and organized is my company right now?"
- * and "What should I do next?" — score with explanation, then what needs attention, then activity.
+ * Visão geral — the Company Control Room (CLAUDE.md §4, UX §12, brief §14): "What's happening
+ * with my compliance?" and "What needs attention today?" — score with explanation, the radar,
+ * priorities with score gain, then the state of risks, controls, documents and activity.
  */
 export default async function OverviewPage() {
   const session = await getSession();
   if (!session) return null;
   const base = `/api/v1/orgs/${session.membership.organization.id}`;
-  const [score, overview, history] = await Promise.all([
+  const [score, overview, history, radar, prio, controls] = await Promise.all([
     apiGet<Score>(`${base}/score`),
     apiGet<Overview>(`${base}/overview`),
     apiGet<ScoreHistory>(`${base}/score/history?limit=30`),
+    apiGet<Radar>(`${base}/radar`),
+    apiGet<Priorities>(`${base}/priorities?limit=5`),
+    apiGet<ControlPage>(`${base}/controls?limit=1`),
   ]);
   const empty = !score || (!score.available && score.reason === "no_assessment");
   const trend = [...(history?.items ?? [])].reverse();
@@ -37,11 +42,17 @@ export default async function OverviewPage() {
     <>
       <PageHeader
         title="Visão geral"
-        description="Onde sua empresa está, o que precisa de atenção e o que fazer a seguir."
+        description="Onde sua empresa está, o que precisa de atenção hoje e o que fazer a seguir."
+        action={<ButtonLink href="/resumo" variant="secondary">Resumo executivo</ButtonLink>}
       />
-      <div className="mb-8">
+      <div className="mb-6">
         <ScoreCard score={score ?? { available: false, message: "Score disponível após o diagnóstico." }} />
       </div>
+      {radar ? (
+        <div className="mb-8">
+          <RadarPanel radar={radar} />
+        </div>
+      ) : null}
 
       {empty ? (
         <EmptyState
@@ -106,34 +117,26 @@ export default async function OverviewPage() {
             )}
           </section>
 
-          <section aria-labelledby="acoes-pendentes" className="rounded-lg border border-border bg-surface-elevated p-5">
+          <section aria-labelledby="prioridades" className="rounded-lg border border-border bg-surface-elevated p-5">
             <div className="flex items-baseline justify-between gap-3">
-              <h2 id="acoes-pendentes" className="text-h3">Ações pendentes</h2>
+              <h2 id="prioridades" className="text-h3">O que fazer primeiro</h2>
               <Link href="/acoes?status=pendentes" className="text-body-sm text-info-text hover:underline">Ver todas</Link>
             </div>
-            {!actions || actions.items.length === 0 ? (
-              <p className="mt-3 text-body-sm text-text-secondary">Nenhuma ação pendente. Cada risco aberto pode gerar ações com responsável e prazo.</p>
+            <p className="mt-1 text-caption text-text-secondary">Ordenado por risco reduzido, contexto do perfil, urgência e esforço. O número verde é o ganho estimado no score ao concluir com evidência.</p>
+            {prio ? <PrioritiesList prio={prio} compact /> : <p className="mt-3 text-body-sm text-text-secondary">Prioridades indisponíveis no momento.</p>}
+          </section>
+
+          <section aria-labelledby="controles" className="rounded-lg border border-border bg-surface-elevated p-5 lg:col-span-3">
+            <div className="flex items-baseline justify-between gap-3">
+              <h2 id="controles" className="text-h3">Controles</h2>
+              <Link href="/controles" className="text-body-sm text-info-text hover:underline">Ver todos</Link>
+            </div>
+            {!controls || controls.total === 0 ? (
+              <p className="mt-3 text-body-sm text-text-secondary">
+                Nenhum controle ainda. Abra um risco crítico ou alto e use <span className="font-medium">Planejar em um passo</span>: o controle recomendado é criado e vinculado — a escada de maturidade começa aí.
+              </p>
             ) : (
-              <ul className="mt-3 divide-y divide-border">
-                {actions.items.map((a) => {
-                  const st = ACTION_STATUS[a.status]!;
-                  const late = isOverdue(a.due_date, a.status === "concluida");
-                  return (
-                    <li key={a.id} className="flex flex-col gap-1 py-2.5 text-body-sm">
-                      <Link href={`/acoes/${a.id}`} className="font-medium text-text-primary hover:underline">{a.title}</Link>
-                      <div className="flex flex-wrap items-center gap-2 text-caption text-text-secondary">
-                        <Badge label={st.label} tone={st.tone} icon={st.icon} />
-                        <span>{a.owner?.name ?? "Sem responsável"}</span>
-                        <span className={`inline-flex items-center gap-1 tabular-nums ${late ? "text-danger-text" : ""}`}>
-                          {late ? <Clock aria-hidden size={12} strokeWidth={1.5} /> : null}
-                          {a.due_date ? formatDate(a.due_date) : "sem prazo"}
-                          {late ? " · atrasada" : ""}
-                        </span>
-                      </div>
-                    </li>
-                  );
-                })}
-              </ul>
+              <ControlMaturity base={base} />
             )}
           </section>
 
@@ -176,6 +179,20 @@ export default async function OverviewPage() {
         </div>
       )}
     </>
+  );
+}
+
+/** Maturity ladder counts (planejado → parcial → implementado → verificado): four small
+ * parallel calls to the list endpoint, which returns the total per status filter. */
+async function ControlMaturity({ base }: { base: string }) {
+  const steps = ["planejado", "parcial", "implementado", "verificado"] as const;
+  const counts = await Promise.all(steps.map((s) => apiGet<ControlPage>(`${base}/controls?limit=1&status=${s}`)));
+  return (
+    <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 text-body-sm md:grid-cols-4">
+      {steps.map((s, i) => (
+        <Stat key={s} label={CONTROL_STATUS[s]!.label} value={counts[i]?.total ?? 0} href={`/controles?status=${s}`} tone={s === "planejado" && (counts[i]?.total ?? 0) > 0 ? "warning" : undefined} />
+      ))}
+    </dl>
   );
 }
 

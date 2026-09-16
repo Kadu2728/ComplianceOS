@@ -10,10 +10,12 @@ from app.models.assessment import (
 )
 from app.models.audit import AuditLog
 from app.models.auth import Invitation, PasswordResetToken, RefreshToken
+from app.models.control import Control, RiskControl
 from app.models.document import Document
 from app.models.domain import Action, Evidence, Risk
 from app.models.membership import Membership
 from app.models.organization import Organization
+from app.models.profile import OrganizationProfile
 from app.models.reminder import ReminderDelivery
 from app.models.score import ScoreSnapshot
 from app.models.user import User
@@ -27,12 +29,15 @@ __all__ = [
     "AssessmentTemplate",
     "AssessmentTemplateVersion",
     "AuditLog",
+    "Control",
     "Document",
     "Evidence",
     "Invitation",
     "Membership",
     "Organization",
+    "OrganizationProfile",
     "ReminderDelivery",
+    "RiskControl",
     "PasswordResetToken",
     "RefreshToken",
     "Risk",

@@ -19,12 +19,22 @@ from app.content import demo_acme_data as data
 from app.core.security import hash_password
 from app.core.storage import get_storage, new_key
 from app.models.assessment import AnswerValue, AssessmentMode
+from app.models.control import Control, ControlKind, ControlStatus
 from app.models.document import Document, DocumentCategory, DocumentReviewState
-from app.models.domain import ActionStatus, Evidence, EvidenceKind, Risk, RiskCategory, RiskStatus
+from app.models.domain import (
+    ActionEffort,
+    ActionStatus,
+    Evidence,
+    EvidenceKind,
+    Risk,
+    RiskCategory,
+    RiskStatus,
+)
 from app.models.membership import Membership, Role
 from app.models.organization import Organization
 from app.models.user import User
-from app.services import assessment, audit, auth, documents, domain, score
+from app.services import assessment, audit, auth, documents, domain, profile, recommend, score
+from app.services import controls as controls_svc
 
 RISK_PATHS: dict[str, list[RiskStatus]] = {
     "aberto": [],
@@ -106,6 +116,9 @@ def build(db: Session, *, password: str, also_owner_email: str | None = None) ->
             raise ValueError(f"No account with e-mail {also_owner_email}.")
         _add_member(db, org_id, extra, Role.OWNER, actor=owner)
 
+    # --- profile (D28) ------------------------------------------------------------------------
+    profile.update(db, owner, dict(data.PROFILE))
+
     # --- diagnostic → derived risks -----------------------------------------------------------
     assessment.start(db, owner, AssessmentMode.FULL)
     for code, value in data.ANSWERS.items():
@@ -159,32 +172,72 @@ def build(db: Session, *, password: str, also_owner_email: str | None = None) ->
             treatment=m["treatment"],
         )
 
+    # --- controls (D27): from the catalogue, linked to the risks their questions map to --------
+    catalogue = recommend.catalogue()
+    control_of_risk: dict[str, Control] = {}
+    control_specs: dict[str, tuple[Control, dict[str, Any]]] = {}
+    for code, spec in data.CONTROLS.items():
+        template = catalogue[code]
+        control = controls_svc.create(
+            db,
+            _manager(members[spec["owner"]], owner),
+            title=template.title,
+            category=RiskCategory(template.category),
+            description=template.description,
+            kind=ControlKind(template.kind),
+            status=ControlStatus.PLANEJADO,
+            owner_membership_id=members[spec["owner"]].id,
+            document_id=docs[spec["doc"]].id if spec.get("doc") else None,
+            template_code=code,
+        )
+        control_specs[code] = (control, spec)
+        for question in template.questions:
+            if question in risks:
+                controls_svc.link_risk(db, owner, control.id, risks[question].id)
+                control_of_risk[question] = control
+
     # --- actions, then evidence, then status transitions --------------------------------------
     for a in data.ACTIONS:
         risk = risks[a["risk"]]
         actor = members[a["owner"]]
+        control = control_of_risk.get(a["risk"])
         action = domain.create_action(
             db,
             owner,
             title=a["title"],
             description=a.get("description"),
             risk_id=risk.id,
+            control_id=control.id if control else None,
             owner_membership_id=actor.id,
             due_date=today + timedelta(days=a["due"]),
+            effort=ActionEffort(a["effort"]) if a.get("effort") else None,
         )
         for ev in a.get("evidence", []):
-            _evidence(db, actor, ev, docs, action_id=action.id)
+            _evidence(
+                db, actor, ev, docs, action_id=action.id, control_id=control.id if control else None
+            )
         for status in ACTION_PATHS[a["status"]]:
             domain.change_action_status(db, actor, action.id, status)
     for key, plan in {**data.RISKS, **{m["key"]: m for m in data.MANUAL_RISKS}}.items():
         risk = risks[key]
         actor = members[plan["owner"]]
+        control = control_of_risk.get(key)
         for ev in plan.get("evidence", []):
-            _evidence(db, actor, ev, docs, risk_id=risk.id)
+            _evidence(
+                db, actor, ev, docs, risk_id=risk.id, control_id=control.id if control else None
+            )
         for status in RISK_PATHS[plan["status"]]:
             domain.change_risk_status(db, actor, risk.id, status)
 
-    snapshot = score.recalculate(db, org_id, "risk.status_changed")
+    # Maturity is declared by the person responsible, after the proof exists (the service refuses
+    # "verificado" without evidence — that rule is what makes the demo coherent).
+    for control, spec in control_specs.values():
+        target = ControlStatus(spec["status"])
+        actor = members[spec["owner"]]
+        if target != ControlStatus.PLANEJADO:
+            controls_svc.update(db, actor, control.id, {"status": target})
+
+    snapshot = score.recalculate(db, org_id, "control.updated")
     return {
         "organization_id": str(org_id),
         "owner_email": owner_user.email,
@@ -192,6 +245,7 @@ def build(db: Session, *, password: str, also_owner_email: str | None = None) ->
         "risks": len(risks),
         "actions": len(data.ACTIONS),
         "documents": len(docs),
+        "controls": len(control_specs),
         "score": snapshot.score if snapshot else None,
     }
 
@@ -278,6 +332,7 @@ def _evidence(
     *,
     risk_id: uuid.UUID | None = None,
     action_id: uuid.UUID | None = None,
+    control_id: uuid.UUID | None = None,
 ) -> None:
     domain.add_evidence(
         db,
@@ -285,6 +340,7 @@ def _evidence(
         kind=EvidenceKind(ev["kind"]),
         risk_id=risk_id,
         action_id=action_id,
+        control_id=control_id,
         note=ev.get("note"),
         url=ev.get("url"),
         document_id=docs[ev["doc"]].id if ev["kind"] == "document" else None,

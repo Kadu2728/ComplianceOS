@@ -1,0 +1,256 @@
+{
+  "catalogue": "controls",
+  "version": 1,
+  "source": "Derived from docs/product/assessment-v1-scope.md §13 (expected evidence + remediation per question). Operational safeguards, not legal requirements; wording follows the same human-review gate as the assessment (F1–F5).",
+  "last_verified": null,
+  "controls": [
+    {
+      "code": "CTL-DF-INVENTARIO",
+      "title": "Inventário de dados pessoais e registro de tratamento",
+      "category": "dados",
+      "kind": "preventivo",
+      "description": "Registro atualizado dos dados pessoais tratados por processo: quais dados, de quem, finalidade, onde ficam, com quem são compartilhados e por quanto tempo.",
+      "action": "Levantar os dados pessoais tratados por processo (cliente, colaborador, fornecedor)",
+      "evidence": "Inventário ou registro de tratamento com data e responsável",
+      "questions": ["DF-01", "DF-02", "DF-06"],
+      "category_default": true
+    },
+    {
+      "code": "CTL-DF-MINIMIZACAO",
+      "title": "Revisão de coleta e minimização de dados",
+      "category": "dados",
+      "kind": "preventivo",
+      "description": "Formulários, cadastros e integrações coletam apenas os dados necessários para cada finalidade; campos sem uso são removidos.",
+      "action": "Revisar formulários e cadastros removendo campos sem finalidade",
+      "evidence": "Formulários revisados e nota de revisão com data",
+      "questions": ["DF-03"]
+    },
+    {
+      "code": "CTL-DF-SENSIVEIS",
+      "title": "Controles específicos para dados sensíveis e de menores",
+      "category": "dados",
+      "kind": "preventivo",
+      "description": "Dados sensíveis e de crianças/adolescentes identificados no inventário, com acesso restrito, guarda definida e justificativa de uso.",
+      "action": "Identificar dados sensíveis/menores no inventário e definir controles adicionais",
+      "evidence": "Inventário marcando dados sensíveis/menores e os controles aplicados",
+      "questions": ["DF-04"]
+    },
+    {
+      "code": "CTL-DF-RETENCAO",
+      "title": "Política de retenção e descarte",
+      "category": "dados",
+      "kind": "preventivo",
+      "description": "Prazos de guarda por categoria de dado, com descarte ou anonimização quando o prazo termina.",
+      "action": "Definir prazos de retenção por categoria de dado",
+      "evidence": "Tabela de retenção e evidência de descarte",
+      "questions": ["DF-05"]
+    },
+    {
+      "code": "CTL-AA-ACESSO-MINIMO",
+      "title": "Gestão de acessos com o mínimo necessário",
+      "category": "acesso",
+      "kind": "preventivo",
+      "description": "Contas individuais, perfis por função, revisão periódica dos acessos a sistemas com dados pessoais e das contas administrativas.",
+      "action": "Revisar acessos por sistema aplicando o mínimo necessário",
+      "evidence": "Lista de usuários e perfis por sistema com data da última revisão",
+      "questions": ["AA-01", "AA-06"],
+      "category_default": true
+    },
+    {
+      "code": "CTL-AA-DESLIGAMENTO",
+      "title": "Revogação de acessos no desligamento e na mudança de função",
+      "category": "acesso",
+      "kind": "corretivo",
+      "description": "Checklist de desligamento/mudança de função que remove ou ajusta acessos em poucos dias, com registro.",
+      "action": "Criar checklist de desligamento com revogação de acessos",
+      "evidence": "Checklist de desligamento e registro de revogações",
+      "questions": ["AA-02"]
+    },
+    {
+      "code": "CTL-AA-MFA",
+      "title": "Autenticação multifator nos sistemas críticos",
+      "category": "acesso",
+      "kind": "preventivo",
+      "description": "MFA obrigatório no e-mail corporativo, na nuvem e nos sistemas com dados de clientes.",
+      "action": "Ativar MFA no e-mail corporativo e nos sistemas com dados de clientes",
+      "evidence": "Captura da configuração de MFA por sistema",
+      "questions": ["AA-03"]
+    },
+    {
+      "code": "CTL-AA-ARMAZENAMENTO",
+      "title": "Locais de armazenamento controlados",
+      "category": "acesso",
+      "kind": "preventivo",
+      "description": "Dados pessoais ficam apenas nos sistemas mapeados; cópias em planilhas, e-mails e dispositivos são evitadas e revisadas.",
+      "action": "Mapear locais de armazenamento e restringir cópias locais",
+      "evidence": "Inventário com localização e política de uso de dispositivos",
+      "questions": ["AA-04"]
+    },
+    {
+      "code": "CTL-SE-BACKUP",
+      "title": "Backup com teste de restauração",
+      "category": "seguranca",
+      "kind": "corretivo",
+      "description": "Backup periódico dos dados importantes com teste de restauração documentado ao menos uma vez.",
+      "action": "Configurar backup e executar um teste de restauração documentado",
+      "evidence": "Rotina de backup e registro do teste de restauração",
+      "questions": ["AA-05"]
+    },
+    {
+      "code": "CTL-SE-CRIPTOGRAFIA",
+      "title": "Criptografia em trânsito e em repouso",
+      "category": "seguranca",
+      "kind": "preventivo",
+      "description": "TLS em todos os endpoints e criptografia em repouso nos bancos e armazenamentos principais.",
+      "action": "Ativar TLS em todos os endpoints e criptografia em repouso no armazenamento principal",
+      "evidence": "Configuração TLS e de criptografia do banco/armazenamento",
+      "questions": ["SE-01"],
+      "category_default": true
+    },
+    {
+      "code": "CTL-SE-ATUALIZACOES",
+      "title": "Rotina de atualizações de segurança",
+      "category": "seguranca",
+      "kind": "preventivo",
+      "description": "Sistemas, dependências e dispositivos recebem atualizações de segurança em rotina definida.",
+      "action": "Definir rotina mensal de atualização e verificação de dependências",
+      "evidence": "Rotina de atualização e relatório de dependências",
+      "questions": ["SE-02"]
+    },
+    {
+      "code": "CTL-SE-DISPOSITIVOS",
+      "title": "Proteção básica de dispositivos",
+      "category": "seguranca",
+      "kind": "preventivo",
+      "description": "Bloqueio de tela, criptografia de disco e antivírus/EDR nos computadores e celulares que acessam dados de clientes.",
+      "action": "Ativar criptografia de disco e bloqueio automático nos dispositivos",
+      "evidence": "Política de dispositivos e inventário com status de proteção",
+      "questions": ["SE-03"]
+    },
+    {
+      "code": "CTL-SE-LOGS",
+      "title": "Registros de acesso e alterações",
+      "category": "seguranca",
+      "kind": "detectivo",
+      "description": "Logs de acesso e alteração nos sistemas com dados pessoais, guardados por período definido.",
+      "action": "Ativar logs de acesso nos sistemas principais e definir retenção",
+      "evidence": "Configuração de logs e período de retenção",
+      "questions": ["SE-04"]
+    },
+    {
+      "code": "CTL-SE-VULNERABILIDADES",
+      "title": "Verificação de vulnerabilidades",
+      "category": "seguranca",
+      "kind": "detectivo",
+      "description": "Verificação periódica de vulnerabilidades ou teste de segurança nos sistemas expostos à internet.",
+      "action": "Executar uma verificação de vulnerabilidades nos sistemas expostos",
+      "evidence": "Relatório de scan/pentest com data",
+      "questions": ["SE-05"]
+    },
+    {
+      "code": "CTL-SE-DADOS-TESTE",
+      "title": "Dados fictícios em ambientes de teste",
+      "category": "seguranca",
+      "kind": "preventivo",
+      "description": "Ambientes de teste e desenvolvimento usam dados fictícios ou anonimizados.",
+      "action": "Substituir dados reais por dados fictícios nos ambientes de teste",
+      "evidence": "Procedimento de geração de dados de teste",
+      "questions": ["SE-06"]
+    },
+    {
+      "code": "CTL-FT-FORNECEDORES",
+      "title": "Gestão de fornecedores que tratam dados pessoais",
+      "category": "fornecedores",
+      "kind": "preventivo",
+      "description": "Lista de fornecedores e ferramentas com acesso a dados pessoais, país/região de armazenamento, subcontratados conhecidos e avaliação antes da contratação.",
+      "action": "Listar fornecedores e ferramentas que tratam dados pessoais",
+      "evidence": "Lista de fornecedores com tipo de dado, finalidade, região e avaliação",
+      "questions": ["FT-01", "FT-03", "FT-04", "FT-06"],
+      "category_default": true
+    },
+    {
+      "code": "CTL-FT-CONTRATOS",
+      "title": "Cláusulas de proteção de dados nos contratos",
+      "category": "fornecedores",
+      "kind": "preventivo",
+      "description": "Contratos ou aditivos com os fornecedores críticos tratam de finalidade, segurança, incidentes e fim do contrato, incluindo devolução ou exclusão dos dados.",
+      "action": "Revisar contratos dos fornecedores críticos incluindo cláusulas de proteção de dados",
+      "evidence": "Contratos ou aditivos assinados; registro de encerramento com confirmação de exclusão",
+      "questions": ["FT-02", "FT-05"]
+    },
+    {
+      "code": "CTL-PR-POLITICA-PRIVACIDADE",
+      "title": "Política de privacidade pública e atualizada",
+      "category": "documentacao",
+      "kind": "preventivo",
+      "description": "Política de privacidade publicada, com data de atualização, descrevendo o que a empresa faz com os dados pessoais.",
+      "action": "Publicar ou atualizar a política de privacidade",
+      "evidence": "Link da política com data de atualização",
+      "questions": ["PR-01"],
+      "category_default": true
+    },
+    {
+      "code": "CTL-PR-POLITICA-INTERNA",
+      "title": "Política interna de segurança e privacidade",
+      "category": "documentacao",
+      "kind": "preventivo",
+      "description": "Política interna curta, aprovada e divulgada, com regras de uso de dados, dispositivos, senhas e incidentes.",
+      "action": "Redigir uma política interna curta e divulgá-la",
+      "evidence": "Política aprovada e registro de divulgação",
+      "questions": ["PR-02"]
+    },
+    {
+      "code": "CTL-PR-GOVERNANCA-DOCUMENTAL",
+      "title": "Governança dos documentos e evidências de compliance",
+      "category": "documentacao",
+      "kind": "detectivo",
+      "description": "Documentos com responsável e data de revisão, procedimentos descritos, evidências centralizadas e registro de decisões.",
+      "action": "Atribuir responsável e data de revisão a cada documento",
+      "evidence": "Lista de documentos com responsável e validade; registro de decisões",
+      "questions": ["PR-03", "PR-04", "PR-05", "PR-06", "PE-06"]
+    },
+    {
+      "code": "CTL-TI-TITULARES",
+      "title": "Atendimento a pedidos de titulares",
+      "category": "titulares",
+      "kind": "corretivo",
+      "description": "Canal publicado, responsável designado, procedimento testado para localizar, corrigir, exportar ou excluir dados, e registro dos pedidos com datas.",
+      "action": "Publicar um canal de contato e designar responsável",
+      "evidence": "Canal publicado, procedimento e registro de pedidos",
+      "questions": ["TI-01", "TI-02", "TI-03"],
+      "category_default": true
+    },
+    {
+      "code": "CTL-TI-INCIDENTES",
+      "title": "Resposta e registro de incidentes",
+      "category": "incidentes",
+      "kind": "corretivo",
+      "description": "Plano de resposta de uma página com responsáveis e cadeia de acionamento, colaboradores sabem reportar, incidentes registrados com causa e correção.",
+      "action": "Redigir um plano de resposta a incidentes de uma página com responsáveis",
+      "evidence": "Plano de resposta, comunicado de como reportar e registro de incidentes",
+      "questions": ["TI-04", "TI-05", "TI-06"],
+      "category_default": true
+    },
+    {
+      "code": "CTL-PE-RESPONSAVEL",
+      "title": "Responsável por proteção de dados nomeado",
+      "category": "pessoas",
+      "kind": "preventivo",
+      "description": "Pessoa nomeada como responsável por proteção de dados, com contato divulgado, e revisão periódica pela liderança.",
+      "action": "Nomear responsável e publicar o contato",
+      "evidence": "Nomeação, contato publicado e ata da revisão anual",
+      "questions": ["PE-01", "PE-05"],
+      "category_default": true
+    },
+    {
+      "code": "CTL-PE-ORIENTACAO",
+      "title": "Orientação e termos para colaboradores",
+      "category": "pessoas",
+      "kind": "preventivo",
+      "description": "Orientação de proteção de dados nos últimos 12 meses e no onboarding, com termo de confidencialidade assinado.",
+      "action": "Realizar uma orientação de 30 minutos e registrar presença",
+      "evidence": "Material, lista de presença, checklist de onboarding e termos assinados",
+      "questions": ["PE-02", "PE-03", "PE-04"]
+    }
+  ]
+}

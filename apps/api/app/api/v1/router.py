@@ -3,11 +3,14 @@ from fastapi import APIRouter
 from app.api.v1 import (
     assessment,
     auth,
+    controls,
     documents,
     evidence,
     health,
+    insights,
     orgs,
     overview,
+    profile,
     risks,
     score,
 )
@@ -22,3 +25,6 @@ api_router.include_router(assessment.router)
 api_router.include_router(score.router)
 api_router.include_router(overview.router)
 api_router.include_router(documents.router)
+api_router.include_router(controls.router)
+api_router.include_router(profile.router)
+api_router.include_router(insights.router)

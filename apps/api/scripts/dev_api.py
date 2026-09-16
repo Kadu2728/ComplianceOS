@@ -6,6 +6,7 @@ Production never uses this; it reads DATABASE_URL from the environment instead.
 """
 
 import os
+import socket
 import subprocess
 import sys
 import time
@@ -16,6 +17,16 @@ from pgserver.utils import PostmasterInfo, find_suitable_port
 
 ROOT = Path(__file__).resolve().parents[1]
 PG_BIN = Path(pgserver.__file__).resolve().parent / "pginstall" / "bin"
+
+
+def _accepting(port: int | None) -> bool:
+    if not port:
+        return False
+    try:
+        with socket.create_connection(("127.0.0.1", int(port)), timeout=2):
+            return True
+    except OSError:
+        return False
 
 
 def ensure_postgres(pgdata: Path) -> str:
@@ -32,6 +43,11 @@ def ensure_postgres(pgdata: Path) -> str:
     if not (pgdata / "PG_VERSION").exists():
         pgserver.get_server(pgdata).cleanup()  # initdb + first start, then a clean stop
     info = PostmasterInfo.read_from_pgdata(pgdata)
+    if info is not None and info.is_running() and not _accepting(info.port):
+        # The pid in postmaster.pid was reused by another process after postgres died (seen
+        # after a Ctrl+C reached it): the file lies, the port does not. Start fresh.
+        (pgdata / "postmaster.pid").unlink(missing_ok=True)
+        info = None
     if info is None or not info.is_running():
         port = find_suitable_port("127.0.0.1")
         # Spawned through a short-lived helper so postgres is not a child of this process: a

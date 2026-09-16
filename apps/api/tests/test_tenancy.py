@@ -65,6 +65,31 @@ ROUTES = [
         "/api/v1/orgs/{org}/evidence",
         {"kind": "document", "risk_id": "{risk}", "document_id": "{document}"},
     ),
+    # Phase 11 — control graph and profile
+    ("GET", "/api/v1/orgs/{org}/controls", None),
+    ("POST", "/api/v1/orgs/{org}/controls", {"title": "Injected", "category": "acesso"}),
+    ("GET", "/api/v1/orgs/{org}/controls/{control}", None),
+    ("PATCH", "/api/v1/orgs/{org}/controls/{control}", {"title": "Hacked"}),
+    ("DELETE", "/api/v1/orgs/{org}/controls/{control}", None),
+    ("POST", "/api/v1/orgs/{org}/controls/{control}/risks/{risk}", None),
+    ("DELETE", "/api/v1/orgs/{org}/controls/{control}/risks/{risk}", None),
+    ("GET", "/api/v1/orgs/{org}/risks/{risk}/controls", None),
+    ("GET", "/api/v1/orgs/{org}/evidence?control_id={control}", None),
+    (
+        "POST",
+        "/api/v1/orgs/{org}/evidence",
+        {"kind": "note", "control_id": "{control}", "note": "x"},
+    ),
+    ("GET", "/api/v1/orgs/{org}/profile", None),
+    ("PUT", "/api/v1/orgs/{org}/profile", {"notes": "hacked"}),
+    ("GET", "/api/v1/orgs/{org}/risks/{risk}/recommendation", None),
+    ("POST", "/api/v1/orgs/{org}/risks/{risk}/plan", {}),
+    ("GET", "/api/v1/orgs/{org}/priorities", None),
+    ("GET", "/api/v1/orgs/{org}/radar", None),
+    ("GET", "/api/v1/orgs/{org}/executive-summary", None),
+    ("GET", "/api/v1/orgs/{org}/agent/questions", None),
+    ("GET", "/api/v1/orgs/{org}/agent/answers/biggest_risks", None),
+    ("GET", "/api/v1/orgs/{org}/agent/context", None),
 ]
 
 
@@ -96,7 +121,12 @@ def two_orgs(emails):  # noqa: ANN001, ANN201
         f"/api/v1/orgs/{org_b}/members/invitations",
         json={"email": "pending@b.com", "role": "member"},
     ).json()
+    control = b.post(
+        f"/api/v1/orgs/{org_b}/controls",
+        json={"title": "Controle de B", "category": "acesso", "risk_id": risk["id"]},
+    ).json()
     return {
+        "b_control": control["id"],
         "b_document": document["id"],
         "b_invitation": invitation["id"],
         "a": a,
@@ -124,6 +154,7 @@ def test_member_of_a_cannot_touch_b(two_orgs, method: str, template: str, body) 
         "evidence": two_orgs["b_evidence"],
         "document": two_orgs["b_document"],
         "invitation": two_orgs["b_invitation"],
+        "control": two_orgs["b_control"],
     }
     path = template.format(**ids)
     body = (
@@ -147,7 +178,16 @@ def test_unknown_org_is_404_not_403(two_orgs, method: str, template: str, body) 
     a: TestClient = two_orgs["a"]
     ids = {
         k: uuid.uuid4()
-        for k in ("org", "member", "risk", "action", "evidence", "document", "invitation")
+        for k in (
+            "org",
+            "member",
+            "risk",
+            "action",
+            "evidence",
+            "document",
+            "invitation",
+            "control",
+        )
     }
     path = template.format(**ids)
     body = (

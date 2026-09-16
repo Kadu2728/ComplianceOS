@@ -74,24 +74,38 @@ def test_short_completion_scores_and_snapshots(org) -> None:  # noqa: ANN001
     _complete_short(org)
     out = _score(org)
     assert out["available"] is True and out["preliminary"] is True
-    assert out["assessment_completed"] is True and out["score_version"] == "v1"
+    assert out["assessment_completed"] is True and out["score_version"] == "v2"
     f = {x["key"]: x for x in out["factors"]}
-    assert (f["A"]["value"], f["B"]["value"], f["C"]["value"], f["D"]["value"]) == (
+    assert (
+        f["A"]["value"],
+        f["B"]["value"],
+        f["K"]["value"],
+        f["C"]["value"],
+        f["D"]["value"],
+    ) == (
         100,
         72.5,
         0,
         0,
+        0,
     )
-    assert out["score"] == 51 and out["band"]["key"] == "estruturando"
+    # v2 (D31): 10 + 0.40 × 72.5 = 39 — declarations alone start in "Inicial".
+    assert out["score"] == 39 and out["band"]["key"] == "inicial"
     assert f["A"]["summary"] == "12 de 12 perguntas respondidas · 1 resposta “não sei”"
     assert f["B"]["summary"] == "5 riscos abertos · peso 33 de 120"
     assert f["C"]["summary"] == "4 riscos críticos/altos sem ação planejada"
-    assert [r["reason"] for r in out["top_reducers"]] == ["unplanned", "no_evidence", "open_alto"]
+    assert f["K"]["summary"] == "0 de 4 riscos críticos/altos com controle implementado"
+    # uncontrolled 20 · unplanned 15 · no_evidence 15 (tie → declared priority) · open_alto 6.
+    assert [r["reason"] for r in out["top_reducers"]] == [
+        "uncontrolled",
+        "unplanned",
+        "no_evidence",
+    ]
     assert out["top_reducers"][0]["refs"][0]["title"] == "Dados pessoais tratados sem inventário"
     assert out["delta"] is None  # nothing older than today to compare with
     history = _history(org)
     assert len(history) == 1 and history[0]["trigger"] == "assessment.completed"
-    assert history[0]["score"] == 51 and history[0]["preliminary"] is True
+    assert history[0]["score"] == 39 and history[0]["preliminary"] is True
 
 
 def test_actions_evidence_and_resolution_move_the_score(org) -> None:  # noqa: ANN001
@@ -114,11 +128,12 @@ def test_actions_evidence_and_resolution_move_the_score(org) -> None:  # noqa: A
         assert a.status_code == 201, a.text
     out = _score(org)
     f = {x["key"]: x for x in out["factors"]}
-    assert f["C"]["value"] == 100 and out["score"] == 71 and out["band"]["key"] == "organizado"
+    # 10 + 29 + 0 + 15 + 0 = 54: planning moves the needle, but without controls it stays here.
+    assert f["C"]["value"] == 100 and out["score"] == 54 and out["band"]["key"] == "estruturando"
     # Cadence: the completion snapshot is the first of its day and is kept; the four action
     # triggers within the same hour collapse into one snapshot (latest wins).
     history = _history(org)
-    assert [h["score"] for h in history] == [71, 51]
+    assert [h["score"] for h in history] == [54, 39]
     assert history[0]["trigger"] == "action.created"
 
     # Resolve the critical risk through the state machine, then attach evidence.
@@ -130,7 +145,9 @@ def test_actions_evidence_and_resolution_move_the_score(org) -> None:  # noqa: A
     f = {x["key"]: x for x in out["factors"]}
     assert f["B"]["value"] == 82.5 and f["D"]["value"] == 0  # resolved without proof
     assert f["D"]["items"][0]["detail"] == "Resolvido sem evidência"
-    assert out["next_actions"][0]["label"] == f"Anexar evidência a “{crit['title']}”"
+    # The three uncovered altos (20 pts) come first; the missing proof (15 pts) second.
+    assert out["next_actions"][0]["label"].startswith("Associar e implementar um controle para “")
+    assert out["next_actions"][1]["label"] == f"Anexar evidência a “{crit['title']}”"
     r = o.post(
         f"/api/v1/orgs/{oid}/evidence",
         json={"kind": "note", "risk_id": crit["id"], "note": "Inventário anexado"},
@@ -138,7 +155,8 @@ def test_actions_evidence_and_resolution_move_the_score(org) -> None:  # noqa: A
     assert r.status_code == 201
     out = _score(org)
     f = {x["key"]: x for x in out["factors"]}
-    assert f["D"]["value"] == 100 and out["score"] == 91 and out["band"]["key"] == "maduro"
+    # 10 + 33 + 0 + 15 + 15 = 73: "Maduro" needs implemented controls (K), not only proof.
+    assert f["D"]["value"] == 100 and out["score"] == 73 and out["band"]["key"] == "organizado"
     assert _history(org)[0]["trigger"] == "evidence.added"
     # A manual risk lowers B; deleting the evidence lowers D again.
     o.post(
@@ -164,7 +182,10 @@ def test_unchanged_score_writes_no_snapshot_and_reopen_is_explained(org) -> None
     assert out["preliminary"] is False
     a = next(x for x in out["factors"] if x["key"] == "A")
     assert a["value"] == 28.6 and a["items"][0]["title"] == "30 perguntas sem resposta"
-    assert "Concluir o diagnóstico" in [n["label"] for n in out["next_actions"]]
+    assert a["items"][0]["detail"] == "Conclua o diagnóstico para consolidar o score"
+    # Worth 7.14 pts, the unanswered reducer ranks below controls, plan and proof (20/15/15),
+    # so it is explained in the factor rather than in the three next steps.
+    assert out["top_reducers"][0]["reason"] == "uncontrolled"
 
 
 def test_delta_compares_with_the_earliest_snapshot_before_today(org) -> None:  # noqa: ANN001
@@ -182,7 +203,7 @@ def test_delta_compares_with_the_earliest_snapshot_before_today(org) -> None:  #
         },
     )
     out = _score(org)
-    assert out["delta"]["previous_score"] == 51 and out["delta"]["diff"] == out["score"] - 51
+    assert out["delta"]["previous_score"] == 39 and out["delta"]["diff"] == out["score"] - 39
     assert len(_history(org)) == 2  # a new day → a new snapshot, the old one untouched
 
 
@@ -196,6 +217,6 @@ def test_all_not_applicable_has_no_score_and_no_snapshot(org) -> None:  # noqa: 
 def test_viewer_reads_score_and_history(org) -> None:  # noqa: ANN001
     _complete_short(org)
     v = org["viewer"]
-    assert v.get(f"/api/v1/orgs/{org['id']}/score").json()["score"] == 51
+    assert v.get(f"/api/v1/orgs/{org['id']}/score").json()["score"] == 39
     assert len(v.get(f"/api/v1/orgs/{org['id']}/score/history").json()["items"]) == 1
     assert v.get(f"/api/v1/orgs/{org['id']}/score/history?limit=0").status_code == 422

@@ -5,6 +5,7 @@ from typing import Annotated, Any
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl, StringConstraints, model_validator
 
 from app.models.domain import (
+    ActionEffort,
     ActionStatus,
     EvidenceKind,
     RiskCategory,
@@ -96,8 +97,10 @@ class ActionCreate(BaseModel):
     title: Title
     description: LongText | None = None
     risk_id: uuid.UUID | None = None
+    control_id: uuid.UUID | None = None  # the control this action implements (D27)
     owner_membership_id: uuid.UUID | None = None
     due_date: date | None = None
+    effort: ActionEffort | None = None  # prioritization input (D30)
 
 
 class ActionUpdate(BaseModel):
@@ -105,8 +108,10 @@ class ActionUpdate(BaseModel):
     title: Title | None = None
     description: LongText | None = None
     risk_id: uuid.UUID | None = None
+    control_id: uuid.UUID | None = None
     owner_membership_id: uuid.UUID | None = None
     due_date: date | None = None
+    effort: ActionEffort | None = None
 
 
 class ActionStatusChange(BaseModel):
@@ -117,9 +122,11 @@ class ActionOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: uuid.UUID
     risk_id: uuid.UUID | None
+    control_id: uuid.UUID | None = None
     title: str
     description: str | None
     status: ActionStatus
+    effort: ActionEffort | None = None
     owner: OwnerOut | None = None
     due_date: date | None
     completed_at: datetime | None
@@ -136,9 +143,11 @@ class EvidenceCreate(BaseModel):
     kind: EvidenceKind = Field(description="note, link or document")
     risk_id: uuid.UUID | None = None
     action_id: uuid.UUID | None = None
+    control_id: uuid.UUID | None = None  # the control this proves (D34)
     document_id: uuid.UUID | None = None  # required for kind=document
     note: LongText | None = None
     url: HttpUrl | None = None
+    valid_until: date | None = None  # until when the proof is current (D34)
 
 
 class DocumentRefOut(BaseModel):
@@ -152,9 +161,12 @@ class EvidenceOut(BaseModel):
     id: uuid.UUID
     risk_id: uuid.UUID | None
     action_id: uuid.UUID | None
+    control_id: uuid.UUID | None = None
     document_id: uuid.UUID | None = None
     document: DocumentRefOut | None = None
     kind: EvidenceKind
+    valid_until: date | None = None
+    validity: str = "vigente"  # vigente | vencendo | vencida — derived (D34)
     note: str | None
     url: str | None
     filename: str | None

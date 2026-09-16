@@ -3,7 +3,7 @@ import type { Tone } from "@/lib/domain/labels";
 
 export type Score =
   paths["/api/v1/orgs/{org_id}/score"]["get"]["responses"]["200"]["content"]["application/json"];
-export type ScoreRef = { kind: "risk" | "action" | "assessment" | "evidence"; id?: string | null };
+export type ScoreRef = { kind: "risk" | "action" | "assessment" | "evidence" | "control" | "document"; id?: string | null };
 
 /** Band tones mirror severity semantics (tokens.md §2): never color-only, always with the label. */
 export const BAND_TONE: Record<string, Tone> = {
@@ -24,6 +24,10 @@ export function refHref(ref: ScoreRef): string {
       return "/diagnostico";
     case "evidence":
       return "/riscos";
+    case "control":
+      return ref.id ? `/controles/${ref.id}` : "/controles";
+    case "document":
+      return ref.id ? `/documentos/${ref.id}` : "/documentos";
   }
 }
 

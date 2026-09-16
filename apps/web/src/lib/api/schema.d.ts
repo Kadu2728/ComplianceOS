@@ -248,6 +248,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/orgs/{org_id}/agent/answers/{key}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Agent Answer */
+        get: operations["agent_answer_api_v1_orgs__org_id__agent_answers__key__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/orgs/{org_id}/agent/context": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Agent Context */
+        get: operations["agent_context_api_v1_orgs__org_id__agent_context_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/orgs/{org_id}/agent/questions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Agent Questions */
+        get: operations["agent_questions_api_v1_orgs__org_id__agent_questions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/orgs/{org_id}/assessment": {
         parameters: {
             query?: never;
@@ -379,6 +430,61 @@ export interface paths {
         put?: never;
         post?: never;
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/orgs/{org_id}/controls": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Controls */
+        get: operations["list_controls_api_v1_orgs__org_id__controls_get"];
+        put?: never;
+        /** Create Control */
+        post: operations["create_control_api_v1_orgs__org_id__controls_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/orgs/{org_id}/controls/{control_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Control */
+        get: operations["get_control_api_v1_orgs__org_id__controls__control_id__get"];
+        put?: never;
+        post?: never;
+        /** Delete Control */
+        delete: operations["delete_control_api_v1_orgs__org_id__controls__control_id__delete"];
+        options?: never;
+        head?: never;
+        /** Update Control */
+        patch: operations["update_control_api_v1_orgs__org_id__controls__control_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/orgs/{org_id}/controls/{control_id}/risks/{risk_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Link Control Risk */
+        post: operations["link_control_risk_api_v1_orgs__org_id__controls__control_id__risks__risk_id__post"];
+        /** Unlink Control Risk */
+        delete: operations["unlink_control_risk_api_v1_orgs__org_id__controls__control_id__risks__risk_id__delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -527,6 +633,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/orgs/{org_id}/executive-summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Executive Summary */
+        get: operations["get_executive_summary_api_v1_orgs__org_id__executive_summary_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/orgs/{org_id}/members": {
         parameters: {
             query?: never;
@@ -614,6 +737,58 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/orgs/{org_id}/priorities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Priorities */
+        get: operations["get_priorities_api_v1_orgs__org_id__priorities_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/orgs/{org_id}/profile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Profile */
+        get: operations["get_profile_api_v1_orgs__org_id__profile_get"];
+        /** Update Profile */
+        put: operations["update_profile_api_v1_orgs__org_id__profile_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/orgs/{org_id}/radar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Radar */
+        get: operations["get_radar_api_v1_orgs__org_id__radar_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/orgs/{org_id}/risks": {
         parameters: {
             query?: never;
@@ -659,6 +834,57 @@ export interface paths {
         };
         /** List Risk Actions */
         get: operations["list_risk_actions_api_v1_orgs__org_id__risks__risk_id__actions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/orgs/{org_id}/risks/{risk_id}/controls": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Risk Controls */
+        get: operations["list_risk_controls_api_v1_orgs__org_id__risks__risk_id__controls_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/orgs/{org_id}/risks/{risk_id}/plan": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Plan Risk */
+        post: operations["plan_risk_api_v1_orgs__org_id__risks__risk_id__plan_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/orgs/{org_id}/risks/{risk_id}/recommendation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Risk Recommendation */
+        get: operations["risk_recommendation_api_v1_orgs__org_id__risks__risk_id__recommendation_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -724,10 +950,13 @@ export interface components {
     schemas: {
         /** ActionCreate */
         ActionCreate: {
+            /** Control Id */
+            control_id?: string | null;
             /** Description */
             description?: string | null;
             /** Due Date */
             due_date?: string | null;
+            effort?: components["schemas"]["ActionEffort"] | null;
             /** Owner Membership Id */
             owner_membership_id?: string | null;
             /** Risk Id */
@@ -735,10 +964,18 @@ export interface components {
             /** Title */
             title: string;
         };
+        /**
+         * ActionEffort
+         * @description Relative effort, used by prioritization (decision D30). Optional; unset reads as médio.
+         * @enum {string}
+         */
+        ActionEffort: "baixo" | "medio" | "alto";
         /** ActionOut */
         ActionOut: {
             /** Completed At */
             completed_at: string | null;
+            /** Control Id */
+            control_id?: string | null;
             /**
              * Created At
              * Format: date-time
@@ -748,6 +985,7 @@ export interface components {
             description: string | null;
             /** Due Date */
             due_date: string | null;
+            effort?: components["schemas"]["ActionEffort"] | null;
             /**
              * Id
              * Format: uuid
@@ -776,10 +1014,13 @@ export interface components {
         };
         /** ActionUpdate */
         ActionUpdate: {
+            /** Control Id */
+            control_id?: string | null;
             /** Description */
             description?: string | null;
             /** Due Date */
             due_date?: string | null;
+            effort?: components["schemas"]["ActionEffort"] | null;
             /** Owner Membership Id */
             owner_membership_id?: string | null;
             /** Risk Id */
@@ -799,6 +1040,51 @@ export interface components {
             overdue: number;
             /** Pending */
             pending: number;
+        };
+        /** AgentAnswerOut */
+        AgentAnswerOut: {
+            /** Answer */
+            answer: string;
+            /** Basis */
+            basis: components["schemas"]["AgentRefOut"][];
+            /** Caveat */
+            caveat: string;
+            /** Computed At */
+            computed_at: string;
+            /** Key */
+            key: string;
+            /** Question */
+            question: string;
+        };
+        /**
+         * AgentContextOut
+         * @description Free-form by design: the shape evolves with the engines. Managers only.
+         */
+        AgentContextOut: {
+            /** Caveat */
+            caveat: string;
+            /** Organization Id */
+            organization_id: string;
+            /** Today */
+            today: string;
+        } & {
+            [key: string]: unknown;
+        };
+        /** AgentQuestionOut */
+        AgentQuestionOut: {
+            /** Key */
+            key: string;
+            /** Question */
+            question: string;
+        };
+        /** AgentRefOut */
+        AgentRefOut: {
+            /** Id */
+            id: string;
+            /** Kind */
+            kind: string;
+            /** Title */
+            title: string;
         };
         /** AnswerOut */
         AnswerOut: {
@@ -911,12 +1197,16 @@ export interface components {
         Body_upload_file_api_v1_orgs__org_id__evidence_files_post: {
             /** Action Id */
             action_id?: string | null;
+            /** Control Id */
+            control_id?: string | null;
             /** File */
             file: string;
             /** Note */
             note?: string | null;
             /** Risk Id */
             risk_id?: string | null;
+            /** Valid Until */
+            valid_until?: string | null;
         };
         /** CompleteOut */
         CompleteOut: {
@@ -930,6 +1220,138 @@ export interface components {
             sent_to_review: number;
             /** Updated */
             updated: number;
+        };
+        /** ControlCreate */
+        ControlCreate: {
+            category: components["schemas"]["RiskCategory"];
+            /** Description */
+            description?: string | null;
+            /** Document Id */
+            document_id?: string | null;
+            /** @default preventivo */
+            kind: components["schemas"]["ControlKind"];
+            /** Owner Membership Id */
+            owner_membership_id?: string | null;
+            /** Review Date */
+            review_date?: string | null;
+            /** Risk Id */
+            risk_id?: string | null;
+            /** @default planejado */
+            status: components["schemas"]["ControlStatus"];
+            /** Title */
+            title: string;
+        };
+        /**
+         * ControlGraphOut
+         * @description Everything connected to one control: the Control Graph neighbourhood (D27).
+         */
+        ControlGraphOut: {
+            /** Actions */
+            actions: components["schemas"]["ActionOut"][];
+            control: components["schemas"]["ControlOut"];
+            /** Evidence */
+            evidence: components["schemas"]["EvidenceOut"][];
+            /** Evidence Count */
+            evidence_count: number;
+            /** Risks */
+            risks: components["schemas"]["RiskRefOut"][];
+        };
+        /**
+         * ControlKind
+         * @enum {string}
+         */
+        ControlKind: "preventivo" | "detectivo" | "corretivo";
+        /** ControlLinkOut */
+        ControlLinkOut: {
+            /**
+             * Control Id
+             * Format: uuid
+             */
+            control_id: string;
+            /** Linked */
+            linked: boolean;
+            /**
+             * Risk Id
+             * Format: uuid
+             */
+            risk_id: string;
+        };
+        /** ControlOut */
+        ControlOut: {
+            category: components["schemas"]["RiskCategory"];
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Description */
+            description: string | null;
+            document?: components["schemas"]["DocumentLinkOut"] | null;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            kind: components["schemas"]["ControlKind"];
+            owner?: components["schemas"]["OwnerOut"] | null;
+            /** Review Date */
+            review_date: string | null;
+            status: components["schemas"]["ControlStatus"];
+            /** Template Code */
+            template_code: string | null;
+            /** Title */
+            title: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /**
+         * ControlStatus
+         * @description Maturity ladder. `verificado` requires evidence linked to the control (service rule).
+         * @enum {string}
+         */
+        ControlStatus: "planejado" | "parcial" | "implementado" | "verificado" | "inativo";
+        /** ControlUpdate */
+        ControlUpdate: {
+            category?: components["schemas"]["RiskCategory"] | null;
+            /** Description */
+            description?: string | null;
+            /** Document Id */
+            document_id?: string | null;
+            kind?: components["schemas"]["ControlKind"] | null;
+            /** Owner Membership Id */
+            owner_membership_id?: string | null;
+            /** Review Date */
+            review_date?: string | null;
+            status?: components["schemas"]["ControlStatus"] | null;
+            /** Title */
+            title?: string | null;
+        };
+        /**
+         * CustomerType
+         * @enum {string}
+         */
+        CustomerType: "b2b" | "b2c" | "ambos";
+        /**
+         * DataCategory
+         * @enum {string}
+         */
+        DataCategory: "cadastrais" | "contato" | "financeiros" | "saude" | "biometricos" | "criancas_adolescentes" | "geolocalizacao" | "comportamentais" | "credenciais";
+        /** DecisionOut */
+        DecisionOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Kind */
+            kind: string;
+            /** Title */
+            title: string;
+            /** Why */
+            why: string;
         };
         /** DeltaOut */
         DeltaOut: {
@@ -970,6 +1392,16 @@ export interface components {
              * @default 1.0
              */
             version: string;
+        };
+        /** DocumentLinkOut */
+        DocumentLinkOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
         };
         /** DocumentOut */
         DocumentOut: {
@@ -1076,6 +1508,8 @@ export interface components {
         EvidenceCreate: {
             /** Action Id */
             action_id?: string | null;
+            /** Control Id */
+            control_id?: string | null;
             /** Document Id */
             document_id?: string | null;
             /** @description note, link or document */
@@ -1086,6 +1520,8 @@ export interface components {
             risk_id?: string | null;
             /** Url */
             url?: string | null;
+            /** Valid Until */
+            valid_until?: string | null;
         };
         /**
          * EvidenceKind
@@ -1100,6 +1536,8 @@ export interface components {
             added_by_membership_id: string | null;
             /** Content Type */
             content_type: string | null;
+            /** Control Id */
+            control_id?: string | null;
             /**
              * Created At
              * Format: date-time
@@ -1124,6 +1562,73 @@ export interface components {
             size_bytes: number | null;
             /** Url */
             url: string | null;
+            /** Valid Until */
+            valid_until?: string | null;
+            /**
+             * Validity
+             * @default vigente
+             */
+            validity: string;
+        };
+        /** ExecutiveSummaryOut */
+        ExecutiveSummaryOut: {
+            /** Caveat */
+            caveat: string;
+            /**
+             * Computed At
+             * Format: date-time
+             */
+            computed_at: string;
+            /** Controls */
+            controls: {
+                [key: string]: number;
+            };
+            /** Decisions */
+            decisions: components["schemas"]["DecisionOut"][];
+            /** Documents */
+            documents: {
+                [key: string]: number;
+            };
+            /** Exposures */
+            exposures: components["schemas"]["ExposureOut"][];
+            /** Improved */
+            improved: {
+                [key: string]: number;
+            };
+            /** Next 30 Days */
+            next_30_days: components["schemas"]["PriorityItemOut"][];
+            /** Score */
+            score: {
+                [key: string]: unknown;
+            };
+            trend: components["schemas"]["TrendOut"] | null;
+            /** Unplanned */
+            unplanned: components["schemas"]["UnplannedRiskOut"][];
+            /** Window Days */
+            window_days: number;
+            /** Worsened */
+            worsened: {
+                [key: string]: number;
+            };
+        };
+        /** ExposureOut */
+        ExposureOut: {
+            category: components["schemas"]["RiskCategory"];
+            /** Coverage */
+            coverage: number;
+            /** Due Date */
+            due_date: string | null;
+            owner?: components["schemas"]["OwnerOut"] | null;
+            /** Planned */
+            planned: boolean;
+            /**
+             * Risk Id
+             * Format: uuid
+             */
+            risk_id: string;
+            severity: components["schemas"]["RiskSeverity"];
+            /** Title */
+            title: string;
         };
         /** FactorOut */
         FactorOut: {
@@ -1149,6 +1654,11 @@ export interface components {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
         };
+        /**
+         * HeadcountBand
+         * @enum {string}
+         */
+        HeadcountBand: "ate_9" | "de_10_a_49" | "de_50_a_199" | "acima_de_200";
         /** HealthResponse */
         HealthResponse: {
             /** Status */
@@ -1351,6 +1861,17 @@ export interface components {
             /** Total */
             total: number;
         };
+        /** Page[ControlOut] */
+        Page_ControlOut_: {
+            /** Items */
+            items: components["schemas"]["ControlOut"][];
+            /** Limit */
+            limit: number;
+            /** Offset */
+            offset: number;
+            /** Total */
+            total: number;
+        };
         /** Page[DocumentOut] */
         Page_DocumentOut_: {
             /** Items */
@@ -1388,6 +1909,122 @@ export interface components {
              */
             email: string;
         };
+        /** PlanOut */
+        PlanOut: {
+            action: components["schemas"]["ActionOut"];
+            control?: components["schemas"]["ControlOut"] | null;
+            /**
+             * Risk Id
+             * Format: uuid
+             */
+            risk_id: string;
+        };
+        /** PlanRequest */
+        PlanRequest: {
+            /** Due Date */
+            due_date?: string | null;
+            /** Owner Membership Id */
+            owner_membership_id?: string | null;
+            /** Title */
+            title?: string | null;
+        };
+        /** PrioritiesOut */
+        PrioritiesOut: {
+            /**
+             * Computed At
+             * Format: date-time
+             */
+            computed_at: string;
+            /** Current Score */
+            current_score: number | null;
+            /** Due Soon Days */
+            due_soon_days: number;
+            /** Items */
+            items: components["schemas"]["PriorityItemOut"][];
+            /** Profile Complete */
+            profile_complete: boolean;
+            /** Total Pending */
+            total_pending: number;
+            /** Unplanned */
+            unplanned: components["schemas"]["UnplannedRiskOut"][];
+        };
+        /** PriorityItemOut */
+        PriorityItemOut: {
+            /**
+             * Action Id
+             * Format: uuid
+             */
+            action_id: string;
+            /** Control Id */
+            control_id: string | null;
+            /** Due Date */
+            due_date: string | null;
+            effort: components["schemas"]["ActionEffort"] | null;
+            owner?: components["schemas"]["OwnerOut"] | null;
+            /** Points */
+            points: number;
+            /** Reasons */
+            reasons: string[];
+            /** Risk Id */
+            risk_id: string | null;
+            risk_severity: components["schemas"]["RiskSeverity"] | null;
+            /** Risk Title */
+            risk_title: string | null;
+            /** Score Gain */
+            score_gain: number | null;
+            status: components["schemas"]["ActionStatus"];
+            /** Title */
+            title: string;
+        };
+        /** ProfileOut */
+        ProfileOut: {
+            /** Complete */
+            complete: boolean;
+            customer_type: components["schemas"]["CustomerType"] | null;
+            /** Data Categories */
+            data_categories: string[];
+            headcount_band: components["schemas"]["HeadcountBand"] | null;
+            international_transfers: components["schemas"]["Tristate"] | null;
+            /** Notes */
+            notes: string | null;
+            /**
+             * Organization Id
+             * Format: uuid
+             */
+            organization_id: string;
+            /** Processes */
+            processes: string[];
+            segment: components["schemas"]["Segment"] | null;
+            /** Sells To Enterprise */
+            sells_to_enterprise: boolean | null;
+            /** Systems */
+            systems: string[];
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /**
+         * ProfileUpdate
+         * @description Partial update; every field optional so the form can be filled in steps.
+         */
+        ProfileUpdate: {
+            customer_type?: components["schemas"]["CustomerType"] | null;
+            /** Data Categories */
+            data_categories?: components["schemas"]["DataCategory"][] | null;
+            headcount_band?: components["schemas"]["HeadcountBand"] | null;
+            international_transfers?: components["schemas"]["Tristate"] | null;
+            /** Notes */
+            notes?: string | null;
+            /** Processes */
+            processes?: string[] | null;
+            segment?: components["schemas"]["Segment"] | null;
+            /** Sells To Enterprise */
+            sells_to_enterprise?: boolean | null;
+            /** Systems */
+            systems?: string[] | null;
+        };
         /** ProgressOut */
         ProgressOut: {
             /** Answered */
@@ -1424,6 +2061,85 @@ export interface components {
             mode: components["schemas"]["AssessmentMode"];
             /** Sections */
             sections: components["schemas"]["SectionOut"][];
+        };
+        /** RadarItemOut */
+        RadarItemOut: {
+            /** Count */
+            count: number;
+            /** Kind */
+            kind: string;
+            /** Reason */
+            reason: string;
+            /** Route */
+            route: string;
+            /** Title */
+            title: string;
+            /** Tone */
+            tone: string;
+        };
+        /** RadarOut */
+        RadarOut: {
+            /** All Clear */
+            all_clear: boolean;
+            /**
+             * Computed At
+             * Format: date
+             */
+            computed_at: string;
+            /** Counts */
+            counts: {
+                [key: string]: number;
+            };
+            /** Items */
+            items: components["schemas"]["RadarItemOut"][];
+        };
+        /** RecommendationOut */
+        RecommendationOut: {
+            /** Action Title */
+            action_title?: string | null;
+            /** Basis */
+            basis: string;
+            control?: components["schemas"]["RecommendedControlOut"] | null;
+            /**
+             * Default Due Date
+             * Format: date
+             */
+            default_due_date: string;
+            /**
+             * Default Owner Membership Id
+             * Format: uuid
+             */
+            default_owner_membership_id: string;
+            existing_action?: components["schemas"]["ActionOut"] | null;
+            /** Expected Evidence */
+            expected_evidence?: string | null;
+            /** Linked Controls */
+            linked_controls: components["schemas"]["ControlOut"][];
+            /** Planned */
+            planned: boolean;
+            /**
+             * Risk Id
+             * Format: uuid
+             */
+            risk_id: string;
+            severity: components["schemas"]["RiskSeverity"];
+        };
+        /** RecommendedControlOut */
+        RecommendedControlOut: {
+            /** Already Linked */
+            already_linked: boolean;
+            category: components["schemas"]["RiskCategory"];
+            /** Code */
+            code: string;
+            /** Description */
+            description: string;
+            /** Existing Id */
+            existing_id?: string | null;
+            /** Exists */
+            exists: boolean;
+            kind: components["schemas"]["ControlKind"];
+            /** Title */
+            title: string;
         };
         /**
          * ReducerOut
@@ -1537,6 +2253,22 @@ export interface components {
              * Format: date-time
              */
             updated_at: string;
+        };
+        /**
+         * RiskRefOut
+         * @description A risk as seen from a control (no description; the risk page has it).
+         */
+        RiskRefOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            owner?: components["schemas"]["OwnerOut"] | null;
+            severity: components["schemas"]["RiskSeverity"];
+            status: components["schemas"]["RiskStatus"];
+            /** Title */
+            title: string;
         };
         /**
          * RiskSeverity
@@ -1668,6 +2400,11 @@ export interface components {
             /** Total */
             total: number;
         };
+        /**
+         * Segment
+         * @enum {string}
+         */
+        Segment: "software_saas" | "servicos" | "comercio" | "industria" | "saude" | "educacao" | "financeiro" | "outro";
         /** SignupRequest */
         SignupRequest: {
             /**
@@ -1719,6 +2456,41 @@ export interface components {
             verified: boolean;
             /** Version */
             version: number;
+        };
+        /** TrendOut */
+        TrendOut: {
+            /** Diff */
+            diff: number;
+            /** From */
+            from_: number;
+            /**
+             * Since
+             * Format: date-time
+             */
+            since: string;
+            /** To */
+            to: number;
+        };
+        /**
+         * Tristate
+         * @enum {string}
+         */
+        Tristate: "sim" | "nao" | "nao_sei";
+        /** UnplannedRiskOut */
+        UnplannedRiskOut: {
+            /** Has Control */
+            has_control: boolean;
+            owner?: components["schemas"]["OwnerOut"] | null;
+            /**
+             * Risk Id
+             * Format: uuid
+             */
+            risk_id: string;
+            /** Score Gain */
+            score_gain: number | null;
+            severity: components["schemas"]["RiskSeverity"];
+            /** Title */
+            title: string;
         };
         /** UserOut */
         UserOut: {
@@ -2261,6 +3033,100 @@ export interface operations {
             };
         };
     };
+    agent_answer_api_v1_orgs__org_id__agent_answers__key__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                key: string;
+                org_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AgentAnswerOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    agent_context_api_v1_orgs__org_id__agent_context_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                org_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AgentContextOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    agent_questions_api_v1_orgs__org_id__agent_questions_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                org_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AgentQuestionOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     state_api_v1_orgs__org_id__assessment_get: {
         parameters: {
             query?: never;
@@ -2525,6 +3391,245 @@ export interface operations {
             };
         };
     };
+    list_controls_api_v1_orgs__org_id__controls_get: {
+        parameters: {
+            query?: {
+                status?: components["schemas"]["ControlStatus"][] | null;
+                category?: components["schemas"]["RiskCategory"][] | null;
+                owner_membership_id?: string | null;
+                risk_id?: string | null;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path: {
+                org_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_ControlOut_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_control_api_v1_orgs__org_id__controls_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                org_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ControlCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ControlOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_control_api_v1_orgs__org_id__controls__control_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                control_id: string;
+                org_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ControlGraphOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_control_api_v1_orgs__org_id__controls__control_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                control_id: string;
+                org_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MessageOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_control_api_v1_orgs__org_id__controls__control_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                control_id: string;
+                org_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ControlUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ControlOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    link_control_risk_api_v1_orgs__org_id__controls__control_id__risks__risk_id__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                control_id: string;
+                risk_id: string;
+                org_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ControlLinkOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    unlink_control_risk_api_v1_orgs__org_id__controls__control_id__risks__risk_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                control_id: string;
+                risk_id: string;
+                org_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ControlLinkOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_documents_api_v1_orgs__org_id__documents_get: {
         parameters: {
             query?: {
@@ -2770,6 +3875,7 @@ export interface operations {
             query?: {
                 risk_id?: string | null;
                 action_id?: string | null;
+                control_id?: string | null;
             };
             header?: never;
             path: {
@@ -2920,6 +4026,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_executive_summary_api_v1_orgs__org_id__executive_summary_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                org_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExecutiveSummaryOut"];
                 };
             };
             /** @description Validation Error */
@@ -3161,6 +4298,136 @@ export interface operations {
             };
         };
     };
+    get_priorities_api_v1_orgs__org_id__priorities_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                org_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PrioritiesOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_profile_api_v1_orgs__org_id__profile_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                org_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProfileOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_profile_api_v1_orgs__org_id__profile_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                org_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProfileUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProfileOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_radar_api_v1_orgs__org_id__radar_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                org_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RadarOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_risks_api_v1_orgs__org_id__risks_get: {
         parameters: {
             query?: {
@@ -3320,6 +4587,106 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ActionOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_risk_controls_api_v1_orgs__org_id__risks__risk_id__controls_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                risk_id: string;
+                org_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ControlOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    plan_risk_api_v1_orgs__org_id__risks__risk_id__plan_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                risk_id: string;
+                org_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PlanRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    risk_recommendation_api_v1_orgs__org_id__risks__risk_id__recommendation_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                risk_id: string;
+                org_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RecommendationOut"];
                 };
             };
             /** @description Validation Error */

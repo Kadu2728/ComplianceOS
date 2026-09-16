@@ -277,6 +277,7 @@ ACTIONS: list[dict[str, Any]] = [
         "title": "Identificar dados sensíveis e de dependentes no inventário e definir controles",
         "owner": "carla",
         "due": 20,
+        "effort": "medio",
         "status": "em_andamento",
     },
     {
@@ -284,6 +285,7 @@ ACTIONS: list[dict[str, Any]] = [
         "title": "Restringir a pasta de atestados ao RH e definir prazo de guarda",
         "owner": "carla",
         "due": 35,
+        "effort": "baixo",
         "status": "a_fazer",
     },
     {
@@ -308,6 +310,7 @@ ACTIONS: list[dict[str, Any]] = [
         "title": "Ativar MFA no e-mail corporativo e nos sistemas com dados de clientes",
         "owner": "bruno",
         "due": -5,
+        "effort": "baixo",
         "status": "em_andamento",
         "evidence": [
             {
@@ -380,6 +383,7 @@ ACTIONS: list[dict[str, Any]] = [
         "description": "Bloqueada: aguardando orçamento de duas empresas de segurança.",
         "owner": "bruno",
         "due": 25,
+        "effort": "alto",
         "status": "bloqueada",
     },
     {
@@ -388,6 +392,7 @@ ACTIONS: list[dict[str, Any]] = [
         "de proteção de dados",
         "owner": "diego",
         "due": -12,
+        "effort": "alto",
         "status": "em_andamento",
         "evidence": [
             {
@@ -465,6 +470,7 @@ ACTIONS: list[dict[str, Any]] = [
         "title": "Redigir um plano de resposta a incidentes de uma página com contatos",
         "owner": "bruno",
         "due": 9,
+        "effort": "medio",
         "status": "em_andamento",
     },
     {
@@ -480,6 +486,7 @@ ACTIONS: list[dict[str, Any]] = [
         "title": "Incluir orientação de privacidade no onboarding",
         "owner": "carla",
         "due": -3,
+        "effort": "baixo",
         "status": "a_fazer",
     },
     {
@@ -699,4 +706,53 @@ DOCUMENTS: dict[str, dict[str, Any]] = {
         "tags": ["backup", "seguranca"],
         "file": True,
     },
+}
+
+# Organization profile — Compliance DNA v1 (D28). Context the engines use; never a legal claim.
+PROFILE: dict[str, Any] = {
+    "segment": "software_saas",
+    "headcount_band": "de_50_a_199",
+    "customer_type": "b2b",
+    "data_categories": ["cadastrais", "contato", "financeiros", "saude", "credenciais"],
+    "sells_to_enterprise": True,
+    "international_transfers": "sim",
+    "systems": [
+        "CRM",
+        "ERP",
+        "E-mail corporativo",
+        "Plataforma de e-mail marketing",
+        "Nuvem (hospedagem)",
+        "Drive compartilhado",
+    ],
+    "processes": ["Onboarding de clientes", "Suporte", "Cobrança", "Recrutamento e folha"],
+    "notes": "Dados de saúde apenas de colaboradores (atestados e benefícios), guardados pelo RH.",
+}
+
+# Controls (D27): catalogue code → maturity, owner, formalizing document. Linked to every
+# derived risk whose question the catalogue maps to; evidence of those risks proves the control.
+CONTROLS: dict[str, dict[str, Any]] = {
+    "CTL-AA-MFA": {"status": "parcial", "owner": "bruno"},
+    "CTL-DF-SENSIVEIS": {"status": "planejado", "owner": "carla"},
+    "CTL-TI-INCIDENTES": {"status": "parcial", "owner": "bruno", "doc": "plano-incidentes"},
+    "CTL-AA-ACESSO-MINIMO": {"status": "parcial", "owner": "bruno"},
+    "CTL-SE-DISPOSITIVOS": {"status": "parcial", "owner": "bruno"},
+    "CTL-FT-CONTRATOS": {"status": "parcial", "owner": "diego", "doc": "contrato-aws"},
+    "CTL-PR-POLITICA-INTERNA": {"status": "planejado", "owner": "diego", "doc": "politica-interna"},
+    "CTL-SE-CRIPTOGRAFIA": {"status": "verificado", "owner": "bruno"},
+    "CTL-SE-BACKUP": {"status": "verificado", "owner": "bruno", "doc": "teste-backup"},
+    "CTL-PR-POLITICA-PRIVACIDADE": {
+        "status": "verificado",
+        "owner": "diego",
+        "doc": "politica-privacidade",
+    },
+    "CTL-DF-INVENTARIO": {"status": "verificado", "owner": "diego", "doc": "registro-tratamento"},
+    "CTL-PE-ORIENTACAO": {"status": "verificado", "owner": "carla", "doc": "material-orientacao"},
+    "CTL-FT-FORNECEDORES": {"status": "verificado", "owner": "diego"},
+    "CTL-DF-MINIMIZACAO": {"status": "implementado", "owner": "bruno"},
+    "CTL-DF-RETENCAO": {"status": "planejado", "owner": "diego", "doc": "politica-retencao"},
+    "CTL-TI-TITULARES": {"status": "implementado", "owner": "diego", "doc": "proc-titulares"},
+    "CTL-PR-GOVERNANCA-DOCUMENTAL": {"status": "parcial", "owner": "ana"},
+    "CTL-SE-ATUALIZACOES": {"status": "parcial", "owner": "bruno"},
+    "CTL-SE-VULNERABILIDADES": {"status": "planejado", "owner": "bruno"},
+    "CTL-AA-ARMAZENAMENTO": {"status": "planejado", "owner": "bruno"},
 }

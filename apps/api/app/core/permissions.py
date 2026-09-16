@@ -44,6 +44,17 @@ PERMISSIONS: dict[str, frozenset[Role]] = {
     "document.update_any": MANAGERS,
     "document.update_assigned": CONTRIBUTORS,  # the document's responsible person
     "document.delete": MANAGERS,
+    # Control Graph (Phase 11, D27) — mirrors the risk rules.
+    "control.read": ALL,
+    "control.create": MANAGERS,
+    "control.update_any": MANAGERS,
+    "control.update_assigned": CONTRIBUTORS,  # the control's owner; cannot reassign
+    "control.link": MANAGERS,  # risk ↔ control links
+    "control.delete": MANAGERS,
+    # Organization profile (D28): owners and admins keep the context current.
+    "profile.update": MANAGERS,
+    # Reserved for the Compliance Room (D33) — no route uses it yet.
+    "room.manage": frozenset({Role.OWNER}),
 }
 
 

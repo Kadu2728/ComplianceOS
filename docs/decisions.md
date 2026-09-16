@@ -49,6 +49,15 @@ Origin of D1–D25: Initial Diagnostic §18 (2026-09-11).
 | D24 | Observability provider | PENDING | LOW | QA |
 | D25 | Beta billing | DEFAULT: manual | LOW | Beta |
 | D26 | Documents v1 model | DEFAULT (applied Phase 7): own entity with derived status (review state + validity, 30-day expiring window), one current file replaced on upload (history = audit log), tags as JSONB, citation as evidence kind `document` with RESTRICT delete; no Documents factor in the score; templates/reminders/version table deferred | HIGH | Documents |
+| D27 | Control entity and Control Graph (supersedes D5) | DEFAULT (applied Phase 11): tenant-owned `Control` with catalogue `template_code`, maturity status ladder, owner, formalizing document; `risk_controls` M:N; `actions.control_id`, `evidence.control_id` | HIGH | Control Graph, Score v2 |
+| D28 | Organization profile (Compliance DNA v1) | DEFAULT (applied Phase 11): 1:1 `organization_profiles` with segment, headcount band, customer type, data categories, enterprise sales, international transfers, systems, processes; used by prioritization, radar and agent context — never to assert obligations | HIGH | Risk Brain |
+| D29 | Risk-to-Action engine v1 | DEFAULT (applied Phase 11): recommendation per risk (catalogue control + suggested action + default due date by severity + expected evidence) and one-click `POST /risks/{id}/plan` | HIGH | Risk-to-Action |
+| D30 | Smart prioritization and Risk Radar | DEFAULT (applied Phase 11): explainable priority per pending action (severity × exposure × urgency ÷ effort, plus simulated score gain); radar = live attention items with reasons; no persistence | HIGH | Control Room |
+| D31 | Score v2 (Controles factor) | DEFAULT (applied Phase 11): A 0.10 · B 0.40 · K Controles 0.20 · C 0.15 · D 0.15; `score_version=v2`; v1 snapshots untouched; per-action score gain by simulation | HIGH | Score |
+| D32 | Compliance Agent foundation | DEFAULT (applied Phase 11): deterministic, context-bundled answers to a fixed question set; no LLM; guardrails in `docs/ai.md`; provider/region decision pending (D35) | MEDIUM | Agent |
+| D33 | Executive summary (CEO mode) and Compliance Room boundaries | DEFAULT (applied Phase 11): `GET /executive-summary` + `/resumo`; Compliance Room designed, permissions reserved, not exposed | MEDIUM | CEO mode; Room |
+| D34 | Evidence Vault v1 | DEFAULT (applied Phase 11): `evidence.valid_until` + derived status (vigente/vencendo/vencida), `evidence.control_id`; upload rules unchanged | MEDIUM | Evidence |
+| D35 | LLM provider, region and data boundary for the Compliance Agent | PENDING | MEDIUM | Agent (LLM layer) |
 
 ---
 
@@ -272,6 +281,70 @@ Implemented as data (a single table/enum map), not as scattered conditionals.
 - **Rejected for v1:** a version table (audit log suffices until customers ask for diffs), a Documents dimension in the score (D10 keeps four factors; a document only counts when cited as evidence), seeding "expected documents" from assessment content (needs the Compliance Researcher's per-question mapping first), expiry reminders (needs the e-mail provider, D11).
 - **Alternatives considered:** modelling documents as evidence records (rejected: no validity/responsible lifecycle); storing status (rejected: hidden state that drifts from the calendar).
 
+## D27 — Control entity and Control Graph
+
+- **Status:** DEFAULT applied in Phase 11 (2026-09-15); supersedes the D5 default ("no Control entity in v1").
+- **Class:** HIGH — the brand grammar Risk → Control → Action → Evidence (brand §4, §24) and the user's brief of 2026-09-15 require a first-class control.
+- **Decision:** `controls` is tenant-owned (composite-FK pattern): title, description, `category` (same enum as risks), `kind` (preventivo · detectivo · corretivo), `status` as the maturity ladder planejado → parcial → implementado → verificado (+ inativo), `owner_membership_id`, `document_id` (the policy/procedure that formalizes it, SET NULL), `review_date`, `template_code` (key in the versioned catalogue `app/content/controls_v1.json`). `risk_controls` links risks and controls (M:N, both composite FKs, unique pair). `actions.control_id` (an action implements or improves a control) and `evidence.control_id` (evidence proves a control) are optional composite FKs. `verificado` requires at least one evidence linked to the control (service rule).
+- **Permissions:** `control.read` all; `control.create` / `control.update_any` / `control.delete` / `control.link` managers; `control.update_assigned` contributors (the control's owner cannot reassign).
+- **Rejected:** a global `control_templates` table (the catalogue is content, versioned in JSON like the assessment before it had customers); Process/Asset entities (captured as profile lists until a workflow needs rows); automatic control creation on assessment completion (a person plans a risk; the engine recommends).
+- **Impact:** migration 0008; Score v2 (D31); demo dataset gains controls; 6 routes join the cross-tenant fixture.
+
+## D28 — Organization profile (Compliance DNA v1)
+
+- **Status:** DEFAULT applied in Phase 11 (2026-09-15).
+- **Class:** HIGH — first organizational context the engine can use (brief §5–§6).
+- **Decision:** `organization_profiles` (1:1, created lazily): `segment`, `headcount_band`, `customer_type`, `data_categories` (JSONB list from a fixed set: cadastrais, contato, financeiros, saude, biometricos, criancas_adolescentes, geolocalizacao, comportamentais, credenciais), `sells_to_enterprise`, `international_transfers` (sim · nao · nao_sei), `systems` and `processes` (JSONB lists of short strings, ≤ 20 each), `notes`. Managers edit (`org.update` for owners; admins may edit the profile via `profile.update`), everyone reads.
+- **How it is used:** exposure multiplier in prioritization (sensitive/children data → dados/titulares/seguranca risks weigh more; enterprise sales → documentation/evidence weigh more; unknown international transfers → fornecedores weigh more), radar hints ("perfil incompleto"), agent context, executive summary. It **never** decides whether a legal obligation applies (Compliance Researcher §9: qualification is fact-dependent and self-declared); copy says "com base no seu perfil".
+- **Rejected:** branching the assessment by profile (content change, needs legal review); free-text-only profile (not usable by the engine).
+
+## D29 — Risk-to-Action engine v1
+
+- **Status:** DEFAULT applied in Phase 11 (2026-09-15).
+- **Class:** HIGH — turns "qual é o meu risco?" into "o que eu faço agora?" (brief §8).
+- **Decision:** `GET /risks/{id}/recommendation` returns the recommended control (catalogue entry by `origin_question_code`, or by category for manual risks), the recommended action title (`risk.suggested_action`, else the catalogue's action), a default due date by severity (crítico 15 · alto 30 · médio 60 · baixo 90 days — product defaults, not legal deadlines), the expected evidence and whether the risk is already planned. `POST /risks/{id}/plan` applies it in one transaction: reuses the organization's control with the same `template_code` or creates it (status planejado), links it to the risk, creates the action (owner = body.owner or the risk's owner or the actor; due date = body or default) linked to risk and control; audited (`risk.planned`); score recalculated. Idempotent per risk while an open action exists (409 with the existing action).
+- **Rejected:** planning every derived risk automatically on assessment completion (floods the action list, removes judgment); AI-generated action text (D32 keeps the engine deterministic; content comes from the reviewed catalogue).
+
+## D30 — Smart prioritization and Risk Radar
+
+- **Status:** DEFAULT applied in Phase 11 (2026-09-15).
+- **Class:** HIGH — brief §9–§10, §14.
+- **Decision (priority, `services/priorities.py`):** for each pending action: `points = severity_weight(linked risk; 1 without risk) × exposure(profile, category) × urgency × leverage`, where urgency = 1.5 overdue · 1.25 due within 7 days · 1.0 otherwise, leverage = 1/effort with effort baixo 1 · médio 1.5 · alto 2.5 (default médio when unset), exposure ∈ {1.0, 1.25, 1.5}. Each item carries `reasons[]` in pt-BR and `score_gain` = points the score would gain if the linked risk were resolved with evidence (pure `compute()` on a copy of the inputs). Sorted by points desc; ties by due date. Unplanned open crítico/alto risks are listed separately as "planejar" items.
+- **Decision (radar, `services/radar.py`):** live attention items grouped by kind, each with count, severity tone, reason and deep link: riscos críticos abertos · riscos críticos/altos sem controle · riscos sem responsável · riscos em revisão · ações atrasadas · ações vencendo em 7 dias · ações bloqueadas · controles implementados sem evidência · evidências vencidas/vencendo · documentos vencidos/vencendo/faltantes · perfil incompleto · diagnóstico desatualizado (> 180 days). No persistence in v1; change detection (diff between days) is future work.
+- **Rejected:** ML ranking; persisting radar snapshots now (needs a retention decision).
+
+## D31 — Score v2
+
+- **Status:** DEFAULT applied in Phase 11 (2026-09-15); D10 remains the record for v1.
+- **Class:** HIGH.
+- **Decision:** five factors — A Diagnóstico 0.10, B Riscos 0.40, K Controles 0.20, C Execução 0.15, D Evidências 0.15. K = coverage of open crítico/alto risks by controls: a risk counts 1.0 with a control `implementado`/`verificado`, 0.5 with only `parcial`, 0 with `planejado`/none; no open high risk → 100. Formulas for A, B, C, D unchanged. `SCORE_VERSION = "v2"`; existing snapshots keep `v1` and are never recomputed; delta compares only same-version snapshots (already the rule), so the first v2 snapshot starts a new trend baseline (the UI says so). Reducers gain `uncontrolled` (risk without control) and next actions gain "associar controle". The band labels are unchanged (still F5).
+- **Why the weights:** risk posture still dominates; controls and execution together (0.35) reward structure over declarations; diagnostic completeness drops to 0.10 because it is table stakes once the loop runs.
+- **Impact:** engine tests and the demo pin move to v2 values (the tests are updated, not removed).
+
+## D32 — Compliance Agent foundation
+
+- **Status:** DEFAULT applied in Phase 11 (2026-09-15).
+- **Class:** MEDIUM.
+- **Decision:** `services/agent.py` assembles a structured, tenant-scoped context bundle (profile, score explanation, radar, priorities, top risks, controls state, documents state; audit only for managers) and answers a fixed question set deterministically from that bundle: maiores riscos · o que corrigir esta semana · por que o score mudou · documentos faltando/vencidos · riscos sem ação · riscos sem controle · ações atrasadas · evidências vencendo. Every answer carries `basis` (record refs), `caveat` (operational, not legal) and `computed_at`. Endpoints: `GET /agent/questions`, `GET /agent/answers/{key}`, `GET /agent/context` (managers). No LLM call, no free-text input, no prompt surface. `docs/ai.md` fixes the guardrails a future LLM layer must satisfy (data minimization, no obligation invention, sources, human validation, tenant isolation, logging). Provider, region and data boundary are decision D35 (PENDING).
+
+## D33 — Executive summary and Compliance Room boundaries
+
+- **Status:** DEFAULT applied in Phase 11 (2026-09-15).
+- **Class:** MEDIUM.
+- **Decision:** `GET /executive-summary` (every role) — score and band, 30-day delta, top exposures (open crítico/alto with owner and plan state), what improved and what worsened in 30 days (from snapshots and audit), decisions needed (blocked actions, unowned high risks, expired documents), next 30-day plan (top priorities). Rendered at `/resumo` (print-friendly, no charts beyond the trend). Compliance Room: reserved permissions `room.manage` (owners) and the data boundary — only records explicitly marked shareable (a future `shareable` flag on controls/documents), never risks or actions by default, never evidence files without an explicit per-file choice, time-boxed links, audit of every view. Not implemented: needs D13 (Compliance OS's own legal documents) and a threat model.
+
+## D34 — Evidence Vault v1
+
+- **Status:** DEFAULT applied in Phase 11 (2026-09-15).
+- **Class:** MEDIUM.
+- **Decision:** `evidence.valid_until` (optional) with derived status vigente · vencendo (within `DOCUMENT_EXPIRING_DAYS`) · vencida; `evidence.control_id`. Radar and the evidence panel surface expired/expiring evidence. Upload validation, storage keys and download rules are unchanged. Reusable evidence (one file proving several controls) stays a citation pattern: cite a Document.
+
+## D35 — LLM provider, region and data boundary
+
+- **Status:** PENDING (user decision; blocks the LLM layer of the agent)
+- **Class:** MEDIUM
+- **Note:** which model/provider, in which region, with what data minimization (the context bundle already excludes e-mails and file contents), logging and retention. The deterministic agent (D32) needs none of this.
+
 ## Phase log
 
 | Date | Phase | Outcome |
@@ -303,3 +376,4 @@ Implemented as data (a single table/enum map), not as scattered conditionals.
 | 2026-09-13 | Phase 9 — DONE | SMTP e-mail adapter + production guard + `503 email_unavailable` with rollback (D11 PARTIAL); S3-compatible storage backend, boto3 runtime dep, moto dev dep (D12 PARTIAL); organization switcher (httpOnly preference cookie, Server Action, progressive enhancement) and invitation accept opening the joined organization (`InvitationAcceptedOut`); demo organization "Acme Tecnologia Ltda." built through the services (`scripts/seed_demo.py`, score 77 Organizado, 28 risks, 28 actions, 18 documents, 5 PDFs) with a coherence test pinning the story; audit entries stamped in strictly increasing order per process. **190 tests** (+15). Gates: ruff/format/openapi check/alembic round trip PASS; web lint/typecheck/vitest (7)/build PASS. Browser (SSR through the BFF): demo overview renders 77/Organizado with team activity; switch Empresa de Teste → Acme via the action form (forged id ignored); `/riscos` shows Acme's risks; demo PDF downloads. Not exercised in the browser: the accept-invitation → remembered-organization path (API side tested). No commit made (awaiting instruction). |
 | 2026-09-13 | Phase 10 start | User wrote "Avance": commit of Phase 9 (`ad3930f`) and the proposed scope — list filters, document-expiry reminders, nonce-based CSP. |
 | 2026-09-15 | Phase 10 — DONE | List filters on `/riscos` and `/acoes` (validated search params → API parameters; GET form with on-change navigation, works without JS; pagination keeps filters — fixed `?x?page=2` bug; dashboard counters deep-link). Document-expiry digest job (`scripts/send_reminders.py`, `reminder_deliveries` migration 0007, one digest per organization per `REMINDER_INTERVAL_DAYS`, retry on relay failure). Nonce-based CSP in `src/middleware.ts` (`'strict-dynamic'`; static CSP removed from `next.config.ts`). **193 API tests** (+3 reminders), 10 web tests (+3 filters). Verified with the demo: 3 críticos / 3 atrasadas / 17 pendentes / 4 ações da Carla; digest run against the dev DB (Acme: 2 documentos, 4 destinatários; second run skipped); CSP header + 20/20 nonced scripts. Not verified: CSP blocking in a regular browser. |
+| 2026-09-15 | Phase 11 start | User brief: evolve the MVP toward the Control Layer vision without destructive changes; no commit or deploy without explicit authorization. Diagnosis and gap map in `docs/product/control-layer-evolution.md`; D27–D34 applied as DEFAULT, D35 opened. |

@@ -60,15 +60,49 @@ def test_demo_is_coherent_with_the_api() -> None:
     # The story in numbers (D10 v1). If the assessment content or the weights change, the demo
     # dataset must be re-read against the new derivation — that is the point of this assertion.
     score = client.get(f"/api/v1/orgs/{org_id}/score").json()
-    assert score["available"] and score["score"] == summary["score"] == 77
+    # v2 (D31): 10 + 25.12 + 7.5 + 13.26 + 13.13 = 69.0. K = 3/8: of the eight open crítico/alto
+    # risks, six have a partial control (0.5 each) and two only a planned one.
+    assert score["available"] and score["score"] == summary["score"] == 69
     assert score["band"]["label"] == "Organizado"  # 60–79: a real programme with gaps left
     factors = {f["key"]: f["value"] for f in score["factors"]}
-    assert factors == {"A": 100.0, "B": 62.8, "C": 88.4, "D": 87.5}
-    assert score["top_reducers"][0]["reason"] == "open_critico"
-    assert score["top_reducers"][0]["count"] == 3
+    assert factors == {"A": 100.0, "B": 62.8, "K": 37.5, "C": 88.4, "D": 87.5}
+    # Three open críticos cost 3 × 40 × 12/253 = 5.69; the two risks with only a planned control
+    # cost 2 × 2.5 = 5.0 (partial controls are not "uncontrolled"): críticos rank first.
+    assert [(r["reason"], r["count"]) for r in score["top_reducers"][:2]] == [
+        ("open_critico", 3),
+        ("uncontrolled", 2),
+    ]
     history = client.get(f"/api/v1/orgs/{org_id}/score/history").json()["items"]
-    assert [h["score"] for h in history] == [77, 40]  # after the diagnostic → today
+    # 10 + 0.40 × 49.8 right after the diagnostic, then today
+    assert [h["score"] for h in history] == [69, 30]
     assert all(h["trigger"] for h in history)
+
+    # Control Graph: 20 catalogue controls, every one linked to at least one risk, verified ones
+    # carry evidence, and the profile makes the priorities context-aware.
+    assert summary["controls"] == 20
+    controls = client.get(f"/api/v1/orgs/{org_id}/controls?limit=50").json()
+    assert controls["total"] == 20
+    by_status = {}
+    for c in controls["items"]:
+        by_status[c["status"]] = by_status.get(c["status"], 0) + 1
+    assert by_status == {"planejado": 5, "parcial": 7, "implementado": 2, "verificado": 6}
+    for c in controls["items"]:
+        graph = client.get(f"/api/v1/orgs/{org_id}/controls/{c['id']}").json()
+        assert graph["risks"], c["title"]
+        if c["status"] == "verificado":
+            assert graph["evidence_count"] >= 1, c["title"]
+    profile = client.get(f"/api/v1/orgs/{org_id}/profile").json()
+    assert profile["complete"] is True and "saude" in profile["data_categories"]
+    prio = client.get(f"/api/v1/orgs/{org_id}/priorities").json()
+    assert prio["items"][0]["title"].startswith(
+        "Ativar MFA"
+    )  # crítico × sensível × atrasada ÷ baixo
+    assert prio["items"][0]["score_gain"] and prio["items"][0]["score_gain"] > 0
+    radar = client.get(f"/api/v1/orgs/{org_id}/radar").json()
+    kinds = {it["kind"]: it["count"] for it in radar["items"]}
+    assert kinds["risk_critical"] == 3 and kinds["action_overdue"] == 3
+    assert kinds["control_without_evidence"] == 2  # DF-03 minimização and TI titulares
+    assert kinds["document_expired"] == 1 and kinds["document_missing"] == 2
 
     members = client.get(f"/api/v1/orgs/{org_id}/members").json()
     assert {m["role"] for m in members} == {"owner", "admin", "member", "viewer"}

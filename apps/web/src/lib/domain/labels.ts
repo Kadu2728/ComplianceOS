@@ -5,6 +5,7 @@ import {
   Circle,
   CircleAlert,
   CircleCheck,
+  CircleCheckBig,
   CircleDot,
   CircleEllipsis,
   CircleSlash,
@@ -110,9 +111,61 @@ export const ROLE_LABEL: Record<string, string> = {
   viewer: "Leitura",
 };
 
+/** Control maturity ladder (D27): planejado → parcial → implementado → verificado; inativo aside. */
+export const CONTROL_STATUS: Record<string, { label: string; tone: Tone; icon: LucideIcon; hint: string }> = {
+  planejado: { label: "Planejado", tone: "neutral", icon: Circle, hint: "Definido, ainda não existe na prática" },
+  parcial: { label: "Parcial", tone: "warning", icon: CircleDot, hint: "Existe em parte da operação" },
+  implementado: { label: "Implementado", tone: "info", icon: CircleCheck, hint: "Em uso; falta comprovar" },
+  verificado: { label: "Verificado", tone: "success", icon: CircleCheckBig, hint: "Em uso e comprovado com evidência" },
+  inativo: { label: "Inativo", tone: "neutral", icon: CircleSlash, hint: "Desativado ou substituído" },
+};
+export const CONTROL_KIND: Record<string, string> = {
+  preventivo: "Preventivo",
+  detectivo: "Detectivo",
+  corretivo: "Corretivo",
+};
+export const EFFORT: Record<string, string> = { baixo: "Baixo", medio: "Médio", alto: "Alto" };
+export const EVIDENCE_VALIDITY: Record<string, { label: string; tone: Tone }> = {
+  vigente: { label: "Vigente", tone: "success" },
+  vencendo: { label: "Vencendo", tone: "warning" },
+  vencida: { label: "Vencida", tone: "danger" },
+};
+export const SEGMENT: Record<string, string> = {
+  software_saas: "Software / SaaS",
+  servicos: "Serviços",
+  comercio: "Comércio",
+  industria: "Indústria",
+  saude: "Saúde",
+  educacao: "Educação",
+  financeiro: "Financeiro",
+  outro: "Outro",
+};
+export const HEADCOUNT: Record<string, string> = {
+  ate_9: "Até 9 pessoas",
+  de_10_a_49: "10 a 49",
+  de_50_a_199: "50 a 199",
+  acima_de_200: "200 ou mais",
+};
+export const CUSTOMER_TYPE: Record<string, string> = { b2b: "Empresas (B2B)", b2c: "Pessoas físicas (B2C)", ambos: "Ambos" };
+export const TRISTATE: Record<string, string> = { sim: "Sim", nao: "Não", nao_sei: "Não sei" };
+export const DATA_CATEGORY: Record<string, string> = {
+  cadastrais: "Cadastrais (nome, CPF, endereço)",
+  contato: "Contato (e-mail, telefone)",
+  financeiros: "Financeiros / pagamento",
+  saude: "Saúde",
+  biometricos: "Biométricos",
+  criancas_adolescentes: "Crianças e adolescentes",
+  geolocalizacao: "Geolocalização",
+  comportamentais: "Comportamentais / navegação",
+  credenciais: "Credenciais de acesso",
+};
+
 export const RISK_STATUS_LABELS: Record<string, string> = Object.fromEntries(
   Object.entries(RISK_STATUS).map(([k, v]) => [k, v.label]),
 );
 export const ACTION_STATUS_LABELS: Record<string, string> = Object.fromEntries(
   Object.entries(ACTION_STATUS).map(([k, v]) => [k, v.label]),
+);
+export const CONTROL_STATUS_LABELS: Record<string, string> = Object.fromEntries(
+  Object.entries(CONTROL_STATUS).map(([k, v]) => [k, v.label]),
 );
