@@ -34,9 +34,18 @@ Evidence files are stored under `apps/api/.storage` in development (git-ignored)
 
 Open `http://localhost:3000/criar-conta` to create the first account and organization. Password-reset and invitation e-mails are printed to the API console in development.
 
+### Domain in one line
+
+Context (organization profile) → Risk → Control → Action → Evidence → Score → Radar. A risk page
+recommends the catalogue control and action and applies them in one step; controls climb a maturity
+ladder (planejado → parcial → implementado → verificado, the last one only with evidence); the score
+(v2) rewards implemented controls; the radar and the priorities say what needs attention today and
+what to do first, with the score gain of each step. `docs/product/control-layer-evolution.md` has the
+map; `docs/ai.md` the rules for the (future) language-model layer.
+
 ### Demo organization
 
-`uv run python scripts/seed_demo.py` (with `DATABASE_URL` set, or from `.env`) builds **Acme Tecnologia Ltda.** — a full diagnostic, 28 risks, 28 actions, 18 documents (five with a generated PDF), evidence, a five-person team and an audit trail — entirely through the regular services, so the score (77, "Organizado" at seed time) is computed from the records, never typed in (CLAUDE.md §23). Sign in as `ana@acme.example` (default password `acme-demo-2026` outside production; `--password`/`DEMO_PASSWORD` is required in production). `--also-owner you@company.com` adds an existing account as owner so you can switch between your organization and the demo from the sidebar. `--remove` deletes it again (development only). Timestamps are real: the activity feed shows the seed run and score history accrues from that day.
+`uv run python scripts/seed_demo.py` (with `DATABASE_URL` set, or from `.env`) builds **Acme Tecnologia Ltda.** — a full diagnostic, 28 risks, 28 actions, 18 documents (five with a generated PDF), evidence, a five-person team and an audit trail — 20 catalogue controls linked to their risks and a complete organization profile — entirely through the regular services, so the score (69, "Organizado" at seed time, v2) is computed from the records, never typed in (CLAUDE.md §23). Sign in as `ana@acme.example` (default password `acme-demo-2026` outside production; `--password`/`DEMO_PASSWORD` is required in production). `--also-owner you@company.com` adds an existing account as owner so you can switch between your organization and the demo from the sidebar. `--remove` deletes it again (development only). Timestamps are real: the activity feed shows the seed run and score history accrues from that day.
 
 ### Scheduled job: document-expiry digest
 
