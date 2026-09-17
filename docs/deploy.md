@@ -17,7 +17,7 @@ browser ── https://app.<domain> (Vercel, gru1) ──BFF──> https://<api
 
 web: lint, typecheck, unit tests, `next build`, generated API types up to date · api: ruff, format,
 full test suite (embedded PostgreSQL), single alembic head, `openapi.json` up to date · image: the
-production Docker image builds, boots against PostgreSQL (migrations + content seed + `/health`),
+production Docker image builds, boots against PostgreSQL (migrations + content seed + `/api/v1/health`),
 runs the reminders job, and **refuses to start** with an incomplete production configuration.
 
 ## 1. One-time: accounts and external services
@@ -47,8 +47,12 @@ runs the reminders job, and **refuses to start** with an incomplete production c
    `postgres://` form is normalized by the API). `APP_ENV=production` turns on the guards: the
    service will not start without HTTPS cookies, SMTP, S3 and a 32+ character secret.
 2. Apply. The first deploy runs `alembic upgrade head` and `scripts/seed_content.py` (assessment
-   template v1) in the container entrypoint, then serves. Health check: `GET /health`.
-3. Copy the service URL (`https://compliance-os-api-XXXX.onrender.com`) — the web app needs it.
+   template v1) in the container entrypoint, then serves. Health check: `GET /api/v1/health`.
+3. Copy the service URL from the service page — it carries a random suffix
+   (`https://compliance-os-api-XXXX.onrender.com`) because the bare name is already taken on Render
+   by an unrelated project. Verify it is *this* API before using it anywhere:
+   `curl -i https://<url>/api/v1/health` must return `{"status":"ok","version":"…"}` with a
+   `strict-transport-security` header and an `x-request-id` in UUID form.
 4. Optional demo organization (never on a customer instance): Render → service → Shell →
    `python scripts/seed_demo.py --password '<strong password>'`.
 
@@ -73,7 +77,7 @@ CLI equivalent from `apps/web`: `vercel link` → `vercel env add API_BASE_URL p
 1. `https://app.<domain>/criar-conta` → create the first account and organization; the welcome
    flow leads to the diagnostic.
 2. Confirm: password-reset e-mail arrives (SMTP), a file uploads and downloads (S3), `/historico`
-   shows the actions, `https://<api>/health` returns the version.
+   shows the actions, `https://<api>/api/v1/health` returns the version.
 3. Check the Render cron job ran once (Logs) the next morning.
 
 ## 5. Operations

@@ -63,7 +63,7 @@ services:
     dockerfilePath: ./Dockerfile
     region: ohio
     plan: starter
-    healthCheckPath: /health
+    healthCheckPath: /api/v1/health
     autoDeployTrigger: commit
     envVars:
       - fromGroup: compliance-os-api
