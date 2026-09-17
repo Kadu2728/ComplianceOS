@@ -69,4 +69,30 @@ def test_production_requires_secure_cookies(monkeypatch) -> None:  # noqa: ANN00
     with pytest.raises(ValueError, match="COOKIE_SECURE"):
         Settings(_env_file=None)
     monkeypatch.setenv("COOKIE_SECURE", "true")
-    assert Settings(_env_file=None).cookie_secure is True
+    # Production also refuses ephemeral local storage (container filesystems vanish on deploy).
+    monkeypatch.setenv("STORAGE_BACKEND", "local")
+    with pytest.raises(ValueError, match="STORAGE_BACKEND"):
+        Settings(_env_file=None)
+    monkeypatch.setenv("STORAGE_BACKEND", "s3")
+    monkeypatch.setenv("S3_BUCKET", "compliance-os")
+    monkeypatch.setenv("DATABASE_URL", "postgres://user:secret@db.internal/compliance")
+    settings = Settings(_env_file=None)
+    assert settings.cookie_secure is True
+    # Managed providers hand out `postgres://`; SQLAlchemy needs the driver spelled out.
+    assert settings.database_url == "postgresql+psycopg://user:secret@db.internal/compliance"
+    monkeypatch.delenv("DATABASE_URL")
+    with pytest.raises(ValueError, match="DATABASE_URL"):
+        Settings(_env_file=None)
+
+
+def test_hsts_only_in_production(client: TestClient, monkeypatch) -> None:  # noqa: ANN001
+    from app.core import headers as headers_module
+
+    assert "strict-transport-security" not in client.get("/health").headers
+    monkeypatch.setattr(
+        headers_module, "get_settings", lambda: type("S", (), {"app_env": "production"})()
+    )
+    assert (
+        client.get("/health").headers["strict-transport-security"]
+        == "max-age=31536000; includeSubDomains"
+    )

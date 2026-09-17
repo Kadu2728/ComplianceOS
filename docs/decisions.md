@@ -38,7 +38,7 @@ Origin of D1–D25: Initial Diagnostic §18 (2026-09-11).
 | D14 | Text-safe variants of semantic colors; Text Muted usage | DEFAULT (values in docs/design/tokens.md §2) | HIGH | Design tokens |
 | D15 | Logo asset (SVG) | PENDING (interim text wordmark + reserved 24px slot, app-shell.md §3) | HIGH | Favicon; marketing |
 | D16 | Dark mode in MVP | DEFAULT: no | MEDIUM | Design system |
-| D17 | Railway vs Render | PENDING | MEDIUM | Deploy |
+| D17 | Railway vs Render | DECIDED (2026-09-17): **Render** for the API, the daily job and PostgreSQL (blueprint `render.yaml`, region Ohio), **Vercel** for the web (`gru1`), S3-compatible bucket + SMTP relay as already abstracted; Docker image with migrations in the entrypoint; CI boots the image. Fly.io `gru` + Neon `sa-east-1` documented as the data-in-Brazil alternative if D12's legal review requires it | MEDIUM | Deploy |
 | D18 | Pinned major versions | DEFAULT | MEDIUM | Foundation |
 | D18a | Next 15 → 16 (postcss advisory bundled in Next 15) | PENDING | LOW | — (revisit before Phase 3) |
 | D19 | IDs, delete strategy, pagination, error envelope, API versioning | DEFAULT | MEDIUM | Modeling / API |
@@ -218,8 +218,27 @@ Implemented as data (a single table/enum map), not as scattered conditionals.
 
 ## D17 — Railway vs Render
 
-- **Status:** PENDING
+- **Status:** DECIDED (2026-09-17, user request "siga com o deploy").
 - **Class:** MEDIUM
+- **Decision:** Render for the API. Reasons: a reviewable infrastructure file (`render.yaml` —
+  service, cron job and database in one blueprint applied from the repository), native Docker
+  deploys, health-checked zero-downtime releases, a managed PostgreSQL 16 in the same region, cron
+  jobs from the same image (the reminders digest). Railway offers the same runtime but its
+  configuration is UI-first; neither has a Brazilian region. Web on Vercel (account exists; `gru1`
+  São Paulo functions; root directory `apps/web`). Region Ohio for API + database (closest to
+  Brazil; keep both together — the app issues several queries per page).
+- **Artifacts:** `apps/api/Dockerfile` (uv, no dev deps, non-root, healthcheck),
+  `apps/api/docker-entrypoint.sh` (migrate → seed content → uvicorn with proxy headers; arguments
+  run a job instead), `render.yaml`, `apps/web/vercel.json`, CI job `image` (build, boot against
+  PostgreSQL, run the job, prove the production guard refuses an incomplete configuration),
+  `docs/deploy.md` runbook. Settings: `DATABASE_URL` normalized from `postgres://` to
+  `postgresql+psycopg://`; production refuses to start without S3 storage or a database URL; HSTS
+  in production.
+- **Residency:** documented alternative Fly.io (`gru`) + Neon (`sa-east-1`) with the same image if
+  the D12 legal review demands data at rest in Brazil. D12 (provider/region + legal review), D11
+  (SMTP vendor) and D3 (production domain) remain the user's calls; the runbook lists them.
+- **Not automated:** account creation, secrets and payment details (typed by a person in each
+  dashboard).
 
 ## D18 — Pinned major versions
 
@@ -403,3 +422,4 @@ Implemented as data (a single table/enum map), not as scattered conditionals.
 | 2026-09-16 | Phase 11 — DONE (commit `4db0669`) | Control Graph (`controls`, `risk_controls`, `actions.control_id/effort`, `evidence.control_id/valid_until`, `organization_profiles`; migration 0008 round-trip + check clean). **P1 fixed:** composite `ON DELETE SET NULL` FKs nulled `organization_id` (member removal with owned records → 500); all 16 recreated as `SET NULL (column)`. Catalogue v1 (24 controls ↔ 42 questions, test-enforced), Risk-to-Action (`/recommendation`, `/plan`), Score v2 with Controles factor + `simulate()`, priorities, radar, deterministic agent (`docs/ai.md`), executive summary, profile. Frontend: `/controles` pages, plan panel, Control Room overview, profile form, `/resumo`, evidence validity/control target, action effort/control. Demo re-pinned at 69 with 20 controls. Gates on 2026-09-15: **246 API tests passed** (+53 since Phase 10; 17 min on embedded PostgreSQL), 12 web tests, ruff check/format, OpenAPI drift, alembic gate, lint, typecheck, `next build` (new routes 1.5–3.6 kB, shared 103 kB) all PASS; pip-audit 176 packages clean; npm audit: 2 advisories in the `postcss` copy vendored by Next 15 (fix = Next 16, blocked by D18; build-time only). Live probes against the dev API: 18 cross-tenant requests to the new endpoints by an outsider → all 404; one-step plan on TI-05 reused the incidents control, created the action for Carla (30 d), radar unplanned 1 → 0, score 69 → 70. Not verified in a regular browser: client-side interactions (the in-app pane does not paint). |
 | 2026-09-17 | Phase 12 — IMPLEMENTED (awaiting authorization to commit) | D35 decided and applied: Anthropic Claude via the official SDK (`claude-opus-5` default, adaptive thinking at medium effort, JSON-schema output), off unless `LLM_PROVIDER=anthropic`. `core/llm.py` (Disabled · Anthropic · Fake providers), `services/agent_llm.py` (bundle → prompt → grounded JSON; refs filtered to bundle ids; forbidden-claim filter; deterministic fallback; `agent.asked` audit with counters only), `POST /agent/ask` (rate-limited per user/minute and organization/hour), `GET /agent/status`; bundle gains `records`. UI: "Agente de compliance" on Visão geral (canonical chips + free text when enabled, one grounded answer with Base chips) and "Entender este risco" on the risk page. Also: dark mode work reviewed and finished the same day (commit `975bd2d`). Gates: **API 264 passed** (+18), tenancy 65 routes × 2, web 12 tests, ruff/format/OpenAPI/lint/typecheck/`next build` PASS, pip-audit 201 packages clean. End-to-end with the real SDK against a local mock of `/v1/messages` (no credentials available here): free-text answer with 3 grounded refs and a dropped bogus ref, focused risk explanation, forbidden claim → 503 + audit `rejected_claim`. Not done: a call to the real provider; legal review (D13 + provider terms) before enabling in production. |
 | 2026-09-17 | Phase 13 — IMPLEMENTED (awaiting authorization to commit) | Compliance Room v1 (D36) after a written threat model (`docs/security/compliance-room-threat-model.md`): `compliance_rooms` + `room_links` + `shared_in_room` flags (migration 0009, round trip clean); owner-only management, explicit per-record sharing (faltante documents and non-implemented controls refused), time-boxed hashed links shown once, anonymous visitor surface with uniform 404, per-IP limits, `no-store`/`noindex`, every view and download audited; preview = visitor payload. Web: `/sala`, `/sala/previa`, public `(public)/sala/[token]`; owner-only nav item; activity sentences. Also fixed the secondary button border in dark mode. Gates: **API 284 passed** (+20), tenancy 71 routes × 2, web 12 tests, ruff/format/OpenAPI/alembic/lint/typecheck/`next build` PASS. Browser (Acme, dev servers): share → publish → link → cookie-less visitor page with score, documents, real PDF download → revoke → 404; invalid token page; mobile. Before real customers: D13 and legal review of the visitor copy. |
+| 2026-09-17 | Phase 14 — deploy readiness (awaiting authorization to commit + push) | D17 decided: Render (API + reminders cron + PostgreSQL 16, `render.yaml`, Ohio) and Vercel (`apps/web`, `gru1`). `apps/api/Dockerfile` (uv, no dev deps, non-root, healthcheck) + `docker-entrypoint.sh` (migrate → seed content → uvicorn behind proxy headers; arguments run a job). Settings: `postgres://` URLs normalized to the psycopg driver; production refuses local storage or a missing database URL; HSTS in production. CI gains an `image` job (build, boot against PostgreSQL, run the job, prove the production guard). `docs/deploy.md` runbook with the residency note (Fly `gru` + Neon `sa-east-1` alternative). Local gates PASS (config tests +2). The Docker image itself is only verifiable in CI (no Docker on this machine) — the push is the validation. Pending on the user: Render account + secrets (SMTP, S3), Vercel project (`API_BASE_URL`), domain (D3), D11/D12/D13 decisions. |

@@ -1,0 +1,103 @@
+# Compliance OS — Render blueprint (decision D17). Web app lives on Vercel (apps/web/vercel.json).
+#
+# One click in Render ("New → Blueprint" on this repository) creates the API service, the daily
+# reminders job and the PostgreSQL database. Values marked `sync: false` are secrets or
+# deployment-specific and are typed in the Render dashboard on first apply; the runbook in
+# docs/deploy.md lists every one of them.
+
+previews:
+  generation: off
+
+envVarGroups:
+  - name: compliance-os-api
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: LOG_LEVEL
+        value: INFO
+      - key: COOKIE_SECURE
+        value: "true"
+      # JSON list with the web app's origin, e.g. ["https://app.complianceos.com.br"]
+      - key: CORS_ORIGINS
+        sync: false
+      # Public URL of the web app, used in e-mail links (same origin as above).
+      - key: APP_BASE_URL
+        sync: false
+      - key: EMAIL_PROVIDER
+        value: smtp
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_USERNAME
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: SMTP_FROM
+        sync: false
+      - key: SMTP_SECURITY
+        value: starttls
+      - key: STORAGE_BACKEND
+        value: s3
+      - key: S3_BUCKET
+        sync: false
+      - key: S3_REGION
+        sync: false
+      - key: S3_ENDPOINT_URL
+        sync: false
+      - key: S3_ACCESS_KEY_ID
+        sync: false
+      - key: S3_SECRET_ACCESS_KEY
+        sync: false
+      - key: DEFAULT_TIMEZONE
+        value: America/Sao_Paulo
+      # Compliance Agent language model (D35): off until the legal review in D35/D13 is recorded.
+      - key: LLM_PROVIDER
+        value: none
+
+services:
+  - type: web
+    name: compliance-os-api
+    runtime: docker
+    rootDir: apps/api
+    dockerfilePath: ./Dockerfile
+    region: ohio
+    plan: starter
+    healthCheckPath: /health
+    autoDeployTrigger: commit
+    envVars:
+      - fromGroup: compliance-os-api
+      - key: DATABASE_URL
+        fromDatabase:
+          name: compliance-os-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      # In-memory rate limiter (D23): one worker per instance keeps the limits meaningful.
+      - key: WEB_CONCURRENCY
+        value: "1"
+
+  - type: cron
+    name: compliance-os-reminders
+    runtime: docker
+    rootDir: apps/api
+    dockerfilePath: ./Dockerfile
+    dockerCommand: python scripts/send_reminders.py
+    # 11:00 UTC = 08:00 America/Sao_Paulo. The script is idempotent per organization and day.
+    schedule: "0 11 * * *"
+    region: ohio
+    plan: starter
+    envVars:
+      - fromGroup: compliance-os-api
+      - key: DATABASE_URL
+        fromDatabase:
+          name: compliance-os-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+
+databases:
+  - name: compliance-os-db
+    region: ohio
+    plan: basic-256mb
+    postgresMajorVersion: "16"

@@ -77,6 +77,15 @@ class Settings(BaseSettings):
     llm_user_minute_limit: int = 6
     llm_org_hourly_limit: int = 60
 
+    @field_validator("database_url")
+    @classmethod
+    def _sqlalchemy_url(cls, value: str | None) -> str | None:
+        """Managed providers hand out `postgres://` / `postgresql://` strings; SQLAlchemy needs the
+        psycopg driver spelled out. Anything already explicit is left alone."""
+        if value and value.startswith(("postgres://", "postgresql://")):
+            return "postgresql+psycopg://" + value.split("://", 1)[1]
+        return value
+
     @field_validator("jwt_secret")
     @classmethod
     def _secret_required_in_production(cls, value: str, info) -> str:  # noqa: ANN001
@@ -101,6 +110,11 @@ class Settings(BaseSettings):
         if self.app_env == "production" and self.email_provider != "smtp":
             # Invitations and password resets would silently go to the log.
             raise ValueError("EMAIL_PROVIDER must be smtp in production.")
+        if self.app_env == "production" and self.storage_backend != "s3":
+            # Container filesystems are ephemeral: local files would vanish on the next deploy.
+            raise ValueError("STORAGE_BACKEND must be s3 in production.")
+        if self.app_env == "production" and not self.database_url:
+            raise ValueError("DATABASE_URL is required in production.")
         if self.llm_provider == "anthropic" and not self.anthropic_api_key:
             raise ValueError("LLM_PROVIDER=anthropic requires ANTHROPIC_API_KEY.")
         return self

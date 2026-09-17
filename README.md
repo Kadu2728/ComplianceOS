@@ -55,6 +55,10 @@ The agent answers eight canonical questions deterministically from the organizat
 
 The owner opens **Sala de compliance**, flags the documents and implemented controls to show, checks the preview (exactly what a visitor sees), publishes the room and creates one time-boxed link per recipient (`/sala/<token>`, 1–90 days, revocable). Visitors need no account; every view and download is audited. Nothing is shared by default and risks, actions, evidence and people never appear. Boundaries and threats: `docs/security/compliance-room-threat-model.md` (decision D36).
 
+### Deploy
+
+Web on Vercel (`apps/web`, region `gru1`), API + daily job + PostgreSQL on Render (`render.yaml`, Docker image `apps/api/Dockerfile`, migrations in the entrypoint), files on any S3-compatible bucket, e-mail through any SMTP relay. Step by step, environment variables and the data-residency note: `docs/deploy.md` (decision D17). CI builds and boots the production image on every push.
+
 ### Scheduled job: document-expiry digest
 
 `uv run python scripts/send_reminders.py` e-mails each organization's managers and document owners a summary of documents that are expired or expiring within `DOCUMENT_EXPIRING_DAYS` — at most once every `REMINDER_INTERVAL_DAYS` (7) per organization, and only while there is something to report. Schedule it daily (platform cron, GitHub Actions `schedule`, or `cron`); re-running it on the same day is a no-op, and a relay failure leaves no record so the next run retries. In development the digest is printed to the console like every other e-mail.

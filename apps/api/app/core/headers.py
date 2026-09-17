@@ -9,6 +9,8 @@ from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoin
 from starlette.requests import Request
 from starlette.responses import Response
 
+from app.core.config import get_settings
+
 SECURITY_HEADERS = {
     "X-Content-Type-Options": "nosniff",
     "X-Frame-Options": "DENY",
@@ -24,4 +26,9 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
             response.headers.setdefault(name, value)
         if "cache-control" not in response.headers:
             response.headers["Cache-Control"] = "no-store"
+        if get_settings().app_env == "production":
+            # Production is HTTPS-only (COOKIE_SECURE is enforced); tell browsers to remember it.
+            response.headers.setdefault(
+                "Strict-Transport-Security", "max-age=31536000; includeSubDomains"
+            )
         return response

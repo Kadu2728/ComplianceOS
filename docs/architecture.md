@@ -425,6 +425,16 @@ existed. Diagnosis and gap map: `docs/product/control-layer-evolution.md`.
   · 7 parcial · 2 implementado · 6 verificado with proof), efforts on key actions; score 69
   (A 100 · B 62.8 · K 37.5 · C 88.4 · D 87.5), first snapshot 30 right after the diagnostic.
 
+## Deployment (D17, Phase 14)
+
+`apps/api/Dockerfile` builds the API with uv (no dev dependencies, non-root user, healthcheck);
+`docker-entrypoint.sh` applies migrations and seeds the versioned content before serving, and runs
+a job instead when given arguments (`python scripts/send_reminders.py`). `render.yaml` declares the
+API service, the daily reminders cron and PostgreSQL 16 (Ohio); `apps/web/vercel.json` pins the web
+to Next.js on `gru1`. Production settings refuse to start without HTTPS cookies, SMTP, S3 storage, a
+database URL and a 32+ character JWT secret; HSTS is added in production. CI builds the image and
+boots it against PostgreSQL on every push. Runbook: `docs/deploy.md`.
+
 ## Request-ID propagation
 
 - `X-Request-ID` is accepted inbound when it matches `^[A-Za-z0-9-]{8,128}$`, otherwise a UUID4 is generated.
