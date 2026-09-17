@@ -1,0 +1,50 @@
+name: Document-expiry digest
+
+# Daily reminders job (Phase 10) run from GitHub Actions, so the API host needs no cron of its own
+# (decision D17, free-tier topology). The script is idempotent per organization and day; re-runs
+# are no-ops. Secrets are repository secrets (Settings → Secrets and variables → Actions):
+#   DATABASE_URL, SMTP_HOST, SMTP_USERNAME, SMTP_PASSWORD, SMTP_FROM, APP_BASE_URL
+# and one repository variable: S3_BUCKET (the bucket name only; the job never touches files).
+
+on:
+  schedule:
+    - cron: "0 11 * * *" # 11:00 UTC = 08:00 America/Sao_Paulo
+  workflow_dispatch:
+
+concurrency:
+  group: reminders
+  cancel-in-progress: false
+
+jobs:
+  digest:
+    name: send digests
+    runs-on: ubuntu-latest
+    if: ${{ vars.REMINDERS_ENABLED == 'true' }}
+    defaults:
+      run:
+        working-directory: apps/api
+    env:
+      APP_ENV: production
+      COOKIE_SECURE: "true"
+      # The job signs nothing; production settings only require a 32+ character value.
+      JWT_SECRET: reminders-job-signs-no-tokens-0123456789abcdef
+      EMAIL_PROVIDER: smtp
+      STORAGE_BACKEND: s3
+      S3_BUCKET: ${{ vars.S3_BUCKET }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      SMTP_HOST: ${{ secrets.SMTP_HOST }}
+      SMTP_PORT: ${{ vars.SMTP_PORT || '587' }}
+      SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+      SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+      SMTP_FROM: ${{ secrets.SMTP_FROM }}
+      APP_BASE_URL: ${{ secrets.APP_BASE_URL }}
+      DEFAULT_TIMEZONE: America/Sao_Paulo
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: apps/api/uv.lock
+      - run: uv python install 3.12
+      - run: uv sync --frozen --no-dev
+      - run: uv run python scripts/send_reminders.py

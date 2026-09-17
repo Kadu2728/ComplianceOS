@@ -429,9 +429,10 @@ existed. Diagnosis and gap map: `docs/product/control-layer-evolution.md`.
 
 `apps/api/Dockerfile` builds the API with uv (no dev dependencies, non-root user, healthcheck);
 `docker-entrypoint.sh` applies migrations and seeds the versioned content before serving, and runs
-a job instead when given arguments (`python scripts/send_reminders.py`). `render.yaml` declares the
-API service, the daily reminders cron and PostgreSQL 16 (Ohio); `apps/web/vercel.json` pins the web
-to Next.js on `gru1`. Production settings refuse to start without HTTPS cookies, SMTP, S3 storage, a
+a job instead when given arguments (`python scripts/send_reminders.py`). Free path: Koyeb (image from
+the repository) + Neon + B2, daily digest via `.github/workflows/reminders.yml`. Paid path:
+`render.yaml` (API service, cron, PostgreSQL 16, Ohio). `apps/web/vercel.json` pins the web to
+Next.js on `gru1`. Production settings refuse to start without HTTPS cookies, SMTP, S3 storage, a
 database URL and a 32+ character JWT secret; HSTS is added in production. CI builds the image and
 boots it against PostgreSQL on every push. Runbook: `docs/deploy.md`.
 
