@@ -90,7 +90,23 @@ ROUTES = [
     ("GET", "/api/v1/orgs/{org}/agent/questions", None),
     ("GET", "/api/v1/orgs/{org}/agent/answers/biggest_risks", None),
     ("GET", "/api/v1/orgs/{org}/agent/context", None),
+    ("GET", "/api/v1/orgs/{org}/agent/status", None),
+    ("POST", "/api/v1/orgs/{org}/agent/ask", {"question": "Quais são meus maiores riscos?"}),
+    (
+        "POST",
+        "/api/v1/orgs/{org}/agent/ask",
+        {"question": "Explique este risco", "focus": {"kind": "risk", "id": "{risk}"}},
+    ),
 ]
+
+
+def _fill(value, ids):  # noqa: ANN001, ANN201
+    """Substitute {org}/{risk}/... placeholders at any depth of a request body."""
+    if isinstance(value, str):
+        return value.format(**ids)
+    if isinstance(value, dict):
+        return {k: _fill(v, ids) for k, v in value.items()}
+    return value
 
 
 @pytest.fixture
@@ -157,11 +173,7 @@ def test_member_of_a_cannot_touch_b(two_orgs, method: str, template: str, body) 
         "control": two_orgs["b_control"],
     }
     path = template.format(**ids)
-    body = (
-        {k: (v.format(**ids) if isinstance(v, str) else v) for k, v in body.items()}
-        if body
-        else None
-    )
+    body = _fill(body, ids) if body else None
     r = a.request(method, path, json=body)
     assert r.status_code == 404, f"{method} {path} -> {r.status_code} {r.text}"
     assert r.json()["code"] == "not_found"
@@ -190,11 +202,7 @@ def test_unknown_org_is_404_not_403(two_orgs, method: str, template: str, body) 
         )
     }
     path = template.format(**ids)
-    body = (
-        {k: (v.format(**ids) if isinstance(v, str) else v) for k, v in body.items()}
-        if body
-        else None
-    )
+    body = _fill(body, ids) if body else None
     assert a.request(method, path, json=body).status_code == 404
 
 

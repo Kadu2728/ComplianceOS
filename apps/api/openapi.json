@@ -404,6 +404,98 @@
         "title": "AgentAnswerOut",
         "type": "object"
       },
+      "AgentAskIn": {
+        "properties": {
+          "focus": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AgentFocusIn"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "question": {
+            "maxLength": 500,
+            "minLength": 3,
+            "title": "Question",
+            "type": "string"
+          }
+        },
+        "required": [
+          "question"
+        ],
+        "title": "AgentAskIn",
+        "type": "object"
+      },
+      "AgentAskOut": {
+        "properties": {
+          "answer": {
+            "title": "Answer",
+            "type": "string"
+          },
+          "basis": {
+            "items": {
+              "$ref": "#/components/schemas/AgentRefOut"
+            },
+            "title": "Basis",
+            "type": "array"
+          },
+          "caveat": {
+            "title": "Caveat",
+            "type": "string"
+          },
+          "computed_at": {
+            "title": "Computed At",
+            "type": "string"
+          },
+          "interpretation": {
+            "title": "Interpretation",
+            "type": "boolean"
+          },
+          "model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model"
+          },
+          "out_of_scope": {
+            "title": "Out Of Scope",
+            "type": "boolean"
+          },
+          "question": {
+            "title": "Question",
+            "type": "string"
+          },
+          "source": {
+            "enum": [
+              "model",
+              "deterministic"
+            ],
+            "title": "Source",
+            "type": "string"
+          }
+        },
+        "required": [
+          "question",
+          "answer",
+          "basis",
+          "caveat",
+          "computed_at",
+          "source",
+          "model",
+          "interpretation",
+          "out_of_scope"
+        ],
+        "title": "AgentAskOut",
+        "type": "object"
+      },
       "AgentContextOut": {
         "additionalProperties": true,
         "description": "Free-form by design: the shape evolves with the engines. Managers only.",
@@ -427,6 +519,26 @@
           "caveat"
         ],
         "title": "AgentContextOut",
+        "type": "object"
+      },
+      "AgentFocusIn": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "const": "risk",
+            "title": "Kind",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "id"
+        ],
+        "title": "AgentFocusIn",
         "type": "object"
       },
       "AgentQuestionOut": {
@@ -468,6 +580,37 @@
           "title"
         ],
         "title": "AgentRefOut",
+        "type": "object"
+      },
+      "AgentStatusOut": {
+        "description": "What the agent can do in this installation (D35): free-text questions need a provider.",
+        "properties": {
+          "free_text": {
+            "title": "Free Text",
+            "type": "boolean"
+          },
+          "model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model"
+          },
+          "question_max_length": {
+            "title": "Question Max Length",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "free_text",
+          "model",
+          "question_max_length"
+        ],
+        "title": "AgentStatusOut",
         "type": "object"
       },
       "AnswerOut": {
@@ -5809,6 +5952,60 @@
         ]
       }
     },
+    "/api/v1/orgs/{org_id}/agent/ask": {
+      "post": {
+        "description": "One grounded answer (D35). Every role may ask: the bundle is built inside the caller's\nmembership, so it never shows more than the pages already do. Rate limits are per user and\nper organization \u2014 the model costs money and the limiter is the abuse ceiling.",
+        "operationId": "agent_ask_api_v1_orgs__org_id__agent_ask_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "org_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Org Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgentAskIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentAskOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Agent Ask",
+        "tags": [
+          "insights"
+        ]
+      }
+    },
     "/api/v1/orgs/{org_id}/agent/context": {
       "get": {
         "operationId": "agent_context_api_v1_orgs__org_id__agent_context_get",
@@ -5894,6 +6091,49 @@
           }
         },
         "summary": "Agent Questions",
+        "tags": [
+          "insights"
+        ]
+      }
+    },
+    "/api/v1/orgs/{org_id}/agent/status": {
+      "get": {
+        "operationId": "agent_status_api_v1_orgs__org_id__agent_status_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "org_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Org Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentStatusOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Agent Status",
         "tags": [
           "insights"
         ]

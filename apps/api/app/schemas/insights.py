@@ -2,9 +2,9 @@
 
 import uuid
 from datetime import date, datetime
-from typing import Any
+from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from app.models.domain import ActionEffort, ActionStatus, RiskCategory, RiskSeverity
 from app.schemas.domain import OwnerOut
@@ -81,6 +81,36 @@ class AgentAnswerOut(BaseModel):
     basis: list[AgentRefOut]
     caveat: str
     computed_at: str
+
+
+class AgentStatusOut(BaseModel):
+    """What the agent can do in this installation (D35): free-text questions need a provider."""
+
+    free_text: bool
+    model: str | None
+    question_max_length: int
+
+
+class AgentFocusIn(BaseModel):
+    kind: Literal["risk"]
+    id: uuid.UUID
+
+
+class AgentAskIn(BaseModel):
+    question: str = Field(min_length=3, max_length=500)
+    focus: AgentFocusIn | None = None
+
+
+class AgentAskOut(BaseModel):
+    question: str
+    answer: str
+    basis: list[AgentRefOut]
+    caveat: str
+    computed_at: str
+    source: Literal["model", "deterministic"]
+    model: str | None
+    interpretation: bool
+    out_of_scope: bool
 
 
 class AgentContextOut(BaseModel):

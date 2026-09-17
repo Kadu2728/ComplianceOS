@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ActivityList } from "@/components/domain/activity-list";
+import { AgentPanel } from "@/components/domain/agent-panel";
 import { PrioritiesList } from "@/components/domain/priorities-list";
 import { RadarPanel } from "@/components/domain/radar-panel";
 import { ScoreCard } from "@/components/score/score-card";
@@ -10,7 +11,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
 import { apiGet } from "@/lib/api/server";
 import { CONTROL_STATUS, RISK_STATUS, SEVERITY, formatDate, isOverdue } from "@/lib/domain/labels";
-import type { ControlPage, Overview, Priorities, Radar, ScoreHistory } from "@/lib/domain/queries";
+import type { AgentQuestion, AgentStatus, ControlPage, Overview, Priorities, Radar, ScoreHistory } from "@/lib/domain/queries";
 import type { Score } from "@/lib/domain/score";
 import { getSession } from "@/lib/session/server";
 
@@ -23,13 +24,15 @@ export default async function OverviewPage() {
   const session = await getSession();
   if (!session) return null;
   const base = `/api/v1/orgs/${session.membership.organization.id}`;
-  const [score, overview, history, radar, prio, controls] = await Promise.all([
+  const [score, overview, history, radar, prio, controls, questions, agentStatus] = await Promise.all([
     apiGet<Score>(`${base}/score`),
     apiGet<Overview>(`${base}/overview`),
     apiGet<ScoreHistory>(`${base}/score/history?limit=30`),
     apiGet<Radar>(`${base}/radar`),
     apiGet<Priorities>(`${base}/priorities?limit=5`),
     apiGet<ControlPage>(`${base}/controls?limit=1`),
+    apiGet<AgentQuestion[]>(`${base}/agent/questions`),
+    apiGet<AgentStatus>(`${base}/agent/status`),
   ]);
   const empty = !score || (!score.available && score.reason === "no_assessment");
   const trend = [...(history?.items ?? [])].reverse();
@@ -139,6 +142,8 @@ export default async function OverviewPage() {
               <ControlMaturity base={base} />
             )}
           </section>
+
+          <AgentPanel orgId={session.membership.organization.id} questions={questions ?? []} status={agentStatus} className="lg:col-span-3" />
 
           <section aria-labelledby="documentos" className="rounded-lg border border-border bg-surface-elevated p-5 lg:col-span-3">
             <div className="flex items-baseline justify-between gap-3">

@@ -1,9 +1,9 @@
 # COMPLIANCE OS — AI: THE COMPLIANCE AGENT
 
-Status: foundation implemented in Phase 11 (decision D32); the language-model layer is **not**
-implemented — it depends on decision D35 (provider, region, data boundary). This file fixes what
-exists today and the rules any future LLM layer must satisfy (CLAUDE.md §7, brand §63, Compliance
-Researcher §27, Senior Software Engineer §28–§29).
+Status: foundation implemented in Phase 11 (decision D32); the language-model layer implemented
+in Phase 12 (decision D35 — Anthropic Claude, off by default). This file fixes what exists and the
+rules the LLM layer satisfies (CLAUDE.md §7, brand §63, Compliance Researcher §27, Senior Software
+Engineer §28–§29).
 
 ## 1. What exists (deterministic, no model)
 
@@ -22,10 +22,42 @@ Researcher §27, Senior Software Engineer §28–§29).
   pages show and returns `basis` (record refs the UI can link), `caveat` (operational, not legal) and
   `computed_at`. No free-text input exists, so there is no prompt surface and no injection surface.
 
-The web app does not expose a chat. The value the agent will add is *contextual explanation*, and
-the deterministic layer already delivers the facts it would explain.
+- **Attention records** — the bundle also carries `records`: open crítico/alto risks, documents
+  needing attention and controls with their proof count (≤ 15 each, ids included), so an answer can
+  cite them.
 
-## 2. Rules for the LLM layer (when D35 is decided)
+## 1b. What exists (language model, D35)
+
+`apps/api/app/core/llm.py` (provider adapter) + `apps/api/app/services/agent_llm.py` (boundary
+and guardrails) + `POST /orgs/{org_id}/agent/ask` + `GET /orgs/{org_id}/agent/status`.
+
+- **One question, one answer.** Body `{question ≤ 500 chars, focus?: {kind: "risk", id}}`. The
+  model receives the static system prompt and one user message: the bundle above (JSON, inside
+  `<dados_da_organizacao>`) and the question (inside `<pergunta>`). With `focus`, the bundle also
+  carries that risk's record (description, treatment, controls, open actions) — fetched through the
+  tenant-scoped getter, so a foreign id is a 404 and the model is never called.
+- **Structured output.** The model must return `{answer, refs[{kind,id}], interpretation,
+  out_of_scope}` (JSON schema enforced by the API). `refs` survive only when the (kind, id) exists
+  in the bundle; titles are attached server-side. The UI shows them as "Base:" chips.
+- **Claim filter.** Answers matching the forbidden patterns (conformidade garantida, cumpre
+  integralmente a LGPD, substitui advogado/DPO/consultor, dispensa revisão jurídica, 100 % conforme)
+  are rejected as a whole (`rejected_claim`).
+- **Degradation.** Provider disabled, unreachable, over quota, refusal, truncation, invalid JSON or a
+  rejected claim: when the question equals a canonical one (accents/punctuation ignored), the
+  deterministic answer is returned with `source: "deterministic"`; otherwise HTTP 503 with a pt-BR
+  message. The UI keeps the canonical questions available in every case.
+- **Audit and logs.** Every question writes `agent.asked` (question truncated to 200 chars, outcome,
+  model, input/output tokens, number of refs; never the answer). Logs carry organization id, request
+  id, model, outcome, counters and latency — never bundle, question or answer text.
+- **Limits.** 6 questions per user per minute, 60 per organization per hour (env-configurable),
+  in-memory limiter (D23).
+- **UI.** "Agente de compliance" on Visão geral: canonical questions as chips (deterministic, no
+  model) and, when the model is enabled, a single free-text field; one answer at a time, with its
+  base, an "Inclui interpretação" badge when the model flagged it, the source line and the caveat.
+  Risk page: "Entender este risco" (focused question) when the model is enabled. No thread, no
+  memory, no chat.
+
+## 2. Rules for the LLM layer (as implemented)
 
 1. **Input = the context bundle, nothing more.** The model never receives raw tables, files,
    evidence contents, e-mails or another organization's data. Add a field to the bundle only with a
@@ -51,13 +83,17 @@ the deterministic layer already delivers the facts it would explain.
 
 ## 3. Prompt injection posture
 
-The deterministic layer has no prompt. When the LLM layer arrives, user-controlled strings inside the
-bundle (risk titles, notes, document names) are data: they are delimited as such in the prompt, and
-instructions found inside them are ignored by construction (system prompt states it; the
-post-processing check enforces the output side).
+User-controlled strings inside the bundle (risk titles, descriptions, notes, document names) are
+data: the bundle is a JSON document inside `<dados_da_organizacao>`, the system prompt states that
+text inside it is never an instruction, and the output side is enforced regardless of what the model
+did — refs are validated against the bundle, claims are filtered, the shape is a schema. The
+question itself is the only instruction channel and it is bounded (500 chars, rate-limited,
+audited). An injected instruction can at most degrade one answer for the person who asked; it
+cannot reach another organization, a file, a token or an endpoint.
 
 ## 4. What would change the design
 
-- A customer-facing chat: needs D35 plus a rate limit per organization and a per-message audit entry.
+- A conversation (follow-up questions with memory): needs a stored thread per user, retention rules
+  in D13 and a re-read of §3 — the bundle would then include model output as context.
 - Document analysis (contracts, policies): needs a file-reading boundary and explicit per-file consent
   in the UI; excluded from the bundle by default.

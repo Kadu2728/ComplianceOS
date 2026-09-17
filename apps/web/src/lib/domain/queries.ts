@@ -41,6 +41,14 @@ export type ExecutiveSummary =
   paths["/api/v1/orgs/{org_id}/executive-summary"]["get"]["responses"]["200"]["content"]["application/json"];
 export type Profile =
   paths["/api/v1/orgs/{org_id}/profile"]["get"]["responses"]["200"]["content"]["application/json"];
+export type AgentQuestion =
+  paths["/api/v1/orgs/{org_id}/agent/questions"]["get"]["responses"]["200"]["content"]["application/json"][number];
+export type AgentStatus =
+  paths["/api/v1/orgs/{org_id}/agent/status"]["get"]["responses"]["200"]["content"]["application/json"];
+export type AgentAnswer =
+  paths["/api/v1/orgs/{org_id}/agent/answers/{key}"]["get"]["responses"]["200"]["content"]["application/json"];
+export type AgentAsk =
+  paths["/api/v1/orgs/{org_id}/agent/ask"]["post"]["responses"]["200"]["content"]["application/json"];
 
 export async function memberOptions(orgId: string): Promise<MemberOption[]> {
   const members = (await apiGet<Members>(`/api/v1/orgs/${orgId}/members`)) ?? [];

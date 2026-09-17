@@ -9,12 +9,13 @@ Guardrails for the LLM layer live in docs/ai.md; the provider decision is D35.
 import uuid
 from typing import Any
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.core.permissions import has_permission
 from app.models.control import Control
-from app.models.domain import Evidence, Risk, RiskSeverity
+from app.models.document import DocumentStatus
+from app.models.domain import Action, ActionStatus, Evidence, Risk, RiskSeverity
 from app.models.membership import Membership
 from app.services import audit, controls, documents, priorities, profile, radar
 from app.services import score as score_svc
@@ -52,6 +53,99 @@ def _plain_priority(it: dict[str, Any]) -> dict[str, Any]:
     return out
 
 
+OPEN_ACTIONS = frozenset(set(ActionStatus) - {ActionStatus.CONCLUIDA})
+RECORDS_LIMIT = 15
+
+
+def owner_name(row: Any) -> str | None:
+    return row.owner.user.name if getattr(row, "owner", None) is not None else None
+
+
+def _records(db: Session, org_id: uuid.UUID) -> dict[str, list[dict[str, Any]]]:
+    """The records a question is most likely about, with ids so an answer can cite them: open
+    crítico/alto risks, documents needing attention, controls and their proof. Capped lists —
+    the bundle is a summary, never a table dump (docs/ai.md §2)."""
+    coverage = controls.coverage_by_risk(db, org_id)
+    with_action = set(
+        db.scalars(
+            select(Action.risk_id)
+            .where(
+                Action.organization_id == org_id,
+                Action.risk_id.is_not(None),
+                Action.status.in_(list(OPEN_ACTIONS)),
+            )
+            .distinct()
+        )
+    )
+    risks = [
+        {
+            "id": str(r.id),
+            "title": r.title,
+            "category": r.category.value,
+            "severity": r.severity.value,
+            "status": r.status.value,
+            "owner": owner_name(r),
+            "due_date": r.due_date.isoformat() if r.due_date else None,
+            "control_coverage": coverage.get(r.id, 0.0),
+            "has_open_action": r.id in with_action,
+        }
+        for r in db.scalars(
+            select(Risk)
+            .where(
+                Risk.organization_id == org_id,
+                Risk.status.notin_(list(CLOSED)),
+                Risk.severity.in_(list(HIGH)),
+            )
+            .order_by(Risk.severity, Risk.due_date.nulls_last(), Risk.title)
+            .limit(RECORDS_LIMIT)
+        )
+    ]
+    today = today_local()
+    docs = [
+        {
+            "id": str(d.id),
+            "name": d.name,
+            "category": d.category.value,
+            "status": documents.status_of(d, today).value,
+            "valid_until": d.valid_until.isoformat() if d.valid_until else None,
+            "owner": owner_name(d),
+        }
+        for d in db.scalars(
+            documents.list_query(
+                org_id,
+                status=[DocumentStatus.FALTANTE, DocumentStatus.VENCIDO, DocumentStatus.VENCENDO],
+                category=None,
+                owner_membership_id=None,
+                today=today,
+            ).limit(RECORDS_LIMIT)
+        )
+    ]
+    proof = dict(
+        db.execute(
+            select(Evidence.control_id, func.count())
+            .where(Evidence.organization_id == org_id, Evidence.control_id.is_not(None))
+            .group_by(Evidence.control_id)
+        ).all()
+    )
+    ctrls = [
+        {
+            "id": str(c.id),
+            "title": c.title,
+            "status": c.status.value,
+            "kind": c.kind.value,
+            "owner": owner_name(c),
+            "evidence_count": proof.get(c.id, 0),
+        }
+        for c in db.scalars(
+            select(Control)
+            .where(Control.organization_id == org_id)
+            .order_by(Control.status, Control.title)
+            .limit(RECORDS_LIMIT)
+        )
+    ]
+    return {"risks": risks, "documents": docs, "controls": ctrls}
+
+
 def context(db: Session, actor: Membership) -> dict[str, Any]:
     """Structured, minimized context for one organization (managers only for the audit part)."""
     org_id = actor.organization_id
@@ -83,6 +177,7 @@ def context(db: Session, actor: Membership) -> dict[str, Any]:
         "unplanned": [_plain_priority(it) for it in prio["unplanned"]],
         "controls": controls.summary(db, org_id),
         "documents": documents.summary(db, org_id),
+        "records": _records(db, org_id),
         "recent_activity": (
             [
                 {"action": e["action"], "actor": e["actor_name"], "at": e["created_at"]}
@@ -291,4 +386,4 @@ _HANDLERS = {
     "expiring_evidence": _expiring_evidence,
 }
 
-__all__ = ["QUESTIONS", "answer", "context"]
+__all__ = ["OPEN_ACTIONS", "QUESTIONS", "answer", "context", "owner_name"]

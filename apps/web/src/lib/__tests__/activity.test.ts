@@ -32,6 +32,8 @@ describe("activity sentences", () => {
     expect(describeActivity(entry("control.linked", { entity_type: "control", entity_title: "MFA", data: { risk_id: "r1", risk_title: "Sem MFA" } }))).toBe("vinculou o controle “MFA” ao risco “Sem MFA”");
     expect(describeActivity(entry("risk.planned", { entity_title: "Sem MFA" }))).toBe("planejou o risco “Sem MFA” (controle e ação em um passo)");
     expect(describeActivity(entry("profile.updated", { entity_type: "organization", data: { segment: {}, data_categories: {} } }))).toBe("atualizou o perfil da organização (segmento, tipos de dados)");
+    expect(describeActivity(entry("agent.asked", { entity_type: null, data: { question: "O que fazer hoje?", outcome: "answered" } }))).toBe("perguntou ao agente: “O que fazer hoje?”");
+    expect(describeActivity(entry("agent.asked", { entity_type: null, data: { question: "Estamos bem?", outcome: "rejected_claim" } }))).toBe("perguntou ao agente (sem resposta: rejected_claim)");
     expect(describeActivity(entry("something.new"))).toBe("something.new");
   });
 

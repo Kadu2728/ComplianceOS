@@ -63,6 +63,20 @@ class Settings(BaseSettings):
     # Document-expiry digest: at most one per organization every this many days (Phase 10).
     reminder_interval_days: int = 7
 
+    # Compliance Agent language model (decision D35). "none" keeps the deterministic agent only;
+    # "anthropic" enables free-text questions grounded in the context bundle (docs/ai.md).
+    llm_provider: Literal["none", "anthropic"] = "none"
+    anthropic_api_key: str | None = None
+    # Optional gateway/proxy in front of the Anthropic API (enterprise egress, local mocks).
+    llm_base_url: str | None = None
+    llm_model: str = "claude-opus-5"
+    llm_effort: Literal["low", "medium", "high"] = "medium"
+    llm_max_output_tokens: int = 2048
+    llm_timeout_seconds: float = 45.0
+    # Cost and abuse ceilings: questions per user per minute and per organization per hour.
+    llm_user_minute_limit: int = 6
+    llm_org_hourly_limit: int = 60
+
     @field_validator("jwt_secret")
     @classmethod
     def _secret_required_in_production(cls, value: str, info) -> str:  # noqa: ANN001
@@ -87,6 +101,8 @@ class Settings(BaseSettings):
         if self.app_env == "production" and self.email_provider != "smtp":
             # Invitations and password resets would silently go to the log.
             raise ValueError("EMAIL_PROVIDER must be smtp in production.")
+        if self.llm_provider == "anthropic" and not self.anthropic_api_key:
+            raise ValueError("LLM_PROVIDER=anthropic requires ANTHROPIC_API_KEY.")
         return self
 
 

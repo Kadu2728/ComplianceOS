@@ -5,6 +5,7 @@ import { ActionForm } from "@/components/domain/action-form";
 import { LinkRiskControl } from "@/components/domain/control-graph-actions";
 import { EvidencePanel } from "@/components/domain/evidence-panel";
 import { PlanPanel } from "@/components/domain/plan-panel";
+import { RiskExplain } from "@/components/domain/risk-explain";
 import { StatusControl } from "@/components/domain/status-control";
 import { Badge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button";
@@ -24,6 +25,7 @@ import {
 } from "@/lib/domain/labels";
 import {
   type Action,
+  type AgentStatus,
   type Control,
   type EvidenceList,
   type Recommendation,
@@ -45,7 +47,7 @@ export default async function RiscoPage({ params }: { params: Promise<{ id: stri
   const base = `/api/v1/orgs/${orgId}`;
   const risk = await apiGet<Risk>(`${base}/risks/${id}`);
   if (!risk) notFound();
-  const [actions, evidence, members, documents, linked, rec, allControls] = await Promise.all([
+  const [actions, evidence, members, documents, linked, rec, allControls, agentStatus] = await Promise.all([
     apiGet<Action[]>(`${base}/risks/${id}/actions`),
     apiGet<EvidenceList>(`${base}/evidence?risk_id=${id}`),
     memberOptions(orgId),
@@ -53,6 +55,7 @@ export default async function RiscoPage({ params }: { params: Promise<{ id: stri
     apiGet<Control[]>(`${base}/risks/${id}/controls`),
     apiGet<Recommendation>(`${base}/risks/${id}/recommendation`),
     controlOptions(orgId),
+    apiGet<AgentStatus>(`${base}/agent/status`),
   ]);
   const sev = SEVERITY[risk.severity]!;
   const st = RISK_STATUS[risk.status]!;
@@ -107,6 +110,8 @@ export default async function RiscoPage({ params }: { params: Promise<{ id: stri
               <PlanPanel orgId={orgId} riskId={risk.id} rec={rec} members={members} canPlan={manager} />
             </div>
           ) : null}
+
+          {agentStatus?.free_text ? <RiskExplain orgId={orgId} riskId={risk.id} /> : null}
 
           <section aria-labelledby="controles" className="flex flex-col gap-3">
             <div className="flex items-center justify-between gap-3">

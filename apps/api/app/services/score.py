@@ -97,6 +97,10 @@ def _tz() -> ZoneInfo:
     return ZoneInfo(get_settings().default_timezone)
 
 
+def now_local() -> datetime:
+    return datetime.now(tz=_tz())
+
+
 def today_local(now: datetime | None = None) -> date:
     return (now or utcnow()).astimezone(_tz()).date()
 

@@ -393,8 +393,14 @@ existed. Diagnosis and gap map: `docs/product/control-layer-evolution.md`.
   profile_incomplete, assessment_missing/stale > 180 days), each with count, tone, reason and a
   route hint the app maps (`lib/domain/radar.ts`). No persistence.
 - **Agent foundation (D32).** `services/agent.py` + `GET /agent/questions`, `/agent/answers/{key}`
-  (every role), `/agent/context` (managers): deterministic, grounded (`basis` refs), caveated. No
-  model; guardrails in `docs/ai.md`; provider is D35.
+  (every role), `/agent/context` (managers): deterministic, grounded (`basis` refs), caveated. The
+  bundle also carries capped `records` (open high risks, documents needing attention, controls with
+  proof counts) so answers can cite them.
+- **Agent language model (D35, Phase 12).** `core/llm.py` (`LLMProvider` protocol: Disabled ·
+  Anthropic via the official SDK · Fake for tests; same shape as the e-mail and storage adapters)
+  and `services/agent_llm.py` (bundle → prompt, JSON schema output, ref grounding, claim filter,
+  audit `agent.asked`, deterministic fallback). `POST /agent/ask` (every role; rate-limited per user
+  and organization), `GET /agent/status`. Off unless `LLM_PROVIDER=anthropic`. Rules: `docs/ai.md`.
 - **Executive summary (D33).** `GET /executive-summary` (every role) + `/resumo`: score and
   30-day trend, exposures (open high risks with plan/coverage state), improved / worsened counters
   from the audit log and today's state, decisions needed (blocked actions, unowned high risks,
@@ -453,7 +459,7 @@ Every non-2xx response has the same JSON shape:
 ## Deliberately absent after Phase 11
 
 Document version history and expected-document seeding (Documents v2) · per-document reminder
-thresholds (the digest is per organization) · the LLM layer of the agent (D35) · a shareable
+thresholds (the digest is per organization) · agent conversations with memory and document analysis (docs/ai.md §4) · a shareable
 Compliance Room (D33 boundaries; needs D13 and a threat model) · persisted radar snapshots for change
 detection · Process/Asset entities (profile lists until a workflow needs rows) ·
 per-question regulatory basis in the UI (hidden until `last_verified`, D6) · template v2 tooling (a new

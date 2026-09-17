@@ -47,6 +47,7 @@ subprocess.run(
 
 from app.content.seed import seed_assessment_templates  # noqa: E402
 from app.core.email import CapturingEmailSender, get_email_sender  # noqa: E402
+from app.core.llm import set_llm_provider  # noqa: E402
 from app.core.rate_limit import limiter  # noqa: E402
 from app.db.base import Base  # noqa: E402
 from app.db.session import get_engine  # noqa: E402
@@ -79,6 +80,7 @@ def _clean_state() -> Iterator[None]:
     with get_engine().begin() as conn:
         conn.execute(text(f"TRUNCATE {tables} RESTART IDENTITY CASCADE"))
     limiter.reset()
+    set_llm_provider(None)
     sender = get_email_sender()
     if isinstance(sender, CapturingEmailSender):
         sender.sent.clear()

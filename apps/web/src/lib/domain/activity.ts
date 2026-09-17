@@ -96,6 +96,10 @@ export function describeActivity(entry: AuditEntry): string {
       return `planejou o risco${quoted(entry)} (controle e ação em um passo)`;
     case "profile.updated":
       return `atualizou o perfil da organização${changedFields(d)}`;
+    case "agent.asked":
+      return d.outcome === "answered" || d.outcome === "deterministic"
+        ? `perguntou ao agente: “${String(d.question ?? "")}”`
+        : `perguntou ao agente (sem resposta: ${String(d.outcome ?? "")})`;
     case "assessment.started":
       return `iniciou o diagnóstico (${d.mode === "short" ? "rápido" : "completo"})`;
     case "assessment.answered":

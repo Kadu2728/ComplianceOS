@@ -265,6 +265,28 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/orgs/{org_id}/agent/ask": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Agent Ask
+         * @description One grounded answer (D35). Every role may ask: the bundle is built inside the caller's
+         *     membership, so it never shows more than the pages already do. Rate limits are per user and
+         *     per organization — the model costs money and the limiter is the abuse ceiling.
+         */
+        post: operations["agent_ask_api_v1_orgs__org_id__agent_ask_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/orgs/{org_id}/agent/context": {
         parameters: {
             query?: never;
@@ -291,6 +313,23 @@ export interface paths {
         };
         /** Agent Questions */
         get: operations["agent_questions_api_v1_orgs__org_id__agent_questions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/orgs/{org_id}/agent/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Agent Status */
+        get: operations["agent_status_api_v1_orgs__org_id__agent_status_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1056,6 +1095,36 @@ export interface components {
             /** Question */
             question: string;
         };
+        /** AgentAskIn */
+        AgentAskIn: {
+            focus?: components["schemas"]["AgentFocusIn"] | null;
+            /** Question */
+            question: string;
+        };
+        /** AgentAskOut */
+        AgentAskOut: {
+            /** Answer */
+            answer: string;
+            /** Basis */
+            basis: components["schemas"]["AgentRefOut"][];
+            /** Caveat */
+            caveat: string;
+            /** Computed At */
+            computed_at: string;
+            /** Interpretation */
+            interpretation: boolean;
+            /** Model */
+            model: string | null;
+            /** Out Of Scope */
+            out_of_scope: boolean;
+            /** Question */
+            question: string;
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "model" | "deterministic";
+        };
         /**
          * AgentContextOut
          * @description Free-form by design: the shape evolves with the engines. Managers only.
@@ -1069,6 +1138,19 @@ export interface components {
             today: string;
         } & {
             [key: string]: unknown;
+        };
+        /** AgentFocusIn */
+        AgentFocusIn: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Kind
+             * @constant
+             */
+            kind: "risk";
         };
         /** AgentQuestionOut */
         AgentQuestionOut: {
@@ -1085,6 +1167,18 @@ export interface components {
             kind: string;
             /** Title */
             title: string;
+        };
+        /**
+         * AgentStatusOut
+         * @description What the agent can do in this installation (D35): free-text questions need a provider.
+         */
+        AgentStatusOut: {
+            /** Free Text */
+            free_text: boolean;
+            /** Model */
+            model: string | null;
+            /** Question Max Length */
+            question_max_length: number;
         };
         /** AnswerOut */
         AnswerOut: {
@@ -3065,6 +3159,41 @@ export interface operations {
             };
         };
     };
+    agent_ask_api_v1_orgs__org_id__agent_ask_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                org_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AgentAskIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AgentAskOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     agent_context_api_v1_orgs__org_id__agent_context_get: {
         parameters: {
             query?: never;
@@ -3114,6 +3243,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AgentQuestionOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    agent_status_api_v1_orgs__org_id__agent_status_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                org_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AgentStatusOut"];
                 };
             };
             /** @description Validation Error */
