@@ -207,9 +207,13 @@ Implemented as data (a single table/enum map), not as scattered conditionals.
 
 ## D16 — Dark mode
 
-- **Status:** DEFAULT: not in MVP
+- **Status:** DECIDED (2026-09-16, user request)
 - **Class:** MEDIUM
-- **Reason:** Halves visual QA surface. Tokens from brand-system §10 are preserved for later.
+- **Decision:** Light, Dark and System themes are part of the product design system. The user choice is
+  saved locally in the browser; System follows `prefers-color-scheme`. Theme colors are semantic
+  tokens, never page-specific values. Reduced motion remains a system preference.
+- **Reason:** Accessibility and individual working conditions are explicit product requirements.
+- **Values:** brand §10 dark neutrals verbatim; semantic dark variants are D14-style extensions with contrast figures in `docs/design/tokens.md` §8; primary button hover/active are not overridden in dark (white text must stay ≥ 4.5:1); core brand colors are never overridden. Preference is per browser (`localStorage`), applied before paint by a nonce-carrying inline script; not an account setting until a user asks for it to follow them across devices.
 
 ## D17 — Railway vs Render
 
@@ -377,3 +381,4 @@ Implemented as data (a single table/enum map), not as scattered conditionals.
 | 2026-09-13 | Phase 10 start | User wrote "Avance": commit of Phase 9 (`ad3930f`) and the proposed scope — list filters, document-expiry reminders, nonce-based CSP. |
 | 2026-09-15 | Phase 10 — DONE | List filters on `/riscos` and `/acoes` (validated search params → API parameters; GET form with on-change navigation, works without JS; pagination keeps filters — fixed `?x?page=2` bug; dashboard counters deep-link). Document-expiry digest job (`scripts/send_reminders.py`, `reminder_deliveries` migration 0007, one digest per organization per `REMINDER_INTERVAL_DAYS`, retry on relay failure). Nonce-based CSP in `src/middleware.ts` (`'strict-dynamic'`; static CSP removed from `next.config.ts`). **193 API tests** (+3 reminders), 10 web tests (+3 filters). Verified with the demo: 3 críticos / 3 atrasadas / 17 pendentes / 4 ações da Carla; digest run against the dev DB (Acme: 2 documentos, 4 destinatários; second run skipped); CSP header + 20/20 nonced scripts. Not verified: CSP blocking in a regular browser. |
 | 2026-09-15 | Phase 11 start | User brief: evolve the MVP toward the Control Layer vision without destructive changes; no commit or deploy without explicit authorization. Diagnosis and gap map in `docs/product/control-layer-evolution.md`; D27–D34 applied as DEFAULT, D35 opened. |
+| 2026-09-16 | Phase 11 — DONE (commit `4db0669`) | Control Graph (`controls`, `risk_controls`, `actions.control_id/effort`, `evidence.control_id/valid_until`, `organization_profiles`; migration 0008 round-trip + check clean). **P1 fixed:** composite `ON DELETE SET NULL` FKs nulled `organization_id` (member removal with owned records → 500); all 16 recreated as `SET NULL (column)`. Catalogue v1 (24 controls ↔ 42 questions, test-enforced), Risk-to-Action (`/recommendation`, `/plan`), Score v2 with Controles factor + `simulate()`, priorities, radar, deterministic agent (`docs/ai.md`), executive summary, profile. Frontend: `/controles` pages, plan panel, Control Room overview, profile form, `/resumo`, evidence validity/control target, action effort/control. Demo re-pinned at 69 with 20 controls. Gates on 2026-09-15: **246 API tests passed** (+53 since Phase 10; 17 min on embedded PostgreSQL), 12 web tests, ruff check/format, OpenAPI drift, alembic gate, lint, typecheck, `next build` (new routes 1.5–3.6 kB, shared 103 kB) all PASS; pip-audit 176 packages clean; npm audit: 2 advisories in the `postcss` copy vendored by Next 15 (fix = Next 16, blocked by D18; build-time only). Live probes against the dev API: 18 cross-tenant requests to the new endpoints by an outsider → all 404; one-step plan on TI-05 reused the incidents control, created the action for Carla (30 d), radar unplanned 1 → 0, score 69 → 70. Not verified in a regular browser: client-side interactions (the in-app pane does not paint). |

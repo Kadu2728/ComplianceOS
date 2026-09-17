@@ -1,7 +1,7 @@
-# COMPLIANCE OS — DESIGN TOKENS (v1, light mode)
+# COMPLIANCE OS — DESIGN TOKENS (v2, themes)
 
 Authority: derived strictly from `.claude/brand-system.md`; section numbers cited as §n.
-Decisions applied: D7 (pt-BR), D14 (text-safe variants), D16 (no dark mode in MVP), D22 (CSS-first motion).
+Decisions applied: D7 (pt-BR), D14 (text-safe variants), D16 (Light / Dark / System), D22 (CSS-first motion).
 Implementation target: Tailwind CSS 4 `@theme` in `apps/web/src/app/globals.css`. The engineer implements from this file without inventing values.
 
 Contrast figures below were computed with the WCAG 2.x relative-luminance formula (script in the Orchestrator's Phase 1 log) and rounded to two decimals. AA thresholds: 4.5:1 normal text, 3.0:1 large text (≥ 24px regular / ≥ 18.66px bold) and non-text UI.
@@ -101,9 +101,27 @@ Severity icons (risk): Critical `OctagonAlert`, High `TriangleAlert`, Medium `Ci
 
 Forbidden as "compliance" symbols (§20): shields, padlocks, standalone checkmark badges as brand devices. The status `CircleCheck` is a *state* icon, not a brand device — acceptable.
 
-## 8. Dark mode (D16)
+## 8. Themes (D16)
 
-Not implemented. All color tokens are defined once on `:root`; the engineer must not hard-code hex in components, so a `[data-theme="dark"]` block can be added later with the §10 dark values without touching components.
+The app supports `light`, `dark` and `system`. A nonce-carrying bootstrap script in the root layout applies the saved value (`localStorage["compliance-os-theme"]`) before the first paint; `system` follows `prefers-color-scheme` and changes live when the operating-system preference changes. The choice is stored locally per browser, never sent to the API. The control (`ThemeToggle`) lives in the sidebar footer and the mobile drawer, next to the organization switcher — one placement per breakpoint.
+
+Dark neutrals are the brand §10 dark tokens **verbatim** (no invented values): base `#0B0D0F` (Background), elevated `#111416` (Surface), hover `#161A1D` (Surface Elevated), border `#292E32`, text primary `#F4F4F0` (16.77:1 on elevated), secondary `#B7BCC1` (9.67:1), muted `#858B91` (5.37:1 on elevated, 5.65:1 on base — passes AA for small text in dark, unlike light). Core brand colors (`obsidian`, `off-white`, `electric-blue`) are never overridden.
+
+Semantic variants in dark follow the D14 pattern (the brand defines no dark semantic set): `-text` is the hue lifted toward off-white, `-tint` the hue at low luminance, `-border` between the two, `-fill` slightly brighter than the official hue so it also works as *text* (link hover) on the dark base.
+
+| Family | `-fill` | `-text` | `-tint` | `-border` | `-text` on base | `-text` on elevated | `-text` on `-tint` | `-fill` on elevated |
+|---|---|---|---|---|---|---|---|---|
+| info | `#6C93F4` | `#B7C9FF` | `#1B2948` | `#526DA9` | 11.88 | 11.28 | 8.79 | 6.27 |
+| success | `#48B980` | `#94E0B6` | `#173A2B` | `#4B9870` | 12.60 | 11.97 | 8.11 | 7.51 |
+| warning | `#E6AD4D` | `#F3CD85` | `#3E3018` | `#9F7835` | 12.87 | 12.23 | 8.46 | 9.20 |
+| danger | `#E46D6D` | `#FFB5B5` | `#432425` | `#A65D60` | 11.61 | 11.03 | 8.25 | 5.91 |
+
+Rules that differ from light:
+- Link and tertiary-button hover use `--color-info-fill` (identical to Electric Blue in light; 6.60:1 on the dark base, where Electric Blue itself is only 4.04:1).
+- Primary button hover/active keep the light values `#3263D5` / `#2E5BC4`: white text stays 5.41 / 6.16:1 and the button keeps ≥ 3.0:1 against the base (3.60:1). A lighter hover would drop white text below AA.
+- Inverted chips (e.g., the control maturity ladder) use the pair `bg-text-primary text-surface-elevated`, never `obsidian`/`off-white` literals, so they invert with the theme.
+- Shadows are defined once (obsidian alpha) and are simply less visible in dark; hierarchy is carried by borders and surface steps, as in light (§19).
+- `color-scheme: dark` on the root lets native form controls and scrollbars follow the theme.
 
 ## 9. Tailwind 4 `@theme` mapping (for the engineer)
 

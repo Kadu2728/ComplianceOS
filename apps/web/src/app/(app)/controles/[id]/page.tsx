@@ -63,7 +63,7 @@ export default async function ControlePage({ params }: { params: Promise<{ id: s
             {/* Maturity ladder: position, not color, carries the meaning (brand §30). */}
             <ol className="mt-4 flex flex-wrap gap-1" aria-label="Escada de maturidade">
               {LADDER.map((s, i) => (
-                <li key={s} className={`flex items-center gap-1 rounded-md px-2 py-1 text-caption ${i <= step ? "bg-obsidian text-off-white" : "border border-border text-text-secondary"}`} aria-current={s === c.status ? "step" : undefined}>
+                <li key={s} className={`flex items-center gap-1 rounded-md px-2 py-1 text-caption ${i <= step ? "bg-text-primary text-surface-elevated" : "border border-border text-text-secondary"}`} aria-current={s === c.status ? "step" : undefined}>
                   {i + 1}. {CONTROL_STATUS[s]!.label}
                 </li>
               ))}

@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { headers } from "next/headers";
 import { Inter } from "next/font/google";
 import "./globals.css";
 
@@ -16,12 +17,33 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#f4f4f0",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f4f4f0" },
+    { media: "(prefers-color-scheme: dark)", color: "#0b0d0f" },
+  ],
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+const themeBootstrap = `(() => {
+  try {
+    const key = "compliance-os-theme";
+    const stored = localStorage.getItem(key);
+    const preference = stored === "light" || stored === "dark" || stored === "system" ? stored : "system";
+    const isDark = preference === "dark" || (preference === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    const root = document.documentElement;
+    root.dataset.theme = isDark ? "dark" : "light";
+    root.dataset.themePreference = preference;
+  } catch (_) {}
+})();`;
+
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
   return (
-    <html lang="pt-BR" className={inter.variable}>
+    // suppressHydrationWarning: the bootstrap sets data-theme on <html> before React runs, and
+    // browsers hide nonce values from the DOM — both are expected attribute differences.
+    <html lang="pt-BR" className={inter.variable} suppressHydrationWarning>
+      <head>
+        <script nonce={nonce} suppressHydrationWarning dangerouslySetInnerHTML={{ __html: themeBootstrap }} />
+      </head>
       <body>{children}</body>
     </html>
   );

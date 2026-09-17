@@ -59,11 +59,11 @@ export function ScoreCard({ score }: { score: Score }) {
           {score.preliminary ? (
             <p className="mt-3 max-w-md text-caption text-text-secondary">
               Score preliminar — baseado no diagnóstico rápido.{" "}
-              <Link href="/diagnostico" className="font-medium text-electric-blue hover:underline">Responda o diagnóstico completo</Link> para consolidar.
+              <Link href="/diagnostico" className="font-medium text-info-text hover:underline">Responda o diagnóstico completo</Link> para consolidar.
             </p>
           ) : score.assessment_completed === false ? (
             <p className="mt-3 max-w-md text-caption text-text-secondary">
-              Diagnóstico em andamento — <Link href="/diagnostico" className="font-medium text-electric-blue hover:underline">conclua</Link> para consolidar o score.
+              Diagnóstico em andamento — <Link href="/diagnostico" className="font-medium text-info-text hover:underline">conclua</Link> para consolidar o score.
             </p>
           ) : null}
         </div>

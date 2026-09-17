@@ -78,7 +78,7 @@ export default async function OverviewPage() {
                 : assessment?.status === "in_progress"
                   ? `Diagnóstico em andamento — ${assessment.answered} de ${assessment.total} perguntas.`
                   : "Diagnóstico não iniciado."}{" "}
-              <Link href="/diagnostico" className="font-medium text-electric-blue hover:underline">Abrir</Link>
+              <Link href="/diagnostico" className="font-medium text-info-text hover:underline">Abrir</Link>
             </p>
             <div className="mt-5 border-t border-border pt-4">
               <h3 className="text-body-sm font-medium">Tendência do score</h3>
@@ -148,7 +148,7 @@ export default async function OverviewPage() {
             {!documents || documents.total === 0 ? (
               <p className="mt-3 text-body-sm text-text-secondary">
                 Nenhum documento organizado. Políticas, procedimentos e registros com validade e responsável entram aqui —{" "}
-                <Link href="/documentos/novo" className="font-medium text-electric-blue hover:underline">adicione o primeiro</Link>.
+                <Link href="/documentos/novo" className="font-medium text-info-text hover:underline">adicione o primeiro</Link>.
               </p>
             ) : (
               <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 text-body-sm md:grid-cols-5">

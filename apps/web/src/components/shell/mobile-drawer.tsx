@@ -5,6 +5,7 @@ import { useRef } from "react";
 import { ICON_STROKE, NAV_ITEMS } from "./nav-items";
 import { NavLink } from "./nav-link";
 import { type OrganizationOption, OrgSwitcher } from "./org-switcher";
+import { ThemeToggle } from "./theme-toggle";
 
 /**
  * Mobile navigation as a native <dialog>: focus trap, Escape, backdrop and inert page
@@ -65,6 +66,7 @@ export function MobileDrawer({
           ))}
         </nav>
         <div className="mt-auto border-t border-border p-3">
+          <ThemeToggle />
           <OrgSwitcher currentId={currentId} organizations={organizations} />
         </div>
       </dialog>

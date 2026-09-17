@@ -2,7 +2,7 @@
 
 /*
  * Design tokens — single source: docs/design/tokens.md (derived from .claude/brand-system.md).
- * Light mode only (decision D16). Components must reference tokens, never raw hex.
+ * Theme-aware tokens. Components reference tokens, never raw hex.
  */
 @theme {
   /* Core (brand §8) */
@@ -95,6 +95,42 @@
 @layer base {
   html {
     color-scheme: light;
+  }
+
+  /*
+   * Dark theme (decision D16, tokens.md §8). Neutrals are the brand §10 dark tokens verbatim;
+   * semantic variants are D14-style extensions with AA-verified contrast on these surfaces.
+   * Overriding the theme variables here means every utility (bg-surface-*, text-text-*,
+   * border-*) adapts without page-specific variants. Core brand colors (obsidian, off-white,
+   * electric blue) and the primary button hover/active are NOT overridden: white text on the
+   * button must stay ≥ 4.5:1 in both themes.
+   */
+  html[data-theme="dark"] {
+    color-scheme: dark;
+    --color-surface-base: #0b0d0f;
+    --color-surface-elevated: #111416;
+    --color-surface-hover: #161a1d;
+    --color-border: #292e32;
+    --color-text-primary: #f4f4f0;
+    --color-text-secondary: #b7bcc1;
+    --color-text-muted: #858b91;
+
+    --color-info-fill: #6c93f4;
+    --color-info-text: #b7c9ff;
+    --color-info-tint: #1b2948;
+    --color-info-border: #526da9;
+    --color-success-fill: #48b980;
+    --color-success-text: #94e0b6;
+    --color-success-tint: #173a2b;
+    --color-success-border: #4b9870;
+    --color-warning-fill: #e6ad4d;
+    --color-warning-text: #f3cd85;
+    --color-warning-tint: #3e3018;
+    --color-warning-border: #9f7835;
+    --color-danger-fill: #e46d6d;
+    --color-danger-text: #ffb5b5;
+    --color-danger-tint: #432425;
+    --color-danger-border: #a65d60;
   }
 
   body {
