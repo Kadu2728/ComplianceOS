@@ -75,7 +75,7 @@ function choose(value: ThemePreference) {
 }
 
 /** Persisted Light / Dark / System control. The bootstrap script applies the stored value before paint. */
-export function ThemeToggle() {
+export function ThemeToggle({ labels = false }: { labels?: boolean }) {
   const preference = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
   useEffect(() => {
@@ -101,14 +101,14 @@ export function ThemeToggle() {
           aria-pressed={preference === value}
           aria-label={`Usar tema ${label.toLowerCase()}`}
           title={label}
-          className={`flex size-9 items-center justify-center rounded-sm transition-colors duration-(--duration-fast) ${
+          className={`flex h-8 items-center justify-center gap-1.5 rounded-sm transition-colors duration-(--duration-fast) ${labels ? "px-2" : "w-9"} ${
             preference === value
               ? "bg-surface-elevated text-text-primary shadow-sm"
               : "text-text-secondary hover:bg-surface-hover hover:text-text-primary"
           }`}
         >
           <Icon aria-hidden size={16} strokeWidth={ICON_STROKE} />
-          <span className="sr-only">{label}</span>
+          <span className={labels ? "text-caption font-medium" : "sr-only"}>{label}</span>
         </button>
       ))}
     </fieldset>

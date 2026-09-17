@@ -4,8 +4,8 @@ import { PanelLeft, X } from "lucide-react";
 import { useRef } from "react";
 import { ICON_STROKE, navItemsFor } from "./nav-items";
 import { NavLink } from "./nav-link";
+import { AccountBlock } from "./account-block";
 import { type OrganizationOption, OrgSwitcher } from "./org-switcher";
-import { ThemeToggle } from "./theme-toggle";
 
 /**
  * Mobile navigation as a native <dialog>: focus trap, Escape, backdrop and inert page
@@ -15,10 +15,12 @@ export function MobileDrawer({
   currentId,
   organizations,
   role,
+  userName,
 }: {
   currentId: string;
   organizations: OrganizationOption[];
   role: string;
+  userName: string;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
   const open = () => ref.current?.showModal();
@@ -57,20 +59,21 @@ export function MobileDrawer({
             <X aria-hidden size={20} strokeWidth={ICON_STROKE} />
           </button>
         </div>
-        <nav aria-label="Principal" className="flex flex-col gap-1 p-3">
-          {navItemsFor(role).map((item) => (
-            <NavLink
-            key={item.href}
-            href={item.href}
-            label={item.label}
-            icon={<item.icon aria-hidden size={20} strokeWidth={ICON_STROKE} />} onNavigate={close}
-          />
-          ))}
-        </nav>
-        <div className="mt-auto border-t border-border p-3">
-          <ThemeToggle />
+        <div className="px-3 pt-3">
           <OrgSwitcher currentId={currentId} organizations={organizations} />
         </div>
+        <nav aria-label="Principal" className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto p-3">
+          {navItemsFor(role).map((item) => (
+            <NavLink
+              key={item.href}
+              href={item.href}
+              label={item.label}
+              icon={<item.icon aria-hidden size={20} strokeWidth={ICON_STROKE} />}
+              onNavigate={close}
+            />
+          ))}
+        </nav>
+        <AccountBlock userName={userName} role={role} onNavigate={close} />
       </dialog>
     </>
   );

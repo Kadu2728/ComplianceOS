@@ -17,7 +17,7 @@ export default async function AppLayout({ children }: Readonly<{ children: React
       >
         Ir para o conteúdo
       </a>
-      <TopBar currentId={currentId} organizations={organizations} role={session.membership.role} />
+      <TopBar currentId={currentId} organizations={organizations} role={session.membership.role} userName={session.user.name} />
       <SessionRefresher />
       <Sidebar currentId={currentId} organizations={organizations} userName={session.user.name} role={session.membership.role} />
       <main id="conteudo" className="mx-auto w-full max-w-[1200px] flex-1 p-4 md:p-6 lg:p-8">

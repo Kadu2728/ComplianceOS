@@ -1,10 +1,15 @@
+import { AccountBlock } from "./account-block";
 import { ICON_STROKE, navItemsFor } from "./nav-items";
 import { NavLink } from "./nav-link";
-import { OrgFooter } from "./org-footer";
-import type { OrganizationOption } from "./org-switcher";
+import { type OrganizationOption, OrgSwitcher } from "./org-switcher";
 import { Wordmark } from "./wordmark";
 
-/** Desktop/tablet sidebar. Server component; NavLink and the switcher are the client children. */
+/**
+ * Desktop/tablet sidebar (app-shell.md §2). Viewport-height and sticky: the organization at the
+ * top frames every page, the navigation scrolls on its own if it ever needs to, and the account
+ * block (theme, settings, exit) stays visible at the bottom no matter how long the page is.
+ * Server component; NavLink, the switcher, the theme toggle and the exit are the client children.
+ */
 export function Sidebar({
   currentId,
   organizations,
@@ -17,9 +22,12 @@ export function Sidebar({
   role: string;
 }) {
   return (
-    <aside className="hidden w-[248px] shrink-0 flex-col border-r border-border bg-surface-elevated md:flex">
-      <Wordmark />
-      <nav aria-label="Principal" className="flex flex-col gap-1 px-3 pt-2">
+    <aside className="sticky top-0 hidden h-dvh w-[248px] shrink-0 flex-col self-start border-r border-border bg-surface-elevated md:flex">
+      <div className="px-3 pb-3">
+        <Wordmark />
+        <OrgSwitcher currentId={currentId} organizations={organizations} />
+      </div>
+      <nav aria-label="Principal" className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto px-3 pt-1">
         {navItemsFor(role).map((item) => (
           <NavLink
             key={item.href}
@@ -29,7 +37,7 @@ export function Sidebar({
           />
         ))}
       </nav>
-      <OrgFooter currentId={currentId} organizations={organizations} userName={userName} />
+      <AccountBlock userName={userName} role={role} />
     </aside>
   );
 }
