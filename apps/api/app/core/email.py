@@ -43,6 +43,14 @@ class ConsoleEmailSender:
             logger.info("email body:\n%s", message.text)
 
 
+class DisabledEmailSender:
+    """Beta without a relay (D17): nothing is sent and the caller learns it — the service
+    transaction rolls back, so no invitation or reset token is created for a mail nobody gets."""
+
+    def send(self, message: EmailMessage) -> None:
+        raise EmailDeliveryError("e-mail disabled in this installation")
+
+
 @dataclass
 class CapturingEmailSender:
     sent: list[EmailMessage] = field(default_factory=list)
@@ -101,6 +109,8 @@ def build_sender() -> EmailSender:
     s = get_settings()
     if s.email_provider == "capture":
         return CapturingEmailSender()
+    if s.email_provider == "disabled":
+        return DisabledEmailSender()
     if s.email_provider == "smtp":
         return SmtpEmailSender(
             host=s.smtp_host,

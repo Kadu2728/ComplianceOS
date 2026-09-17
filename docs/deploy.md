@@ -64,14 +64,22 @@ S3, a database URL and a 32+ character secret — CI proves this on every push.
 
 ## 2A. Vercel + Neon (default)
 
-1. **Neon** (neon.com, free, no card): New project → Postgres 16 → region **AWS South America
-   (São Paulo)** → *Connect* → **Connection pooling off** → copy the direct string
-   (`postgresql://…sa-east-1.aws.neon.tech/neondb?sslmode=require`). Free plan: 0.5 GB, compute
-   scales to zero after 5 min (first query after idle takes ~1 s).
 2. **Backblaze B2** (free 10 GB, no card): private bucket + an application key limited to it; note
    the S3 endpoint (`https://s3.<region>.backblazeb2.com`) and region.
 3. **SMTP**: Brevo (300 e-mails/day) or Resend (3 000/month); SMTP credentials; verify the sender
    domain (SPF/DKIM).
+0. **Beta mode (live today).** The API runs with `BETA_NO_EMAIL_NO_FILES=true`,
+   `EMAIL_PROVIDER=disabled` and `STORAGE_BACKEND=disabled`: accounts are created directly on
+   `/criar-conta`, invitations and password resets answer 503 `email_disabled`, file uploads answer
+   503 `storage_disabled` (evidence by note or link and document metadata work). Leaving beta mode
+   = steps 2–3 below, then set `EMAIL_PROVIDER=smtp`, `STORAGE_BACKEND=s3`, remove the flag and
+   redeploy.
+1. **Neon** — provisioned through the Vercel Marketplace (`vercel integration add neon --plan
+   free_v3 -m region=gru1 -n compliance-os-db`), which injects `DATABASE_URL` and
+   `DATABASE_URL_UNPOOLED` into the API project; the app prefers the unpooled one. Manual
+   alternative: neon.com → New project → region **AWS South America (São Paulo)** → *Connect* →
+   **Connection pooling off** → copy the direct string. Free plan: 0.5 GB, compute scales to zero
+   after 5 min (first query after idle takes ~1 s).
 4. **API project** (`compliance-os-api`, already created and deployed from `apps/api` with the
    Vercel CLI; `pyproject.toml` `[tool.vercel] entrypoint = "app.main:app"`, `vercel.json` region
    `gru1`). Every non-secret variable from §1 is already set in Production, including a generated

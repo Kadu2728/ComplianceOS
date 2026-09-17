@@ -27,6 +27,21 @@ def new_key(organization_id: uuid.UUID, evidence_id: uuid.UUID, extension: str) 
     return f"{organization_id}/{evidence_id}.{ext}" if ext else f"{organization_id}/{evidence_id}"
 
 
+class StorageDisabledError(Exception):
+    """File uploads are switched off in this installation (beta without a bucket, D17)."""
+
+
+class DisabledStorage:
+    def put(self, key: str, stream: BinaryIO) -> int:
+        raise StorageDisabledError
+
+    def open(self, key: str) -> Iterator[bytes]:
+        raise StorageDisabledError
+
+    def delete(self, key: str) -> None:
+        return None  # nothing was ever stored
+
+
 class LocalDiskStorage:
     def __init__(self, root: Path) -> None:
         self.root = root.resolve()
@@ -106,6 +121,8 @@ def get_storage() -> StorageBackend:
         s = get_settings()
         if s.storage_backend == "s3":
             _backend = S3Storage(build_s3_client(), s.s3_bucket, s.s3_key_prefix)
+        elif s.storage_backend == "disabled":
+            _backend = DisabledStorage()
         else:
             _backend = LocalDiskStorage(Path(s.storage_local_root))
     return _backend

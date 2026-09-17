@@ -144,3 +144,67 @@ def test_migrate_on_startup_brings_the_schema_to_head(monkeypatch) -> None:  # n
     app = main_module.create_app()
     assert calls == ["run"]
     assert TestClient(app).get("/api/v1/health").status_code == 200
+
+
+def test_beta_mode_accepts_disabled_email_and_storage(monkeypatch) -> None:  # noqa: ANN001
+    """Production without a relay or a bucket is allowed only behind the explicit beta flag."""
+    import pytest
+
+    from app.core.config import Settings
+
+    for key, value in {
+        "APP_ENV": "production",
+        "JWT_SECRET": "x" * 40,
+        "COOKIE_SECURE": "true",
+        "DATABASE_URL": "postgres://u:p@h/db",
+        "EMAIL_PROVIDER": "disabled",
+        "STORAGE_BACKEND": "disabled",
+    }.items():
+        monkeypatch.setenv(key, value)
+    with pytest.raises(ValueError, match="EMAIL_PROVIDER"):
+        Settings(_env_file=None)
+    monkeypatch.setenv("BETA_NO_EMAIL_NO_FILES", "true")
+    settings = Settings(_env_file=None)
+    assert settings.email_provider == "disabled" and settings.storage_backend == "disabled"
+    # The unpooled URL wins when a managed provider injects both.
+    monkeypatch.setenv("DATABASE_URL_UNPOOLED", "postgresql://u:p@direct/db")
+    assert Settings(_env_file=None).database_url == "postgresql+psycopg://u:p@direct/db"
+
+
+def test_disabled_providers_refuse_with_a_clear_503(client: TestClient, monkeypatch) -> None:  # noqa: ANN001
+    import io
+
+    from app.core import email as email_module
+    from app.core import errors as errors_module
+    from app.core.storage import DisabledStorage, set_storage
+    from tests.conftest import signup
+
+    org = signup(client, email="beta@acme.com.br")["org_id"]
+    base = f"/api/v1/orgs/{org}"
+    # Files: a document upload is refused, the document itself stays.
+    set_storage(DisabledStorage())
+    try:
+        doc = client.post(
+            f"{base}/documents", json={"name": "Política", "category": "politica"}
+        ).json()
+        r = client.post(
+            f"{base}/documents/{doc['id']}/file",
+            files={"file": ("p.pdf", io.BytesIO(b"%PDF-1.4\n"), "application/pdf")},
+        )
+        assert r.status_code == 503 and r.json()["code"] == "storage_disabled"
+        assert client.get(f"{base}/documents/{doc['id']}").json()["filename"] is None
+    finally:
+        set_storage(None)
+    # E-mail: an invitation is refused and nothing is created.
+    monkeypatch.setattr(email_module, "_sender", email_module.DisabledEmailSender())
+    monkeypatch.setattr(
+        errors_module, "get_settings", lambda: type("S", (), {"email_provider": "disabled"})()
+    )
+    try:
+        r = client.post(
+            f"{base}/members/invitations", json={"email": "novo@acme.com.br", "role": "member"}
+        )
+        assert r.status_code == 503 and r.json()["code"] == "email_disabled"
+        assert client.get(f"{base}/members/invitations").json() == []
+    finally:
+        monkeypatch.setattr(email_module, "_sender", None)

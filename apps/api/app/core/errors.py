@@ -6,8 +6,10 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+from app.core.config import get_settings
 from app.core.email import EmailDeliveryError
 from app.core.request_id import REQUEST_ID_HEADER, get_request_id
+from app.core.storage import StorageDisabledError
 
 logger = logging.getLogger(__name__)
 
@@ -66,10 +68,26 @@ def register_error_handlers(app: FastAPI) -> None:
     async def _email_unavailable(_: Request, exc: EmailDeliveryError) -> JSONResponse:
         # The service transaction is rolled back by the request scope, so nothing was created.
         logger.warning("email delivery unavailable request_id=%s", get_request_id())
+        if get_settings().email_provider == "disabled":
+            return error_response(
+                503,
+                "O envio de e-mail está desativado nesta instalação. Convites e redefinição de "
+                "senha ficam disponíveis quando um provedor SMTP for configurado.",
+                code="email_disabled",
+            )
         return error_response(
             503,
             "The e-mail could not be sent right now. Try again in a few minutes.",
             code="email_unavailable",
+        )
+
+    @app.exception_handler(StorageDisabledError)
+    async def _storage_disabled(_: Request, exc: StorageDisabledError) -> JSONResponse:
+        return error_response(
+            503,
+            "O envio de arquivos está desativado nesta instalação. Registre evidências por nota "
+            "ou link; arquivos ficam disponíveis quando um bucket for configurado.",
+            code="storage_disabled",
         )
 
     @app.exception_handler(Exception)

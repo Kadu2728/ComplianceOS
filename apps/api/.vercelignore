@@ -10,3 +10,5 @@ docker-entrypoint.sh
 .dockerignore
 .env
 .env.*
+.claude
+.agents

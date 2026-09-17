@@ -17,6 +17,9 @@ class Settings(BaseSettings):
     app_env: Literal["development", "test", "production"] = "development"
     log_level: str = "INFO"
     database_url: str | None = None
+    # Managed providers (Neon via Vercel) also expose a direct, non-pooled URL; the app prefers it:
+    # psycopg's server-side prepared statements do not survive a transaction-mode pooler.
+    database_url_unpooled: str | None = None
     cors_origins: list[str] = Field(default_factory=lambda: ["http://localhost:3000"])
 
     # Public base URL of the web app, used in e-mails (password reset, invitations).
@@ -34,7 +37,7 @@ class Settings(BaseSettings):
 
     # E-mail (decision D11): "console" logs messages; "capture" is for tests; "smtp" delivers
     # through any provider's relay (the vendor is still an open decision).
-    email_provider: Literal["console", "capture", "smtp"] = "console"
+    email_provider: Literal["console", "capture", "smtp", "disabled"] = "console"
     smtp_host: str = ""
     smtp_port: int = 587
     smtp_username: str | None = None
@@ -45,7 +48,7 @@ class Settings(BaseSettings):
 
     # Evidence and document files (decisions D9/D12): local disk for development and tests,
     # "s3" for any S3-compatible object store (the provider and region are still open).
-    storage_backend: Literal["local", "s3"] = "local"
+    storage_backend: Literal["local", "s3", "disabled"] = "local"
     storage_local_root: str = ".storage"
     s3_bucket: str = ""
     s3_region: str | None = None
@@ -83,8 +86,12 @@ class Settings(BaseSettings):
     # (serverless hosts without an entrypoint); container hosts do it in docker-entrypoint.sh.
     trust_proxy_headers: bool = False
     migrate_on_startup: bool = False
+    # Beta without an e-mail relay or a bucket (decision D17): production accepts
+    # EMAIL_PROVIDER=disabled (invitations and resets refused with a clear 503) and
+    # STORAGE_BACKEND=disabled (file uploads refused; notes, links and metadata keep working).
+    beta_no_email_no_files: bool = False
 
-    @field_validator("database_url")
+    @field_validator("database_url", "database_url_unpooled")
     @classmethod
     def _sqlalchemy_url(cls, value: str | None) -> str | None:
         """Managed providers hand out `postgres://` / `postgresql://` strings; SQLAlchemy needs the
@@ -110,14 +117,18 @@ class Settings(BaseSettings):
 
     @model_validator(mode="after")
     def _providers_configured(self) -> "Settings":
+        if self.database_url_unpooled:
+            self.database_url = self.database_url_unpooled
         if self.email_provider == "smtp" and not (self.smtp_host and self.smtp_from):
             raise ValueError("EMAIL_PROVIDER=smtp requires SMTP_HOST and SMTP_FROM.")
         if self.storage_backend == "s3" and not self.s3_bucket:
             raise ValueError("STORAGE_BACKEND=s3 requires S3_BUCKET.")
-        if self.app_env == "production" and self.email_provider != "smtp":
+        email_ok = {"smtp", "disabled"} if self.beta_no_email_no_files else {"smtp"}
+        storage_ok = {"s3", "disabled"} if self.beta_no_email_no_files else {"s3"}
+        if self.app_env == "production" and self.email_provider not in email_ok:
             # Invitations and password resets would silently go to the log.
             raise ValueError("EMAIL_PROVIDER must be smtp in production.")
-        if self.app_env == "production" and self.storage_backend != "s3":
+        if self.app_env == "production" and self.storage_backend not in storage_ok:
             # Container filesystems are ephemeral: local files would vanish on the next deploy.
             raise ValueError("STORAGE_BACKEND must be s3 in production.")
         if self.app_env == "production" and not self.database_url:
