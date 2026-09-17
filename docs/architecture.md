@@ -429,10 +429,11 @@ existed. Diagnosis and gap map: `docs/product/control-layer-evolution.md`.
 
 `apps/api/Dockerfile` builds the API with uv (no dev dependencies, non-root user, healthcheck);
 `docker-entrypoint.sh` applies migrations and seeds the versioned content before serving, and runs
-a job instead when given arguments (`python scripts/send_reminders.py`). Free path: Koyeb (image from
-the repository) + Neon + B2, daily digest via `.github/workflows/reminders.yml`. Paid path:
-`render.yaml` (API service, cron, PostgreSQL 16, Ohio). `apps/web/vercel.json` pins the web to
-Next.js on `gru1`. Production settings refuse to start without HTTPS cookies, SMTP, S3 storage, a
+a job instead when given arguments (`python scripts/send_reminders.py`). Default path: both apps as
+Vercel projects in `gru1` — the API on the Python runtime (`[tool.vercel] entrypoint`,
+`core/bootstrap.py` migrates and seeds on cold start under an advisory lock, `core/client_ip.py`
+reads `X-Forwarded-For` when trusted) — with Neon (`sa-east-1`), B2 and the digest via
+`.github/workflows/reminders.yml`. Container path: `render.yaml` (API service, cron, PostgreSQL 16). Production settings refuse to start without HTTPS cookies, SMTP, S3 storage, a
 database URL and a 32+ character JWT secret; HSTS is added in production. CI builds the image and
 boots it against PostgreSQL on every push. Runbook: `docs/deploy.md`.
 

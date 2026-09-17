@@ -1,27 +1,34 @@
 # COMPLIANCE OS — DEPLOY RUNBOOK
 
-Decision D17 (2026-09-17, amended the same day). Two supported topologies share the same code,
-image and environment; only the host of the API changes.
+Decision D17 (2026-09-17, amended twice the same day). Two supported topologies share the same
+code and environment; only where the API runs changes.
 
-| | **A — Free beta** (default) | **B — Paid** |
+| | **A — Vercel + Neon** (default, no card, data in Brazil) | **B — Containers** (paid hosts) |
 |---|---|---|
-| Web | Vercel Hobby (`apps/web`, `gru1`) | Vercel Pro |
-| API | **Koyeb** free instance (Docker, Washington D.C.) | **Render** Starter (blueprint `render.yaml`, Ohio) |
-| PostgreSQL | **Neon** Free (`aws-us-east-1`, next to Washington) | Render PostgreSQL |
+| Web | Vercel Hobby project `compliance-os-web` (`apps/web`, `gru1`) | Vercel Pro |
+| API | Vercel Hobby project `compliance-os-api` (`apps/api`, Python runtime, `gru1`) | Docker image on Render (`render.yaml`) or any container host |
+| PostgreSQL | **Neon** Free, region `aws-sa-east-1` (São Paulo) | Render PostgreSQL / Neon |
 | Files | **Backblaze B2** (10 GB free, S3 API, no card) | any S3-compatible bucket |
 | E-mail | **Brevo** or **Resend** free SMTP tier | any SMTP relay |
-| Daily job | **GitHub Actions** (`.github/workflows/reminders.yml`) | Render cron (in the blueprint) |
-| Monthly cost | R$ 0 while inside the free quotas | ≈ US$ 14 + storage |
+| Daily job | **GitHub Actions** (`.github/workflows/reminders.yml`) | Render cron (blueprint) |
+| Migrations | on cold start (`MIGRATE_ON_STARTUP=true`, advisory-locked) | `docker-entrypoint.sh` |
+| Monthly cost | R$ 0 while inside the free quotas (Hobby is for non-commercial use — move to Pro before charging) | ≈ US$ 14 + storage |
 
-The browser only talks to the web domain: the Next.js BFF (`/api/v1/*`) proxies to the API, so
-cookies stay first-party and the API's CORS list contains one origin.
+Live today (topology A): API `https://compliance-os-api.vercel.app`, web
+`https://compliance-os-web-gilt.vercel.app`. Both run in `gru1`; with Neon in `sa-east-1` every byte
+stays in Brazil. The browser only talks to the web domain: the Next.js BFF (`/api/v1/*`) proxies to
+the API, so cookies stay first-party and the API's CORS list contains one origin.
 
 ```
-browser ── https://app.<domain> (Vercel, gru1) ──BFF──> https://<api host> (Koyeb or Render)
-                                                                │              │
-                                                     Neon / Render PostgreSQL   S3 bucket · SMTP
-                                     08:00 BRT: GitHub Actions (A) or Render cron (B) → send_reminders.py
+browser ── https://compliance-os-web-gilt.vercel.app (Vercel gru1) ──BFF──> https://compliance-os-api.vercel.app (Vercel gru1)
+                                                                                     │              │
+                                                                            Neon sa-east-1     B2 bucket · SMTP
+                                                08:00 BRT: GitHub Actions → scripts/send_reminders.py
 ```
+
+Hobby limits that shape the setup: request/response bodies ≤ 4.5 MB (`EVIDENCE_MAX_BYTES=4000000`),
+300 s per invocation, one region. The in-memory rate limiter (D23) is per warm instance — approximate
+on serverless; `TRUST_PROXY_HEADERS=true` makes it key on the real client IP.
 
 ## 0. What CI proves on every push (`.github/workflows/ci.yml`)
 
@@ -47,44 +54,47 @@ job, and **refuses to start** with an incomplete production configuration.
 | `DEFAULT_TIMEZONE` | `America/Sao_Paulo` | fixed |
 | `LLM_PROVIDER` | `none` until D13/D35 legal review; then `anthropic` + `ANTHROPIC_API_KEY` | D35 |
 | `WEB_CONCURRENCY` | `1` (in-memory rate limiter, D23) | fixed |
-| `PORT` | `8000` (Koyeb and Render inject their own; the image honours it) | host |
+| `TRUST_PROXY_HEADERS` | `true` behind Vercel/Render (client IP from `X-Forwarded-For`) | fixed |
+| `MIGRATE_ON_STARTUP` | `true` on Vercel (no entrypoint); `false` in containers (the entrypoint migrates) | topology |
+| `EVIDENCE_MAX_BYTES` | `4000000` on Vercel (4.5 MB body limit); default 10 MB elsewhere | topology |
+| `PORT` | `8000` (containers only; the image honours the host's value) | host |
 
 `APP_ENV=production` turns on the guards: the service will not start without HTTPS cookies, SMTP,
 S3, a database URL and a 32+ character secret — CI proves this on every push.
 
-## 2A. Free beta: Neon + Koyeb + B2 + SMTP + GitHub Actions
+## 2A. Vercel + Neon (default)
 
-1. **Neon** (neon.com, free, no card): New project → region **AWS US East (N. Virginia)** (same
-   coast as the Koyeb free instance; see §6 for São Paulo). Copy the **direct** connection string
-   (toggle "Connection pooling" off). Free plan: 0.5 GB storage, compute scales to zero after 5 min
-   (first query after idle takes ~1 s).
-2. **Backblaze B2** (free 10 GB, no card): create a private bucket, then an application key limited
-   to it. Note the S3 endpoint (`https://s3.<region>.backblazeb2.com`) and region.
-3. **SMTP**: Brevo (300 e-mails/day) or Resend (3 000/month) — create the SMTP credentials and
-   verify the sender domain (SPF/DKIM) so reset and invitation e-mails do not land in spam.
-4. **Koyeb** (koyeb.com; the free instance may ask for a card to verify identity — a US$ 29 hold
-   that is cancelled immediately, no charge): Create Web Service → GitHub → repository
-   `Kadu2728/ComplianceOS`, branch `main` → Builder **Dockerfile**, Work directory **`apps/api`**,
-   Dockerfile **`Dockerfile`** → Instance **Free** (512 MB, 0.1 vCPU), region **Washington, D.C.** →
-   Exposed port **8000** (HTTP) → Health check **HTTP `/api/v1/health`** on port 8000 → Environment
-   variables from §1 (`DATABASE_URL`, `JWT_SECRET`, SMTP and S3 values as *secrets*) → Deploy.
-   The first deploy runs `alembic upgrade head` and `scripts/seed_content.py` in the entrypoint,
-   then serves. Copy the public URL (`https://<app>-<org>.koyeb.app`).
-
-   Free-instance behaviour: it **scales to zero after one hour without traffic**; the next request
-   waits for the boot (~10–20 s, migrations included). Acceptable for a beta; the paid instance
-   removes it. Auto-deploys on every push to `main`.
-5. **Daily job**: repository → Settings → Secrets and variables → Actions. Secrets `DATABASE_URL`,
+1. **Neon** (neon.com, free, no card): New project → Postgres 16 → region **AWS South America
+   (São Paulo)** → *Connect* → **Connection pooling off** → copy the direct string
+   (`postgresql://…sa-east-1.aws.neon.tech/neondb?sslmode=require`). Free plan: 0.5 GB, compute
+   scales to zero after 5 min (first query after idle takes ~1 s).
+2. **Backblaze B2** (free 10 GB, no card): private bucket + an application key limited to it; note
+   the S3 endpoint (`https://s3.<region>.backblazeb2.com`) and region.
+3. **SMTP**: Brevo (300 e-mails/day) or Resend (3 000/month); SMTP credentials; verify the sender
+   domain (SPF/DKIM).
+4. **API project** (`compliance-os-api`, already created and deployed from `apps/api` with the
+   Vercel CLI; `pyproject.toml` `[tool.vercel] entrypoint = "app.main:app"`, `vercel.json` region
+   `gru1`). Every non-secret variable from §1 is already set in Production, including a generated
+   `JWT_SECRET`. **Three secret groups must be typed by a person** (Settings → Environment
+   Variables → Production, or `printf '%s' '<value>' | vercel env add <NAME> production` from
+   `apps/api`): `DATABASE_URL`; `SMTP_HOST`, `SMTP_USERNAME`, `SMTP_PASSWORD`, `SMTP_FROM`;
+   `S3_BUCKET`, `S3_REGION`, `S3_ENDPOINT_URL`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`.
+   Then redeploy (`vercel deploy --prod` from `apps/api`, or push to `main` once Git is connected):
+   the first cold start applies migrations and seeds the content (`MIGRATE_ON_STARTUP`).
+5. **Web project** (`compliance-os-web`, created and deployed from `apps/web`): `API_BASE_URL`
+   points at the API project; nothing else.
+6. **Daily job**: repository → Settings → Secrets and variables → Actions. Secrets `DATABASE_URL`,
    `SMTP_HOST`, `SMTP_USERNAME`, `SMTP_PASSWORD`, `SMTP_FROM`, `APP_BASE_URL`; variables
-   `S3_BUCKET` (name only) and `REMINDERS_ENABLED=true` (the workflow is a no-op until this is set).
-   Test it once with **Actions → Document-expiry digest → Run workflow**.
-6. Continue at §3 (web) with the Koyeb URL as `API_BASE_URL`.
+   `S3_BUCKET` and `REMINDERS_ENABLED=true`. Test with **Actions → Document-expiry digest → Run
+   workflow**.
+7. **Git auto-deploy** (optional, recommended): in each Vercel project → Settings → Git → connect
+   `Kadu2728/ComplianceOS` with the matching Root Directory (`apps/api` / `apps/web`). Until then,
+   deploys are `vercel deploy --prod` from the CLI.
 
-Verify it is *this* API before wiring anything: `curl -i https://<url>/api/v1/health` must return
-`{"status":"ok","version":"…"}` with a `strict-transport-security` header and an `x-request-id` in
-UUID form. (`compliance-os-api.onrender.com` is an unrelated project with the same name.)
+Verify the API: `curl -i https://compliance-os-api.vercel.app/api/v1/health` →
+`{"status":"ok","version":"…"}`; `/api/docs` must be **404** once `APP_ENV=production` is live.
 
-## 2B. Paid: Render blueprint
+## 2B. Containers: Render blueprint (paid)
 
 Render → **New → Blueprint** → the repository → Render reads `render.yaml` (API service, daily
 cron, PostgreSQL 16, region Ohio) and asks for the `sync: false` values from §1. `JWT_SECRET` and
@@ -93,21 +103,14 @@ cron, PostgreSQL 16, region Ohio) and asks for the `sync: false` values from §1
 
 ## 3. Web on Vercel
 
-1. Vercel → **Add New → Project** → import the repository → **Root Directory: `apps/web`**
-   (`apps/web/vercel.json` pins Next.js and the `gru1` region).
-2. Environment variables (Production and Preview): `API_BASE_URL=https://<api host>`. Nothing else —
-   the web app holds no secrets.
-3. Deploy. Then set the custom domain (`app.<domain>`) and update `CORS_ORIGINS` / `APP_BASE_URL`
-   on the API host to that final origin. Hobby plan is for non-commercial use: move to Pro before
-   charging customers.
-
-CLI equivalent from `apps/web`: `vercel link` → `vercel env add API_BASE_URL production` →
-`vercel --prod`.
+Done for topology A (§2A step 5). For a custom domain: add it to the web project, then update
+`CORS_ORIGINS` / `APP_BASE_URL` on the API project to that origin and redeploy the API. Hobby plan
+is for non-commercial use: move to Pro before charging customers.
 
 ## 4. First login and smoke test
 
-1. `https://app.<domain>/criar-conta` → create the first account and organization; the welcome
-   flow leads to the diagnostic.
+1. `https://compliance-os-web-gilt.vercel.app/criar-conta` → create the first account and
+   organization; the welcome flow leads to the diagnostic.
 2. Confirm: password-reset e-mail arrives (SMTP), a file uploads and downloads (S3), `/historico`
    shows the actions, `https://<api>/api/v1/health` returns the version.
 3. Run the digest workflow once by hand (Actions → Run workflow) and read its log.
@@ -132,7 +135,7 @@ CLI equivalent from `apps/web`: `vercel link` → `vercel env add API_BASE_URL p
 
 ## 6. Data residency (read before onboarding customers)
 
-In topology A the database lives in N. Virginia (US); in B, in Ohio. LGPD treats this as an
+In topology A everything (API, web functions, database) runs in São Paulo. In topology B the database lives in the host's region (Render: Ohio, US). LGPD treats this as an
 international transfer of the customers' personal data (member names, e-mails, and whatever they
 type into risks and documents) — legal basis and contractual safeguards are part of D12/D13
 (sources-v1.md B4) and require human legal review. Neon offers **São Paulo (`aws-sa-east-1`)** on the

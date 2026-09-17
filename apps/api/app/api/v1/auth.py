@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, Request, Response
 
 from app.api.deps import CurrentUser, DbSession
+from app.core.client_ip import client_ip
 from app.core.cookies import REFRESH_COOKIE, clear_auth_cookies, set_auth_cookies
 from app.core.rate_limit import limiter
 from app.schemas.identity import (
@@ -19,13 +20,8 @@ from app.services.membership import MembershipRuleViolation, accept_invitation
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
-def _client_ip(request: Request) -> str:
-    # Behind a reverse proxy, configure uvicorn --proxy-headers so request.client is the real IP.
-    return request.client.host if request.client else "unknown"
-
-
 def _limit(request: Request, key: str, *, limit: int, window: int) -> None:
-    if not limiter.check(f"{key}:{_client_ip(request)}", limit=limit, window_seconds=window):
+    if not limiter.check(f"{key}:{client_ip(request)}", limit=limit, window_seconds=window):
         raise HTTPException(status_code=429, detail="Too many attempts. Try again in a minute.")
 
 

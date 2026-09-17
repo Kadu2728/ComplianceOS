@@ -14,6 +14,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from fastapi.responses import StreamingResponse
 
 from app.api.deps import DbSession, require
+from app.core.client_ip import client_ip
 from app.core.rate_limit import limiter
 from app.core.storage import get_storage
 from app.models.membership import Membership
@@ -132,12 +133,8 @@ def revoke_link(link_id: uuid.UUID, db: DbSession, membership: RoomManager) -> M
 # --- visitor surface ----------------------------------------------------------------------------
 
 
-def _client_ip(request: Request) -> str:
-    return request.client.host if request.client else "unknown"
-
-
 def _limit(request: Request, bucket: str, *, limit: int) -> None:
-    if not limiter.check(f"room-{bucket}:{_client_ip(request)}", limit=limit, window_seconds=60):
+    if not limiter.check(f"room-{bucket}:{client_ip(request)}", limit=limit, window_seconds=60):
         raise HTTPException(status_code=429, detail="Muitas requisições. Tente novamente em breve.")
 
 

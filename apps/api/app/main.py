@@ -37,6 +37,11 @@ def create_app() -> FastAPI:
     app.add_middleware(RequestIdMiddleware)
     register_error_handlers(app)
     app.include_router(api_router)
+    if settings.migrate_on_startup:
+        # Serverless hosts (D17): the process itself brings the schema to head before serving.
+        from app.core.bootstrap import migrate_and_seed  # noqa: PLC0415
+
+        migrate_and_seed()
     return app
 
 

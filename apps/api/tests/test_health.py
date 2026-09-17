@@ -96,3 +96,51 @@ def test_hsts_only_in_production(client: TestClient, monkeypatch) -> None:  # no
         client.get("/health").headers["strict-transport-security"]
         == "max-age=31536000; includeSubDomains"
     )
+
+
+def test_client_ip_honours_forwarded_for_only_when_trusted(monkeypatch) -> None:  # noqa: ANN001
+    from starlette.requests import Request
+
+    from app.core import client_ip as module
+
+    def request(headers: dict[str, str]) -> Request:
+        scope = {
+            "type": "http",
+            "method": "GET",
+            "path": "/",
+            "headers": [(k.encode(), v.encode()) for k, v in headers.items()],
+            "client": ("10.0.0.9", 1234),
+        }
+        return Request(scope)
+
+    forwarded = {"x-forwarded-for": "203.0.113.7, 10.0.0.1"}
+    monkeypatch.setattr(
+        module, "get_settings", lambda: type("S", (), {"trust_proxy_headers": False})()
+    )
+    assert module.client_ip(request(forwarded)) == "10.0.0.9"
+    monkeypatch.setattr(
+        module, "get_settings", lambda: type("S", (), {"trust_proxy_headers": True})()
+    )
+    assert module.client_ip(request(forwarded)) == "203.0.113.7"
+    assert module.client_ip(request({})) == "10.0.0.9"
+
+
+def test_migrate_on_startup_brings_the_schema_to_head(monkeypatch) -> None:  # noqa: ANN001
+    """Serverless hosts (D17): the app factory migrates and seeds before serving, idempotently."""
+    from app import main as main_module
+    from app.core import bootstrap
+    from app.core.config import get_settings
+
+    calls: list[str] = []
+    real = bootstrap.migrate_and_seed
+
+    def spy() -> None:
+        calls.append("run")
+        real()
+
+    monkeypatch.setattr(bootstrap, "migrate_and_seed", spy)
+    settings = get_settings().model_copy(update={"migrate_on_startup": True})
+    monkeypatch.setattr(main_module, "get_settings", lambda: settings)
+    app = main_module.create_app()
+    assert calls == ["run"]
+    assert TestClient(app).get("/api/v1/health").status_code == 200

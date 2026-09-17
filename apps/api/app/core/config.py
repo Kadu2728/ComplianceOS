@@ -77,6 +77,13 @@ class Settings(BaseSettings):
     llm_user_minute_limit: int = 6
     llm_org_hourly_limit: int = 60
 
+    # Deployment (decision D17). TRUST_PROXY_HEADERS: read the client IP from X-Forwarded-For
+    # (first hop) — only behind a proxy that sets it (Vercel, Render, Koyeb); off in development.
+    # MIGRATE_ON_STARTUP: apply migrations and seed the versioned content when the process starts
+    # (serverless hosts without an entrypoint); container hosts do it in docker-entrypoint.sh.
+    trust_proxy_headers: bool = False
+    migrate_on_startup: bool = False
+
     @field_validator("database_url")
     @classmethod
     def _sqlalchemy_url(cls, value: str | None) -> str | None:

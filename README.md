@@ -57,7 +57,7 @@ The owner opens **Sala de compliance**, flags the documents and implemented cont
 
 ### Deploy
 
-Web on Vercel (`apps/web`, region `gru1`). API as a Docker image (`apps/api/Dockerfile`, migrations in the entrypoint) on **Koyeb** (free beta) or **Render** (`render.yaml`, paid); PostgreSQL on Neon or Render; files on any S3-compatible bucket (Backblaze B2 for the free path); e-mail through any SMTP relay; the daily digest as a GitHub Actions schedule (`.github/workflows/reminders.yml`). Step by step, environment variables and the data-residency note: `docs/deploy.md` (decision D17). CI builds and boots the production image on every push.
+Web and API as two Vercel projects in `gru1` (`apps/web`; `apps/api` on the Python runtime with `MIGRATE_ON_STARTUP`), PostgreSQL on Neon (`sa-east-1`), files on any S3-compatible bucket (Backblaze B2 for the free path), e-mail through any SMTP relay, the daily digest as a GitHub Actions schedule (`.github/workflows/reminders.yml`). Container alternative: `apps/api/Dockerfile` + `render.yaml`. Step by step, environment variables and the data-residency note: `docs/deploy.md` (decision D17). CI builds and boots the production image on every push.
 
 ### Scheduled job: document-expiry digest
 
