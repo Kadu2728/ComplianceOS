@@ -49,6 +49,13 @@ export type AgentAnswer =
   paths["/api/v1/orgs/{org_id}/agent/answers/{key}"]["get"]["responses"]["200"]["content"]["application/json"];
 export type AgentAsk =
   paths["/api/v1/orgs/{org_id}/agent/ask"]["post"]["responses"]["200"]["content"]["application/json"];
+export type Room =
+  paths["/api/v1/orgs/{org_id}/room"]["get"]["responses"]["200"]["content"]["application/json"];
+export type RoomLink = Room["links"][number];
+export type RoomLinkCreated =
+  paths["/api/v1/orgs/{org_id}/room/links"]["post"]["responses"]["201"]["content"]["application/json"];
+export type RoomPublic =
+  paths["/api/v1/public/rooms/{token}"]["get"]["responses"]["200"]["content"]["application/json"];
 
 export async function memberOptions(orgId: string): Promise<MemberOption[]> {
   const members = (await apiGet<Members>(`/api/v1/orgs/${orgId}/members`)) ?? [];

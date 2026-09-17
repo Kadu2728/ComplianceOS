@@ -406,6 +406,13 @@ existed. Diagnosis and gap map: `docs/product/control-layer-evolution.md`.
   from the audit log and today's state, decisions needed (blocked actions, unowned high risks,
   expired documents), next 30 days (priorities), control and document summaries. Compliance Room
   stays a design (permission `room.manage` reserved; boundaries in D33).
+- **Compliance Room (D36, Phase 13).** `models/room.py` (`compliance_rooms`, `room_links`),
+  `services/room.py` (settings, explicit per-record sharing, links, one `public_payload` for the
+  visitor and the owner's preview), `api/v1/room.py` with two routers: owner management under
+  `/orgs/{id}/room` (`room.manage`) and the anonymous `/public/rooms/{token}` surface (link is the
+  only credential; uniform 404; per-IP limits; `no-store`, `noindex`). Web: `/sala`, `/sala/previa`
+  and the public `(public)/sala/[token]` route group without session or navigation. Threat model:
+  `docs/security/compliance-room-threat-model.md`.
 - **Frontend.** `/controles` (filters, table → cards), `/controles/novo`, `/controles/[id]` (ladder,
   risks with link/unlink, actions, evidence with control target and validity, document),
   `/controles/[id]/editar`; risk page gains "Plano recomendado" (one-step plan with owner and due
@@ -459,8 +466,8 @@ Every non-2xx response has the same JSON shape:
 ## Deliberately absent after Phase 11
 
 Document version history and expected-document seeding (Documents v2) · per-document reminder
-thresholds (the digest is per organization) · agent conversations with memory and document analysis (docs/ai.md §4) · a shareable
-Compliance Room (D33 boundaries; needs D13 and a threat model) · persisted radar snapshots for change
+thresholds (the digest is per organization) · agent conversations with memory and document analysis (docs/ai.md §4) · Compliance Room viewer
+identity, per-link scope and watermarks (threat model §5) · persisted radar snapshots for change
 detection · Process/Asset entities (profile lists until a workflow needs rows) ·
 per-question regulatory basis in the UI (hidden until `last_verified`, D6) · template v2 tooling (a new
 JSON version + seed; no admin UI) · e-mail vendor and storage provider/region choices (D11, D12 — the

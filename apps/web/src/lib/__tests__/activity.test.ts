@@ -34,6 +34,9 @@ describe("activity sentences", () => {
     expect(describeActivity(entry("profile.updated", { entity_type: "organization", data: { segment: {}, data_categories: {} } }))).toBe("atualizou o perfil da organização (segmento, tipos de dados)");
     expect(describeActivity(entry("agent.asked", { entity_type: null, data: { question: "O que fazer hoje?", outcome: "answered" } }))).toBe("perguntou ao agente: “O que fazer hoje?”");
     expect(describeActivity(entry("agent.asked", { entity_type: null, data: { question: "Estamos bem?", outcome: "rejected_claim" } }))).toBe("perguntou ao agente (sem resposta: rejected_claim)");
+    expect(describeActivity(entry("room.link_created", { entity_type: "room_link", data: { label: "Cliente X" } }))).toBe("criou o link “Cliente X” da sala de compliance");
+    expect(describeActivity(entry("room.viewed", { entity_type: "room_link", data: { label: "Cliente X" } }))).toBe("registrou uma visita à sala de compliance pelo link “Cliente X”");
+    expect(describeActivity(entry("room.updated", { entity_type: "room", data: { enabled: { from: false, to: true } } }))).toBe("alterou a sala de compliance (publicação)");
     expect(describeActivity(entry("something.new"))).toBe("something.new");
   });
 

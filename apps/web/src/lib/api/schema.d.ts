@@ -949,6 +949,112 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/orgs/{org_id}/room": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Room */
+        get: operations["get_room_api_v1_orgs__org_id__room_get"];
+        /** Update Room */
+        put: operations["update_room_api_v1_orgs__org_id__room_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/orgs/{org_id}/room/controls/{control_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Share Control */
+        put: operations["share_control_api_v1_orgs__org_id__room_controls__control_id__put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/orgs/{org_id}/room/documents/{document_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Share Document */
+        put: operations["share_document_api_v1_orgs__org_id__room_documents__document_id__put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/orgs/{org_id}/room/links": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create Link */
+        post: operations["create_link_api_v1_orgs__org_id__room_links_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/orgs/{org_id}/room/links/{link_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Revoke Link */
+        delete: operations["revoke_link_api_v1_orgs__org_id__room_links__link_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/orgs/{org_id}/room/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Preview Room
+         * @description Exactly the visitor payload (same function), without a link — for the owner's check.
+         */
+        get: operations["preview_room_api_v1_orgs__org_id__room_preview_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/orgs/{org_id}/score": {
         parameters: {
             query?: never;
@@ -975,6 +1081,40 @@ export interface paths {
         };
         /** History */
         get: operations["history_api_v1_orgs__org_id__score_history_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/public/rooms/{token}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** View Room */
+        get: operations["view_room_api_v1_public_rooms__token__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/public/rooms/{token}/documents/{document_id}/download": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Download Shared Document */
+        get: operations["download_shared_document_api_v1_public_rooms__token__documents__document_id__download_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1390,6 +1530,11 @@ export interface components {
             owner?: components["schemas"]["OwnerOut"] | null;
             /** Review Date */
             review_date: string | null;
+            /**
+             * Shared In Room
+             * @default false
+             */
+            shared_in_room: boolean;
             status: components["schemas"]["ControlStatus"];
             /** Template Code */
             template_code: string | null;
@@ -1522,6 +1667,8 @@ export interface components {
             name: string;
             owner: components["schemas"]["OwnerOut"] | null;
             review_state: components["schemas"]["DocumentReviewState"];
+            /** Shared In Room */
+            shared_in_room: boolean;
             /** Size Bytes */
             size_bytes: number | null;
             status: components["schemas"]["DocumentStatus"];
@@ -2427,6 +2574,202 @@ export interface components {
         /** RoleUpdate */
         RoleUpdate: {
             role: components["schemas"]["Role"];
+        };
+        /** RoomBandOut */
+        RoomBandOut: {
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+        };
+        /** RoomControlOut */
+        RoomControlOut: {
+            category: components["schemas"]["RiskCategory"];
+            /** Description */
+            description: string | null;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            kind: components["schemas"]["ControlKind"];
+            status: components["schemas"]["ControlStatus"];
+            /** Title */
+            title: string;
+        };
+        /** RoomDocumentOut */
+        RoomDocumentOut: {
+            category: components["schemas"]["DocumentCategory"];
+            /** Has File */
+            has_file: boolean;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            status: components["schemas"]["DocumentStatus"];
+            /** Valid Until */
+            valid_until: string | null;
+            /** Version */
+            version: string;
+        };
+        /** RoomLinkCreate */
+        RoomLinkCreate: {
+            /**
+             * Expires In Days
+             * @default 30
+             */
+            expires_in_days: number;
+            /** Label */
+            label: string;
+        };
+        /**
+         * RoomLinkCreated
+         * @description The token appears here once; only its hash is stored.
+         */
+        RoomLinkCreated: {
+            link: components["schemas"]["RoomLinkOut"];
+            /** Token */
+            token: string;
+        };
+        /** RoomLinkOut */
+        RoomLinkOut: {
+            /** Active */
+            active: boolean;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Label */
+            label: string;
+            /** Last Viewed At */
+            last_viewed_at: string | null;
+            /** Revoked At */
+            revoked_at: string | null;
+            /** View Count */
+            view_count: number;
+        };
+        /** RoomLinkRefOut */
+        RoomLinkRefOut: {
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+            /** Label */
+            label: string;
+        };
+        /** RoomOut */
+        RoomOut: {
+            /** Contact Email */
+            contact_email: string | null;
+            /** Enabled */
+            enabled: boolean;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Intro */
+            intro: string | null;
+            /** Links */
+            links: components["schemas"]["RoomLinkOut"][];
+            /** Shared Controls */
+            shared_controls: number;
+            /** Shared Documents */
+            shared_documents: number;
+            /** Show Controls */
+            show_controls: boolean;
+            /** Show Score */
+            show_score: boolean;
+            /** Title */
+            title: string | null;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /**
+         * RoomPublicOut
+         * @description What a visitor (or the owner in preview) sees — nothing else exists on this surface.
+         */
+        RoomPublicOut: {
+            /** Caveat */
+            caveat: string;
+            /** Contact Email */
+            contact_email: string | null;
+            /** Controls */
+            controls: components["schemas"]["RoomControlOut"][];
+            /** Documents */
+            documents: components["schemas"]["RoomDocumentOut"][];
+            /**
+             * Generated At
+             * Format: date-time
+             */
+            generated_at: string;
+            /** Intro */
+            intro: string | null;
+            link: components["schemas"]["RoomLinkRefOut"] | null;
+            /** Organization Name */
+            organization_name: string;
+            score: components["schemas"]["RoomScoreOut"] | null;
+            /** Title */
+            title: string;
+        };
+        /** RoomScoreOut */
+        RoomScoreOut: {
+            band: components["schemas"]["RoomBandOut"];
+            /**
+             * Computed At
+             * Format: date-time
+             */
+            computed_at: string;
+            /** Score */
+            score: number;
+        };
+        /** RoomShareIn */
+        RoomShareIn: {
+            /** Shared */
+            shared: boolean;
+        };
+        /** RoomShareOut */
+        RoomShareOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Shared */
+            shared: boolean;
+        };
+        /** RoomUpdate */
+        RoomUpdate: {
+            /** Contact Email */
+            contact_email?: string | null;
+            /** Enabled */
+            enabled?: boolean | null;
+            /** Intro */
+            intro?: string | null;
+            /** Show Controls */
+            show_controls?: boolean | null;
+            /** Show Score */
+            show_score?: boolean | null;
+            /** Title */
+            title?: string | null;
         };
         /** ScoreItemOut */
         ScoreItemOut: {
@@ -4896,6 +5239,242 @@ export interface operations {
             };
         };
     };
+    get_room_api_v1_orgs__org_id__room_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                org_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RoomOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_room_api_v1_orgs__org_id__room_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                org_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RoomUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RoomOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    share_control_api_v1_orgs__org_id__room_controls__control_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                control_id: string;
+                org_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RoomShareIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RoomShareOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    share_document_api_v1_orgs__org_id__room_documents__document_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                document_id: string;
+                org_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RoomShareIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RoomShareOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_link_api_v1_orgs__org_id__room_links_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                org_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RoomLinkCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RoomLinkCreated"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    revoke_link_api_v1_orgs__org_id__room_links__link_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                link_id: string;
+                org_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MessageOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    preview_room_api_v1_orgs__org_id__room_preview_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                org_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RoomPublicOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     current_api_v1_orgs__org_id__score_get: {
         parameters: {
             query?: never;
@@ -4947,6 +5526,69 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HistoryOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    view_room_api_v1_public_rooms__token__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RoomPublicOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    download_shared_document_api_v1_public_rooms__token__documents__document_id__download_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                token: string;
+                document_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
                 };
             };
             /** @description Validation Error */

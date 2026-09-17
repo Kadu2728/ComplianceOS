@@ -2,7 +2,7 @@
 
 import { PanelLeft, X } from "lucide-react";
 import { useRef } from "react";
-import { ICON_STROKE, NAV_ITEMS } from "./nav-items";
+import { ICON_STROKE, navItemsFor } from "./nav-items";
 import { NavLink } from "./nav-link";
 import { type OrganizationOption, OrgSwitcher } from "./org-switcher";
 import { ThemeToggle } from "./theme-toggle";
@@ -14,9 +14,11 @@ import { ThemeToggle } from "./theme-toggle";
 export function MobileDrawer({
   currentId,
   organizations,
+  role,
 }: {
   currentId: string;
   organizations: OrganizationOption[];
+  role: string;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
   const open = () => ref.current?.showModal();
@@ -56,7 +58,7 @@ export function MobileDrawer({
           </button>
         </div>
         <nav aria-label="Principal" className="flex flex-col gap-1 p-3">
-          {NAV_ITEMS.map((item) => (
+          {navItemsFor(role).map((item) => (
             <NavLink
             key={item.href}
             href={item.href}

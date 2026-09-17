@@ -27,6 +27,11 @@ const FIELD: Record<string, string> = {
   status: "maturidade",
   document_id: "documento",
   review_date: "revisão",
+  enabled: "publicação",
+  intro: "apresentação",
+  show_score: "exibição do score",
+  show_controls: "exibição de controles",
+  contact_email: "contato",
   segment: "segmento",
   headcount_band: "tamanho",
   customer_type: "clientes",
@@ -96,6 +101,24 @@ export function describeActivity(entry: AuditEntry): string {
       return `planejou o risco${quoted(entry)} (controle e ação em um passo)`;
     case "profile.updated":
       return `atualizou o perfil da organização${changedFields(d)}`;
+    case "room.updated":
+      return `alterou a sala de compliance${changedFields(d)}`;
+    case "room.document_shared":
+      return `compartilhou o documento “${String(d.title ?? "")}” na sala de compliance`;
+    case "room.document_unshared":
+      return `retirou o documento “${String(d.title ?? "")}” da sala de compliance`;
+    case "room.control_shared":
+      return `compartilhou o controle “${String(d.title ?? "")}” na sala de compliance`;
+    case "room.control_unshared":
+      return `retirou o controle “${String(d.title ?? "")}” da sala de compliance`;
+    case "room.link_created":
+      return `criou o link “${String(d.label ?? "")}” da sala de compliance`;
+    case "room.link_revoked":
+      return `revogou o link “${String(d.label ?? "")}” da sala de compliance`;
+    case "room.viewed":
+      return `registrou uma visita à sala de compliance pelo link “${String(d.label ?? "")}”`;
+    case "room.document_downloaded":
+      return `registrou o download de “${String(d.title ?? "")}” pelo link “${String(d.label ?? "")}”`;
     case "agent.asked":
       return d.outcome === "answered" || d.outcome === "deterministic"
         ? `perguntou ao agente: “${String(d.question ?? "")}”`

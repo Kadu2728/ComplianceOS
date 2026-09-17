@@ -11,6 +11,7 @@ import uuid
 from datetime import date
 
 from sqlalchemy import (
+    Boolean,
     Date,
     Enum,
     ForeignKey,
@@ -86,6 +87,8 @@ class Control(Base, UUIDPrimaryKey, Timestamps):
     # The policy / procedure that formalizes the control (Document, same organization).
     document_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
     review_date: Mapped[date | None] = mapped_column(Date)
+    # Compliance Room (D36): shown to link holders only when the owner flags it explicitly.
+    shared_in_room: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="false")
 
     owner = relationship(
         "Membership",

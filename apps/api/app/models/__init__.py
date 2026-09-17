@@ -17,6 +17,7 @@ from app.models.membership import Membership
 from app.models.organization import Organization
 from app.models.profile import OrganizationProfile
 from app.models.reminder import ReminderDelivery
+from app.models.room import ComplianceRoom, RoomLink
 from app.models.score import ScoreSnapshot
 from app.models.user import User
 
@@ -29,6 +30,7 @@ __all__ = [
     "AssessmentTemplate",
     "AssessmentTemplateVersion",
     "AuditLog",
+    "ComplianceRoom",
     "Control",
     "Document",
     "Evidence",
@@ -38,6 +40,7 @@ __all__ = [
     "OrganizationProfile",
     "ReminderDelivery",
     "RiskControl",
+    "RoomLink",
     "PasswordResetToken",
     "RefreshToken",
     "Risk",

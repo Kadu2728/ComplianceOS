@@ -74,6 +74,7 @@ class DocumentOut(BaseModel):
     content_type: str | None
     size_bytes: int | None
     file_updated_at: datetime | None
+    shared_in_room: bool  # Compliance Room (D36)
     created_at: datetime
     updated_at: datetime
 
@@ -100,6 +101,7 @@ def _attrs(document: Document) -> dict[str, Any]:
         "content_type": document.content_type,
         "size_bytes": document.size_bytes,
         "file_updated_at": document.file_updated_at,
+        "shared_in_room": document.shared_in_room,
         "created_at": document.created_at,
         "updated_at": document.updated_at,
     }

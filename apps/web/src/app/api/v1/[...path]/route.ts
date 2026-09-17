@@ -20,6 +20,7 @@ const RESPONSE_HEADERS = [
   "x-content-type-options",
   "x-request-id",
   "cache-control",
+  "x-robots-tag", // public Compliance Room responses (D36)
 ];
 
 async function proxy(request: NextRequest, path: string[]): Promise<Response> {

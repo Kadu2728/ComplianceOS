@@ -1,6 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import {
   ClipboardList,
+  DoorOpen,
   FileText,
   History,
   LayoutDashboard,
@@ -11,7 +12,12 @@ import {
 } from "lucide-react";
 
 /** MVP navigation — order and labels per docs/design/app-shell.md §1 (brand §55). */
-export type NavItem = { label: string; href: string; icon: LucideIcon };
+export type NavItem = { label: string; href: string; icon: LucideIcon; roles?: readonly string[] };
+
+/** Items the current role may see (an item without `roles` is for everyone). */
+export function navItemsFor(role: string): NavItem[] {
+  return NAV_ITEMS.filter((item) => !item.roles || item.roles.includes(role));
+}
 
 export const NAV_ITEMS: readonly NavItem[] = [
   { label: "Visão geral", href: "/", icon: LayoutDashboard },
@@ -20,6 +26,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { label: "Controles", href: "/controles", icon: Layers },
   { label: "Ações", href: "/acoes", icon: ListChecks },
   { label: "Documentos", href: "/documentos", icon: FileText },
+  { label: "Sala de compliance", href: "/sala", icon: DoorOpen, roles: ["owner"] },
   { label: "Histórico", href: "/historico", icon: History },
   { label: "Configurações", href: "/configuracoes", icon: Settings },
 ];

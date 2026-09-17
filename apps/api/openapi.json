@@ -1293,6 +1293,11 @@
             ],
             "title": "Review Date"
           },
+          "shared_in_room": {
+            "default": false,
+            "title": "Shared In Room",
+            "type": "boolean"
+          },
           "status": {
             "$ref": "#/components/schemas/ControlStatus"
           },
@@ -1717,6 +1722,10 @@
           "review_state": {
             "$ref": "#/components/schemas/DocumentReviewState"
           },
+          "shared_in_room": {
+            "title": "Shared In Room",
+            "type": "boolean"
+          },
           "size_bytes": {
             "anyOf": [
               {
@@ -1787,6 +1796,7 @@
           "content_type",
           "size_bytes",
           "file_updated_at",
+          "shared_in_room",
           "created_at",
           "updated_at"
         ],
@@ -4602,6 +4612,554 @@
           "role"
         ],
         "title": "RoleUpdate",
+        "type": "object"
+      },
+      "RoomBandOut": {
+        "properties": {
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "label"
+        ],
+        "title": "RoomBandOut",
+        "type": "object"
+      },
+      "RoomControlOut": {
+        "properties": {
+          "category": {
+            "$ref": "#/components/schemas/RiskCategory"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/ControlKind"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ControlStatus"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "description",
+          "kind",
+          "category",
+          "status"
+        ],
+        "title": "RoomControlOut",
+        "type": "object"
+      },
+      "RoomDocumentOut": {
+        "properties": {
+          "category": {
+            "$ref": "#/components/schemas/DocumentCategory"
+          },
+          "has_file": {
+            "title": "Has File",
+            "type": "boolean"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/DocumentStatus"
+          },
+          "valid_until": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valid Until"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "category",
+          "version",
+          "status",
+          "valid_until",
+          "has_file"
+        ],
+        "title": "RoomDocumentOut",
+        "type": "object"
+      },
+      "RoomLinkCreate": {
+        "properties": {
+          "expires_in_days": {
+            "default": 30,
+            "maximum": 90.0,
+            "minimum": 1.0,
+            "title": "Expires In Days",
+            "type": "integer"
+          },
+          "label": {
+            "maxLength": 80,
+            "minLength": 2,
+            "title": "Label",
+            "type": "string"
+          }
+        },
+        "required": [
+          "label"
+        ],
+        "title": "RoomLinkCreate",
+        "type": "object"
+      },
+      "RoomLinkCreated": {
+        "description": "The token appears here once; only its hash is stored.",
+        "properties": {
+          "link": {
+            "$ref": "#/components/schemas/RoomLinkOut"
+          },
+          "token": {
+            "title": "Token",
+            "type": "string"
+          }
+        },
+        "required": [
+          "link",
+          "token"
+        ],
+        "title": "RoomLinkCreated",
+        "type": "object"
+      },
+      "RoomLinkOut": {
+        "properties": {
+          "active": {
+            "title": "Active",
+            "type": "boolean"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "title": "Expires At",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "last_viewed_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Viewed At"
+          },
+          "revoked_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Revoked At"
+          },
+          "view_count": {
+            "title": "View Count",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "expires_at",
+          "revoked_at",
+          "active",
+          "view_count",
+          "last_viewed_at",
+          "created_at"
+        ],
+        "title": "RoomLinkOut",
+        "type": "object"
+      },
+      "RoomLinkRefOut": {
+        "properties": {
+          "expires_at": {
+            "format": "date-time",
+            "title": "Expires At",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          }
+        },
+        "required": [
+          "label",
+          "expires_at"
+        ],
+        "title": "RoomLinkRefOut",
+        "type": "object"
+      },
+      "RoomOut": {
+        "properties": {
+          "contact_email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Contact Email"
+          },
+          "enabled": {
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "intro": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Intro"
+          },
+          "links": {
+            "items": {
+              "$ref": "#/components/schemas/RoomLinkOut"
+            },
+            "title": "Links",
+            "type": "array"
+          },
+          "shared_controls": {
+            "title": "Shared Controls",
+            "type": "integer"
+          },
+          "shared_documents": {
+            "title": "Shared Documents",
+            "type": "integer"
+          },
+          "show_controls": {
+            "title": "Show Controls",
+            "type": "boolean"
+          },
+          "show_score": {
+            "title": "Show Score",
+            "type": "boolean"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "enabled",
+          "title",
+          "intro",
+          "show_score",
+          "show_controls",
+          "contact_email",
+          "shared_documents",
+          "shared_controls",
+          "links",
+          "updated_at"
+        ],
+        "title": "RoomOut",
+        "type": "object"
+      },
+      "RoomPublicOut": {
+        "description": "What a visitor (or the owner in preview) sees \u2014 nothing else exists on this surface.",
+        "properties": {
+          "caveat": {
+            "title": "Caveat",
+            "type": "string"
+          },
+          "contact_email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Contact Email"
+          },
+          "controls": {
+            "items": {
+              "$ref": "#/components/schemas/RoomControlOut"
+            },
+            "title": "Controls",
+            "type": "array"
+          },
+          "documents": {
+            "items": {
+              "$ref": "#/components/schemas/RoomDocumentOut"
+            },
+            "title": "Documents",
+            "type": "array"
+          },
+          "generated_at": {
+            "format": "date-time",
+            "title": "Generated At",
+            "type": "string"
+          },
+          "intro": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Intro"
+          },
+          "link": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RoomLinkRefOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "organization_name": {
+            "title": "Organization Name",
+            "type": "string"
+          },
+          "score": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RoomScoreOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "organization_name",
+          "title",
+          "intro",
+          "contact_email",
+          "score",
+          "documents",
+          "controls",
+          "link",
+          "generated_at",
+          "caveat"
+        ],
+        "title": "RoomPublicOut",
+        "type": "object"
+      },
+      "RoomScoreOut": {
+        "properties": {
+          "band": {
+            "$ref": "#/components/schemas/RoomBandOut"
+          },
+          "computed_at": {
+            "format": "date-time",
+            "title": "Computed At",
+            "type": "string"
+          },
+          "score": {
+            "title": "Score",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "score",
+          "band",
+          "computed_at"
+        ],
+        "title": "RoomScoreOut",
+        "type": "object"
+      },
+      "RoomShareIn": {
+        "properties": {
+          "shared": {
+            "title": "Shared",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "shared"
+        ],
+        "title": "RoomShareIn",
+        "type": "object"
+      },
+      "RoomShareOut": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "shared": {
+            "title": "Shared",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "shared"
+        ],
+        "title": "RoomShareOut",
+        "type": "object"
+      },
+      "RoomUpdate": {
+        "properties": {
+          "contact_email": {
+            "anyOf": [
+              {
+                "format": "email",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Contact Email"
+          },
+          "enabled": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Enabled"
+          },
+          "intro": {
+            "anyOf": [
+              {
+                "maxLength": 1200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Intro"
+          },
+          "show_controls": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Show Controls"
+          },
+          "show_score": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Show Score"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "maxLength": 120,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          }
+        },
+        "title": "RoomUpdate",
         "type": "object"
       },
       "ScoreItemOut": {
@@ -8956,6 +9514,376 @@
         ]
       }
     },
+    "/api/v1/orgs/{org_id}/room": {
+      "get": {
+        "operationId": "get_room_api_v1_orgs__org_id__room_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "org_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Org Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoomOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Room",
+        "tags": [
+          "room"
+        ]
+      },
+      "put": {
+        "operationId": "update_room_api_v1_orgs__org_id__room_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "org_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Org Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RoomUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoomOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Update Room",
+        "tags": [
+          "room"
+        ]
+      }
+    },
+    "/api/v1/orgs/{org_id}/room/controls/{control_id}": {
+      "put": {
+        "operationId": "share_control_api_v1_orgs__org_id__room_controls__control_id__put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "control_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Control Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "org_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Org Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RoomShareIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoomShareOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Share Control",
+        "tags": [
+          "room"
+        ]
+      }
+    },
+    "/api/v1/orgs/{org_id}/room/documents/{document_id}": {
+      "put": {
+        "operationId": "share_document_api_v1_orgs__org_id__room_documents__document_id__put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "document_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Document Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "org_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Org Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RoomShareIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoomShareOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Share Document",
+        "tags": [
+          "room"
+        ]
+      }
+    },
+    "/api/v1/orgs/{org_id}/room/links": {
+      "post": {
+        "operationId": "create_link_api_v1_orgs__org_id__room_links_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "org_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Org Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RoomLinkCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoomLinkCreated"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Link",
+        "tags": [
+          "room"
+        ]
+      }
+    },
+    "/api/v1/orgs/{org_id}/room/links/{link_id}": {
+      "delete": {
+        "operationId": "revoke_link_api_v1_orgs__org_id__room_links__link_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "link_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Link Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "org_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Org Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Revoke Link",
+        "tags": [
+          "room"
+        ]
+      }
+    },
+    "/api/v1/orgs/{org_id}/room/preview": {
+      "get": {
+        "description": "Exactly the visitor payload (same function), without a link \u2014 for the owner's check.",
+        "operationId": "preview_room_api_v1_orgs__org_id__room_preview_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "org_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Org Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoomPublicOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Preview Room",
+        "tags": [
+          "room"
+        ]
+      }
+    },
     "/api/v1/orgs/{org_id}/score": {
       "get": {
         "operationId": "current_api_v1_orgs__org_id__score_get",
@@ -9051,6 +9979,98 @@
         "summary": "History",
         "tags": [
           "score"
+        ]
+      }
+    },
+    "/api/v1/public/rooms/{token}": {
+      "get": {
+        "operationId": "view_room_api_v1_public_rooms__token__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "token",
+            "required": true,
+            "schema": {
+              "title": "Token",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoomPublicOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "View Room",
+        "tags": [
+          "room-public"
+        ]
+      }
+    },
+    "/api/v1/public/rooms/{token}/documents/{document_id}/download": {
+      "get": {
+        "operationId": "download_shared_document_api_v1_public_rooms__token__documents__document_id__download_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "token",
+            "required": true,
+            "schema": {
+              "title": "Token",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "document_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Document Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Download Shared Document",
+        "tags": [
+          "room-public"
         ]
       }
     }

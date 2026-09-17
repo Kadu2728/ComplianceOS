@@ -50,6 +50,7 @@ class ControlOut(BaseModel):
     owner: OwnerOut | None = None
     document: DocumentLinkOut | None = None
     review_date: date | None
+    shared_in_room: bool = False  # Compliance Room (D36)
     created_at: datetime
     updated_at: datetime
 

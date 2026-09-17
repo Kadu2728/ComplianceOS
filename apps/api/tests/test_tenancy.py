@@ -91,6 +91,12 @@ ROUTES = [
     ("GET", "/api/v1/orgs/{org}/agent/answers/biggest_risks", None),
     ("GET", "/api/v1/orgs/{org}/agent/context", None),
     ("GET", "/api/v1/orgs/{org}/agent/status", None),
+    ("GET", "/api/v1/orgs/{org}/room", None),
+    ("PUT", "/api/v1/orgs/{org}/room", {"enabled": True}),
+    ("GET", "/api/v1/orgs/{org}/room/preview", None),
+    ("PUT", "/api/v1/orgs/{org}/room/documents/{document}", {"shared": True}),
+    ("PUT", "/api/v1/orgs/{org}/room/controls/{control}", {"shared": True}),
+    ("POST", "/api/v1/orgs/{org}/room/links", {"label": "Injetado"}),
     ("POST", "/api/v1/orgs/{org}/agent/ask", {"question": "Quais são meus maiores riscos?"}),
     (
         "POST",

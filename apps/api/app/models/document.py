@@ -14,6 +14,7 @@ from typing import Any
 
 from sqlalchemy import (
     BigInteger,
+    Boolean,
     Date,
     DateTime,
     Enum,
@@ -91,6 +92,8 @@ class Document(Base, UUIDPrimaryKey, Timestamps):
     size_bytes: Mapped[int | None] = mapped_column(BigInteger)
     storage_key: Mapped[str | None] = mapped_column(String(512), unique=True)
     file_updated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    # Compliance Room (D36): shown to link holders only when the owner flags it explicitly.
+    shared_in_room: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="false")
 
     owner = relationship(
         "Membership",

@@ -12,6 +12,7 @@ from app.api.v1 import (
     overview,
     profile,
     risks,
+    room,
     score,
 )
 
@@ -28,3 +29,5 @@ api_router.include_router(documents.router)
 api_router.include_router(controls.router)
 api_router.include_router(profile.router)
 api_router.include_router(insights.router)
+api_router.include_router(room.router)
+api_router.include_router(room.public_router)
