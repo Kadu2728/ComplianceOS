@@ -40,6 +40,9 @@ export function SignupForm() {
       <Button type="submit" disabled={pending}>
         {pending ? "Criando conta…" : "Criar conta"}
       </Button>
+      {/* TODO(D13): when `site.legalReady` is true, show "Ao criar a conta, você concorda com as
+          Condições do beta e leu o Aviso de privacidade (beta)." linking /termos and /privacidade
+          (04-legal-review.md §3.1). No logic until the notices pass human legal review. */}
       <p className="text-body-sm text-text-secondary">
         Já tem conta?{" "}
         <Link href="/entrar" className="text-info-text underline underline-offset-2">

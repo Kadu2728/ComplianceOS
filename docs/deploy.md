@@ -15,8 +15,9 @@ code and environment; only where the API runs changes.
 | Monthly cost | R$ 0 while inside the free quotas (Hobby is for non-commercial use — move to Pro before charging) | ≈ US$ 14 + storage |
 
 Live today (topology A): API `https://compliance-os-api.vercel.app`, web
-`https://compliance-os-web-gilt.vercel.app`. Both run in `gru1`; with Neon in `sa-east-1` every byte
-stays in Brazil. The browser only talks to the web domain: the Next.js BFF (`/api/v1/*`) proxies to
+`https://compliance-os-web-gilt.vercel.app`. Both run in `gru1`; with Neon in `sa-east-1`, web, API
+and database all run in São Paulo; the international-transfer analysis (D12) is still pending. The
+browser only talks to the web domain: the Next.js BFF (`/api/v1/*`) proxies to
 the API, so cookies stay first-party and the API's CORS list contains one origin.
 
 ```

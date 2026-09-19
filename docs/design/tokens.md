@@ -55,8 +55,10 @@ Scale tokens (px / line-height / tracking / weight). App uses the rows marked A;
 
 | Token | Size | LH | Tracking | Weight | Use |
 |---|---|---|---|---|---|
-| `--text-display-xl` (M) | 72 | 1.0 | −0.03em | 600 | hero |
-| `--text-display-l` (M) | 64 | 1.05 | −0.03em | 600 | hero |
+| `--text-display-xl` (M) | 72 | 1.0 | −0.03em | 600 | hero H1 (ceiling of `clamp(2.375rem, 1rem + 5vw, 4.5rem)`) |
+| `--text-display-l` (M) | 64 | 1.05 | −0.03em | 600 | final-CTA H2 (ceiling of `clamp(2.25rem, 1rem + 4vw, 4rem)`) |
+| `--text-display-m` (M) | 48 | 1.08 | −0.02em | 600 | section H2 (ceiling of `clamp(2rem, 1.25rem + 2.5vw, 3rem)`) |
+| `--text-display-s` (M) | 40 | 1.12 | −0.02em | 600 | long section H2 (ceiling of `clamp(1.75rem, 1.1rem + 2.2vw, 2.5rem)`) |
 | `--text-h1` (A) | 32 | 1.18 | −0.02em | 600 | page title (brand H3 size; brand H1 48px is marketing-scale) |
 | `--text-h2` (A) | 24 | 1.25 | −0.02em | 600 | section title |
 | `--text-h3` (A) | 18 | 1.4 | −0.01em | 600 | card / group title |
@@ -68,6 +70,8 @@ Scale tokens (px / line-height / tracking / weight). App uses the rows marked A;
 | `--text-caption` (A) | 11 | 1.3 | 0 | 400 | metadata, timestamps |
 
 `font-variant-numeric: tabular-nums` on score, tables and any column of numbers/dates.
+
+Marketing display family (decision 2026-09-19, landing implementation): `--font-display: var(--font-geist), var(--font-sans)` — Geist 500/600, latin subset, loaded **only** by `app/(marketing)/layout.tsx` as `--font-geist`; the app never pays for it. Declared with `@theme inline` so the `font-display` utility resolves `--font-geist` where it is set (a plain `@theme` value would resolve on `:root`, where the variable does not exist). The four `--text-display-*` rows above are ceilings; the fluid sizes live in `@utility text-hero / text-final / text-section / text-section-long` (03-ux-spec §1.2).
 
 ## 4. Spacing, radius, borders, shadows (§16–§19)
 
@@ -87,7 +91,7 @@ Scale tokens (px / line-height / tracking / weight). App uses the rows marked A;
 
 ## 6. Motion (§31–§36, D22)
 
-CSS only. Tokens: `--duration-fast 150ms`, `--duration-base 200ms`, `--duration-slow 250ms` (interface); `--duration-complex 400ms` (state transitions such as risk → controlled, score change); `--ease-out: cubic-bezier(0.2, 0, 0, 1)`. No bounce, no parallax, no entrance animation on every element.
+CSS only. Tokens: `--duration-fast 150ms`, `--duration-base 200ms`, `--duration-slow 250ms` (interface); `--duration-complex 400ms` (state transitions such as risk → controlled, score change); `--duration-story 600ms` (marketing only — hero showcase entrance and the Control Layer chain draw; brand §33 allows 500–1000ms for narrative motion, never in the app); `--ease-out: cubic-bezier(0.2, 0, 0, 1)`. No bounce, no parallax, no entrance animation on every element.
 
 Allowed MVP motion, each mapped to the brand language: **Progress** (progress bar width, score number counting up ≤ 400ms), **Resolve** (status badge cross-fade 200ms when an action completes or a risk changes severity), **Layer** (drawer/dialog enter 200ms translate+opacity), **Connect** (none in MVP). `@media (prefers-reduced-motion: reduce)`: all durations → 0ms, count-up disabled.
 

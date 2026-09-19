@@ -1,4 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
+import { LANDING_PATH, shouldShowLanding } from "@/lib/marketing/entry";
+
+const ACCESS_COOKIE = "cos_access";
 
 /**
  * Per-request Content Security Policy with a script nonce (CLAUDE.md §9). Next reads the nonce
@@ -6,6 +9,10 @@ import { type NextRequest, NextResponse } from "next/server";
  * `'strict-dynamic'` then trusts the chunks those scripts load and nothing else, so an injected
  * inline `<script>` cannot run. The dev server still needs eval for its overlay and HMR.
  * The remaining headers stay in `next.config.ts` (static, no per-request value).
+ *
+ * Root route: an anonymous visitor at `/` is served the landing (`/inicio`) through a rewrite —
+ * the URL stays `/`, the CSP request headers travel with it. Anyone carrying the access cookie
+ * keeps the application at `/` (`lib/marketing/entry.ts`).
  */
 export function middleware(request: NextRequest) {
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
@@ -27,7 +34,11 @@ export function middleware(request: NextRequest) {
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-nonce", nonce);
   requestHeaders.set("content-security-policy", csp);
-  const response = NextResponse.next({ request: { headers: requestHeaders } });
+
+  const landing = shouldShowLanding(request.nextUrl.pathname, request.cookies.has(ACCESS_COOKIE));
+  const response = landing
+    ? NextResponse.rewrite(new URL(LANDING_PATH, request.url), { request: { headers: requestHeaders } })
+    : NextResponse.next({ request: { headers: requestHeaders } });
   response.headers.set("Content-Security-Policy", csp);
   return response;
 }

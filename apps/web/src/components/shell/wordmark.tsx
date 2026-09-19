@@ -1,14 +1,15 @@
 import Link from "next/link";
+import { BrandSymbol } from "@/components/ui/brand-symbol";
 
 /**
- * Temporary text wordmark (decision D15: the approved symbol is not in the repository).
- * The empty 24px slot reserves space for the symbol so its arrival does not reflow the shell.
- * Do not invent a mark here.
+ * Application wordmark: the approved symbol (decision D15 — `public/brand/symbol.png`, added
+ * 2026-09-19, rendered as a currentColor mask) in the 24px slot reserved since Phase 1, plus the
+ * text. Same height and gap as before, so the shell does not reflow.
  */
 export function Wordmark() {
   return (
     <Link href="/" className="flex h-14 items-center gap-2 px-3 text-text-primary">
-      <span aria-hidden className="inline-block size-6 shrink-0" />
+      <BrandSymbol size={24} />
       <span className="text-[16px] font-semibold tracking-[-0.01em]">Compliance OS</span>
     </Link>
   );

@@ -90,6 +90,69 @@
   --duration-slow: 250ms;
   --duration-complex: 400ms;
   --ease-out: cubic-bezier(0.2, 0, 0, 1);
+
+  /* Marketing scale (brand §13–§14; landing only). Ceilings of the fluid sizes in @utility below. */
+  --text-display-xl: 4.5rem;
+  --text-display-xl--line-height: 1;
+  --text-display-xl--letter-spacing: -0.03em;
+  --text-display-xl--font-weight: 600;
+  --text-display-l: 4rem;
+  --text-display-l--line-height: 1.05;
+  --text-display-l--letter-spacing: -0.03em;
+  --text-display-l--font-weight: 600;
+  --text-display-m: 3rem;
+  --text-display-m--line-height: 1.08;
+  --text-display-m--letter-spacing: -0.02em;
+  --text-display-m--font-weight: 600;
+  --text-display-s: 2.5rem;
+  --text-display-s--line-height: 1.12;
+  --text-display-s--letter-spacing: -0.02em;
+  --text-display-s--font-weight: 600;
+  --duration-story: 600ms;
+}
+
+/*
+ * Display family (Geist, loaded only by the marketing layout as `--font-geist` on its wrapper).
+ * `inline` so the `font-display` utility carries the var() chain itself: a plain @theme value
+ * would be resolved on :root, where `--font-geist` does not exist, and fall back to nothing.
+ */
+@theme inline {
+  --font-display: var(--font-geist), var(--font-sans);
+}
+
+/* Fluid display sizes (03-ux-spec §1.2): floor at 360px, ceiling = the tokens above. */
+@utility text-hero {
+  /* `--font-display` is inlined into the `font-display` utility only (see @theme inline above); custom
+     utilities must carry the chain themselves so it resolves on the element, inside the landing wrapper. */
+  font-family: var(--font-geist), var(--font-sans);
+  font-size: clamp(2.375rem, 1rem + 5vw, var(--text-display-xl));
+  line-height: var(--text-display-xl--line-height);
+  letter-spacing: var(--text-display-xl--letter-spacing);
+  font-weight: var(--text-display-xl--font-weight);
+  @media (width < 48rem) {
+    line-height: 1.05;
+  }
+}
+@utility text-final {
+  font-family: var(--font-geist), var(--font-sans);
+  font-size: clamp(2.25rem, 1rem + 4vw, var(--text-display-l));
+  line-height: var(--text-display-l--line-height);
+  letter-spacing: var(--text-display-l--letter-spacing);
+  font-weight: var(--text-display-l--font-weight);
+}
+@utility text-section {
+  font-family: var(--font-geist), var(--font-sans);
+  font-size: clamp(2rem, 1.25rem + 2.5vw, var(--text-display-m));
+  line-height: var(--text-display-m--line-height);
+  letter-spacing: var(--text-display-m--letter-spacing);
+  font-weight: var(--text-display-m--font-weight);
+}
+@utility text-section-long {
+  font-family: var(--font-geist), var(--font-sans);
+  font-size: clamp(1.75rem, 1.1rem + 2.2vw, var(--text-display-s));
+  line-height: var(--text-display-s--line-height);
+  letter-spacing: var(--text-display-s--letter-spacing);
+  font-weight: var(--text-display-s--font-weight);
 }
 
 @layer base {
@@ -103,9 +166,11 @@
    * Overriding the theme variables here means every utility (bg-surface-*, text-text-*,
    * border-*) adapts without page-specific variants. Core brand colors (obsidian, off-white,
    * electric blue) and the primary button hover/active are NOT overridden: white text on the
-   * button must stay ≥ 4.5:1 in both themes.
+   * button must stay ≥ 4.5:1 in both themes. `.theme-dark` reuses the same block for a section
+   * that is Obsidian regardless of the user's theme (landing "dark beats", 03-ux-spec §1.8).
    */
-  html[data-theme="dark"] {
+  html[data-theme="dark"],
+  .theme-dark {
     color-scheme: dark;
     --color-surface-base: #0b0d0f;
     --color-surface-elevated: #111416;
@@ -133,6 +198,39 @@
     --color-danger-border: #a65d60;
   }
 
+  /*
+   * Light scope: re-applies the @theme light values so a subtree ignores the app's theme toggle
+   * (the landing must look the same for everyone). Mirror of the light values above — the unit
+   * test `globals-theme.test.ts` fails if the two drift apart.
+   */
+  .theme-light {
+    color-scheme: light;
+    --color-surface-base: #f4f4f0;
+    --color-surface-elevated: #ffffff;
+    --color-surface-hover: #ebebe7;
+    --color-border: #d9d9d3;
+    --color-text-primary: #0b0d0f;
+    --color-text-secondary: #52575c;
+    --color-text-muted: #73787d;
+
+    --color-info-fill: #356ae6;
+    --color-info-text: #3264d9;
+    --color-info-tint: #ebf0fc;
+    --color-info-border: #aec3f5;
+    --color-success-fill: #28a36a;
+    --color-success-text: #207c52;
+    --color-success-tint: #eaf6f0;
+    --color-success-border: #a9dac3;
+    --color-warning-fill: #d99a2b;
+    --color-warning-text: #8f6721;
+    --color-warning-tint: #fbf5ea;
+    --color-warning-border: #f0d7aa;
+    --color-danger-fill: #d95757;
+    --color-danger-text: #b44a4a;
+    --color-danger-tint: #fbeeee;
+    --color-danger-border: #f0bcbc;
+  }
+
   body {
     background: var(--color-surface-base);
     color: var(--color-text-primary);
@@ -157,6 +255,163 @@
     *::after {
       animation-duration: 0ms !important;
       transition-duration: 0ms !important;
+    }
+  }
+}
+
+/*
+ * Landing (marketing) — CSS-first motion (D22, 03-ux-spec §5). Only opacity/transform (and the
+ * arc's stroke-dashoffset). Every hidden state is gated on `html.js` (set by the marketing
+ * layout's inline script) and on `prefers-reduced-motion: no-preference`: without JavaScript or
+ * with reduced motion nothing is ever hidden. `m-settle` is a safety net — if hydration never
+ * completes, parts still appear after 3s.
+ */
+@layer components {
+  .landing {
+    overflow-x: clip;
+  }
+  .landing summary::-webkit-details-marker {
+    display: none;
+  }
+  /* Colour set here (not via utility) so the reveal rule below can override it. */
+  .m-dot-fill {
+    background-color: var(--color-electric-blue);
+  }
+  .m-node,
+  .m-draw-x,
+  .m-draw-y {
+    transform-box: fill-box;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html:has(.landing) {
+      scroll-behavior: smooth;
+    }
+
+    @keyframes m-rise {
+      from {
+        opacity: 0;
+        transform: translateY(var(--rise, 12px));
+      }
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+    @keyframes m-settle {
+      to {
+        opacity: 1;
+        transform: none;
+        stroke-dashoffset: 0;
+      }
+    }
+
+    /* Drawer (LAYER): slides in from the right edge, 200ms. */
+    @keyframes m-drawer {
+      from {
+        opacity: 0;
+        transform: translateX(16px);
+      }
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+    .m-drawer[open] {
+      animation: m-drawer var(--duration-base) var(--ease-out);
+    }
+
+    /* Hero load sequence: each direct child sets --i; the stage and its panels set --delay/--dur. */
+    .hero-seq > * {
+      animation: m-rise var(--duration-complex) var(--ease-out) both;
+      animation-delay: calc(var(--i, 0) * 80ms);
+    }
+    .hero-frame {
+      --rise: 24px;
+      animation: m-rise var(--duration-story) var(--ease-out) both;
+      animation-delay: 300ms;
+    }
+    .hero-stage > * {
+      --rise: 16px;
+      animation: m-rise var(--duration-story) var(--ease-out) both;
+      animation-delay: var(--delay, 0ms);
+    }
+    @media (width < 64rem) {
+      .hero-stage > * {
+        animation: none;
+      }
+    }
+
+    /* Scroll reveal (one IntersectionObserver, `is-visible` once). */
+    html.js [data-reveal]:not(.is-visible) {
+      opacity: 0;
+      transform: translateY(var(--rise, 12px));
+      animation: m-settle 1ms linear 3s forwards;
+    }
+    [data-reveal] {
+      transition:
+        opacity var(--duration-complex) var(--ease-out),
+        transform var(--duration-complex) var(--ease-out);
+      transition-delay: var(--reveal-delay, 0ms);
+    }
+
+    /* Parts inside a revealed block: rise, pop (nodes), draw (scaleX/scaleY), arc, weight bar. */
+    html.js [data-reveal]:not(.is-visible) :is(.m-rise, .m-node, .m-bar, .m-draw-x, .m-draw-y, .m-arc) {
+      animation: m-settle 1ms linear 3s forwards;
+    }
+    html.js [data-reveal]:not(.is-visible) .m-rise {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    html.js [data-reveal]:not(.is-visible) .m-node {
+      opacity: 0;
+      transform: scale(0.8);
+    }
+    html.js [data-reveal]:not(.is-visible) :is(.m-bar, .m-draw-x) {
+      transform: scaleX(0);
+    }
+    html.js [data-reveal]:not(.is-visible) .m-draw-y {
+      transform: scaleY(0);
+    }
+    html.js [data-reveal]:not(.is-visible) .m-arc {
+      stroke-dashoffset: var(--arc-length, 1000);
+    }
+    .m-rise,
+    .m-node {
+      transition:
+        opacity var(--duration-complex) var(--ease-out),
+        transform var(--duration-complex) var(--ease-out);
+      transition-delay: var(--d, 0ms);
+    }
+    .m-node {
+      transition-duration: var(--duration-base);
+    }
+    .m-bar,
+    .m-draw-x {
+      transform-origin: left;
+      transition: transform var(--duration-complex) var(--ease-out);
+      transition-delay: var(--d, 0ms);
+    }
+    .m-draw-x {
+      transition-duration: var(--duration-slow);
+    }
+    .m-draw-y {
+      transform-origin: top;
+      transition: transform var(--duration-complex) var(--ease-out);
+      transition-delay: var(--d, 0ms);
+    }
+    .m-arc {
+      stroke-dasharray: var(--arc-length, 1000);
+      transition: stroke-dashoffset var(--duration-story) var(--ease-out);
+      transition-delay: var(--d, 0ms);
+    }
+    /* Steps ledger: the blue centre appears with the reveal (PROGRESS). */
+    html.js [data-reveal]:not(.is-visible) .m-dot-fill {
+      background-color: transparent;
+    }
+    .m-dot-fill {
+      transition: background-color var(--duration-fast) linear;
+      transition-delay: var(--d, 0ms);
     }
   }
 }

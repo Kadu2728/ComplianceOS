@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
 import { Inter } from "next/font/google";
+import { site } from "@/lib/marketing/site";
 import "./globals.css";
 
 // Inter only in the app (docs/design/tokens.md §3). Weights per brand §13; 700 deliberately absent.
@@ -12,6 +13,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  // Absolute base for the file-convention icons and Open Graph image (NEXT_PUBLIC_SITE_URL, D3).
+  metadataBase: new URL(site.siteUrl),
   title: { default: "Compliance OS", template: "%s · Compliance OS" },
   description: "Plataforma de operações de compliance.",
 };
