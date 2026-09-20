@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { site } from "@/lib/marketing/site";
 import { useRouter } from "next/navigation";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -40,9 +41,20 @@ export function SignupForm() {
       <Button type="submit" disabled={pending}>
         {pending ? "Criando conta…" : "Criar conta"}
       </Button>
-      {/* TODO(D13): when `site.legalReady` is true, show "Ao criar a conta, você concorda com as
-          Condições do beta e leu o Aviso de privacidade (beta)." linking /termos and /privacidade
-          (04-legal-review.md §3.1). No logic until the notices pass human legal review. */}
+      {site.legalReady ? (
+        // Termos de Uso §21: creating the account is the acceptance; the documents must be one click away.
+        <p className="text-caption text-text-secondary">
+          Ao criar a conta, você concorda com os{" "}
+          <Link href="/termos" className="text-info-text underline underline-offset-2">
+            Termos de Uso
+          </Link>{" "}
+          e declara ter lido a{" "}
+          <Link href="/privacidade" className="text-info-text underline underline-offset-2">
+            Política de Privacidade
+          </Link>
+          .
+        </p>
+      ) : null}
       <p className="text-body-sm text-text-secondary">
         Já tem conta?{" "}
         <Link href="/entrar" className="text-info-text underline underline-offset-2">

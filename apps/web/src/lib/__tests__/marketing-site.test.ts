@@ -30,9 +30,9 @@ describe("site config", () => {
     expect(normalizeSiteUrl("ftp://example.com")).toBe("https://compliance-os-web-gilt.vercel.app");
   });
 
-  it("reflects today's state: contact set, legal entity pending, notices not published", () => {
+  it("reflects today's state: contact and responsible person set, legal pages published", () => {
     expect(site.contactEmail).toBe("complianceos1199@gmail.com");
-    expect(site.legalEntity).toBeNull();
-    expect(site.legalReady).toBe(false);
+    expect(site.legalEntity).toBe("Carlos Eduardo Diogo");
+    expect(site.legalReady).toBe(true);
   });
 });

@@ -276,8 +276,8 @@ export const FAQ = {
   eyebrow: "FAQ",
   title: "Perguntas frequentes",
   lead: "Respostas curtas, sem promessa de conformidade.",
-  /** Sentence appended to answer 7 only while the interim privacy notice is published (`site.legalReady`). */
-  privacyLink: { prefix: "Os detalhes estão no", label: "Aviso de privacidade (beta)", href: "/privacidade" },
+  /** Sentence appended to answer 7 once the privacy policy is published (`site.legalReady`). */
+  privacyLink: { prefix: "Os detalhes estão na", label: "Política de Privacidade", href: "/privacidade" },
   items: [
     {
       q: "O Compliance OS substitui advogado, DPO ou consultoria?",
@@ -352,8 +352,8 @@ export const FOOTER = {
     { label: "Criar conta", href: "/criar-conta" },
   ],
   legal: [
-    { label: "Aviso de privacidade (beta)", href: "/privacidade" },
-    { label: "Condições do beta", href: "/termos" },
+    { label: "Termos de Uso", href: "/termos" },
+    { label: "Política de Privacidade", href: "/privacidade" },
   ],
   contactLabel: "Fale com a gente",
   linkedin: "LinkedIn",

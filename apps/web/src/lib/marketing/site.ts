@@ -60,8 +60,8 @@ export const site: SiteConfig = buildSiteConfig({
   siteUrl: process.env.NEXT_PUBLIC_SITE_URL,
   // Provided by the owner (Orchestrator, 2026-09-19). Subject of the "Fale com a gente" mailto.
   contactEmail: "complianceos1199@gmail.com",
-  // Razão social not yet informed → `legalReady` stays false (interim notices not published).
-  legalEntity: null,
+  // Responsible person named in the owner-approved Termos de Uso / Política de Privacidade (D13, 2026-09-19).
+  legalEntity: "Carlos Eduardo Diogo",
   linkedinUrl: null,
   // Provided by the owner (2026-09-19); rendered in the footer "Contato" column and in JSON-LD `sameAs`.
   instagramUrl: "https://www.instagram.com/compliance_os/",
