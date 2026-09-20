@@ -25,7 +25,7 @@ export const HERO = {
   audience: "Para empresas que precisam mostrar controle sobre dados e riscos a clientes, parceiros e auditores.",
   primary: { label: "Começar gratuitamente", href: "/criar-conta" },
   secondary: { label: "Ver como funciona", href: "#como-funciona" },
-  microcopy: ["Gratuito durante o beta", "Sem cartão de crédito", "12 perguntas para o primeiro Score"],
+  microcopy: ["Primeiro mês grátis", "Sem cartão de crédito", "12 perguntas para o primeiro Score"],
   showcaseCaption: "Exemplo com dados ilustrativos de uma organização fictícia.",
   showcaseAlt:
     "Visão geral do Compliance OS para a organização fictícia Acme Tecnologia Ltda.: “O que precisa de atenção hoje” com itens e motivos, card do Score de Compliance com 74 de 100 e faixa Organizado, seção “Por que 74?” com os cinco fatores, e “O que fazer primeiro”.",
@@ -243,26 +243,75 @@ export const TRUST = {
 
 export const PLANS = {
   id: "planos",
-  eyebrow: "Access",
-  title: "Todo o produto, gratuito durante o beta.",
-  lead: "Sem cartão. Sem cobrança automática. O que ainda está desligado está escrito aqui, não nas letras pequenas.",
-  open: {
-    eyebrow: "Beta aberto",
-    title: "Acesso gratuito durante o beta",
-    includedLabel: "Incluído",
-    included: [
-      "Diagnóstico, Riscos, Controles, Ações, Evidências, Documentos, Score de Compliance, Sala de compliance, Resumo executivo e Histórico.",
-      "Organização com vários usuários e papéis: Proprietário, Administrador, Membro, Leitura.",
-    ],
-    unavailableLabel: "Ainda não disponível no beta",
-    unavailable: [
-      "Upload de arquivos — evidências por nota, link e documento funcionam.",
-      // [PENDENTE D11] line included: true today.
-      "Convites de equipe e recuperação de senha por e-mail — em ativação.",
-    ],
-    microcopy: "Sem cartão. Sem cobrança automática.",
+  eyebrow: "Plans",
+  title: "Primeiro mês grátis. Depois, um plano por organização.",
+  lead: "Preços em reais, por mês, por organização. O que ainda está desligado está escrito aqui, não nas letras pequenas.",
+  /** Trial band (08-plans.md §3): Ultimate for 30 days, no card; nobody is charged today — no checkout exists. */
+  trial: {
+    eyebrow: "Primeiro mês",
+    title: "30 dias grátis com tudo do Ultimate",
+    text: "Sem cartão para começar. Após os 30 dias, escolha um plano. A assinatura online ainda não está disponível: até lá, sua conta continua ativa e ninguém é cobrado.",
     cta: { label: "Começar gratuitamente", href: "/criar-conta" },
   },
+  currency: "R$",
+  period: "/mês",
+  unit: "por organização",
+  ctaLabel: "Começar com 1 mês grátis",
+  /** Plan matrix decided by the Product Strategist (08-plans.md §2); limits are not enforced by the product yet. */
+  tiers: [
+    {
+      slug: "standard",
+      name: "Standard",
+      price: "39",
+      audience: "Para quem precisa organizar a compliance da empresa e saber o que fazer primeiro.",
+      limits: ["1 organização", "Até 2 usuários"],
+      included: [
+        "Diagnóstico completo (42 perguntas em 7 áreas) e modo curto",
+        "Riscos com probabilidade, impacto e severidade explicados",
+        "Controles do catálogo com maturidade",
+        "Ações com responsável, prazo, esforço e estado; plano em um passo",
+        "Evidências e Documentos com validade e status",
+        "Score de Compliance com histórico e próximos passos",
+        "“O que precisa de atenção hoje” e “O que fazer primeiro”",
+        "Histórico e papéis Proprietário, Administrador, Membro e Leitura",
+      ],
+      recommended: false,
+    },
+    {
+      slug: "plus",
+      name: "Plus",
+      price: "59",
+      audience: "Para empresas que precisam provar a maturidade a clientes, parceiros e auditores.",
+      limits: ["1 organização", "Até 5 usuários", "Sala de compliance com até 5 links ativos"],
+      includedLabel: "Tudo do Standard, mais",
+      included: [
+        "Sala de compliance: documentos e controles que você escolhe liberar, links com prazo e revogação, cada acesso no Histórico",
+        "Score de Compliance na Sala, como indicador de maturidade",
+        "Até 5 usuários com responsáveis por risco, ação, controle e documento",
+      ],
+      recommended: true,
+    },
+    {
+      slug: "ultimate",
+      name: "Ultimate",
+      price: "89",
+      audience: "Para empresas com várias áreas envolvidas, que reportam à diretoria e respondem a vários clientes.",
+      limits: ["1 organização", "Até 15 usuários", "Sala de compliance com até 20 links ativos"],
+      includedLabel: "Tudo do Plus, mais",
+      included: [
+        "Resumo executivo: o estado da organização em uma página, para sócios, diretoria e clientes",
+        "Lembrete por e-mail de documentos vencendo, para os responsáveis (quando disponível)",
+        "Até 15 usuários e até 20 links ativos na Sala",
+      ],
+      recommended: false,
+    },
+  ],
+  recommendedLabel: "Recomendado",
+  footnotes: [
+    "Uma segunda organização é uma segunda assinatura.",
+    // [PENDENTE D11] and beta upload lines: true today.
+    "No beta, o upload de arquivos, os convites de equipe e a recuperação de senha por e-mail ainda estão desligados; evidências por nota, link e documento funcionam.",
+  ],
   contact: {
     title: "Empresas maiores, consultorias e parceiros",
     text: "Várias organizações, exigências específicas de segurança ou acompanhamento próximo? Fale com a gente.",
@@ -301,9 +350,13 @@ export const FAQ = {
       a: "Não diz. É um indicador de maturidade operacional de 0 a 100, calculado a partir do que a organização registrou, com cinco fatores e pesos visíveis, “O que mais reduz o score” e “Próximos passos”. Não é certificação, auditoria nem atestado de conformidade.",
     },
     {
-      q: "Posso começar gratuitamente? O que muda por ser beta?",
-      // [PENDENTE D11] sentence included; the paid-plans commitment ([PENDENTE aval]) is not.
-      a: "Sim: acesso gratuito durante o beta, sem cartão e sem cobrança automática. No beta, o upload de arquivos ainda não está disponível — evidências por nota, link e documento funcionam. Convites de equipe e recuperação de senha por e-mail estão em ativação.",
+      q: "Quanto custa? Posso começar gratuitamente?",
+      // 08-plans.md §6 (today's version; the Kiwify version replaces the third sentence).
+      a: "Sim: o primeiro mês é grátis em qualquer plano, sem cartão, e nele você usa tudo do Ultimate. Depois, os planos são Standard (R$ 39), Plus (R$ 59) e Ultimate (R$ 89) por mês, por organização; a diferença está no número de usuários, na Sala de compliance e no Resumo executivo. A assinatura online ainda não está disponível — até lá, sua conta continua ativa e ninguém é cobrado. No beta, o upload de arquivos e os convites de equipe por e-mail ainda estão desligados; evidências por nota, link e documento funcionam.",
+    },
+    {
+      q: "Como funciona a assinatura e o cancelamento?",
+      a: "Os planos são mensais, por organização, e serão processados pela Kiwify quando a assinatura online estiver disponível. Uma segunda organização é uma segunda assinatura. Cancelar interrompe as cobranças seguintes; seus registros não são apagados pelo cancelamento. Enquanto não houver assinatura online, não há cobrança nenhuma.",
     },
     {
       q: "Como meus dados são protegidos? Onde ficam?",
@@ -323,7 +376,7 @@ export const FAQ = {
     {
       q: "Minha equipe pode usar junto?",
       // [PENDENTE D11]: the copy leaves the sentence open; the approved D11 sentence from FAQ 6 is reused verbatim.
-      a: "Sim. Há quatro papéis — Proprietário, Administrador, Membro e Leitura —, responsáveis por risco, ação, controle e documento, e um Histórico de quem mudou o quê. Convites de equipe e recuperação de senha por e-mail estão em ativação.",
+      a: "Sim. Há quatro papéis — Proprietário, Administrador, Membro e Leitura —, responsáveis por risco, ação, controle e documento, e um Histórico de quem mudou o quê. O número de usuários depende do plano: 2 no Standard, 5 no Plus, 15 no Ultimate. Convites de equipe e recuperação de senha por e-mail estão em ativação.",
     },
   ],
 } as const;
@@ -334,7 +387,7 @@ export const FINAL = {
   results: ["Mais clareza sobre seus riscos.", "Mais controle sobre sua operação.", "Mais confiança para provar sua maturidade."],
   title: ["Conheça seus riscos.", "Controle seu negócio."] as const,
   cta: { label: "Começar gratuitamente", href: "/criar-conta" },
-  microcopy: ["Gratuito durante o beta", "Sem cartão de crédito", "Score explicado na primeira sessão"],
+  microcopy: ["Primeiro mês grátis", "Sem cartão de crédito", "Score explicado na primeira sessão"],
   loginPrompt: "Já tem conta?",
   login: { label: "Entrar", href: "/entrar" },
 } as const;
@@ -362,9 +415,9 @@ export const FOOTER = {
 
 export const SEO = {
   title: "Compliance OS — Plataforma de operações de compliance",
-  description: "Plataforma de operações de compliance: identifique riscos, organize controles, transforme lacunas em ações e prove sua maturidade. Gratuito no beta.",
+  description: "Plataforma de operações de compliance: identifique riscos, organize controles, transforme lacunas em ações e prove sua maturidade. Primeiro mês grátis.",
   ogTitle: "Know your risk. Control your business. — Compliance OS",
-  ogDescription: "Compliance corporativo sem precisar de um departamento de compliance. Riscos, controles, ações e evidências em um único sistema. Gratuito durante o beta.",
+  ogDescription: "Compliance corporativo sem precisar de um departamento de compliance. Riscos, controles, ações e evidências em um único sistema. Primeiro mês grátis.",
   /** Describes `app/opengraph-image.png` (a brand card, not a screenshot); keep identical to `opengraph-image.alt.txt`. */
   ogImageAlt: "Compliance OS — Know your risk. Control your business. Compliance corporativo sem precisar de um departamento de compliance. Símbolo da marca sobre fundo Obsidian; assinatura “The Control Layer”.",
   softwareDescription:

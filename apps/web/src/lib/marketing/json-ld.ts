@@ -1,11 +1,11 @@
-import { SEO } from "@/lib/marketing/copy";
+import { PLANS, SEO } from "@/lib/marketing/copy";
 import type { SiteConfig } from "@/lib/marketing/site";
 
 /**
  * Structured data for the landing (02-copy.md §C): Organization + SoftwareApplication. Keys
  * without a real value are omitted (no `logo` until D15 has a public URL decision, no `sameAs`
- * without networks, no `contactPoint` without a mailbox). `offers` is kept as in the copy; the
- * legal review recommends dropping it when billing exists (04-legal-review.md line 58).
+ * without networks, no `contactPoint` without a mailbox). `offers` mirrors the plan matrix (08-plans.md §7) —
+ * real monthly prices, never a zero-price offer for the trial.
  */
 export function landingJsonLd(site: SiteConfig): Record<string, unknown> {
   const root = `${site.siteUrl}/`;
@@ -33,7 +33,22 @@ export function landingJsonLd(site: SiteConfig): Record<string, unknown> {
     inLanguage: "pt-BR",
     description: SEO.softwareDescription,
     featureList: [...SEO.featureList],
-    offers: { "@type": "Offer", price: "0", priceCurrency: "BRL", description: "Acesso gratuito durante o beta. Sem cartão de crédito." },
+    // Mirrors PLANS.tiers (08-plans.md §7): real monthly prices, no zero-price offer for the trial,
+    // no checkout `url` until billing exists. Change prices here and in copy.ts in the same commit.
+    offers: PLANS.tiers.map((tier) => ({
+      "@type": "Offer",
+      name: tier.name,
+      price: `${tier.price}.00`,
+      priceCurrency: "BRL",
+      description: "Por organização, por mês. Primeiro mês grátis, sem cartão.",
+      priceSpecification: {
+        "@type": "UnitPriceSpecification",
+        price: `${tier.price}.00`,
+        priceCurrency: "BRL",
+        billingIncrement: 1,
+        unitCode: "MON",
+      },
+    })),
     publisher: { "@id": `${root}#organization` },
   };
 
