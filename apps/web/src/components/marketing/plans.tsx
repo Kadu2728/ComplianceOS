@@ -7,9 +7,10 @@ import { Reveal } from "./reveal";
 /**
  * Planos (decision D38, 08-plans.md): a trial band (30 days of Ultimate, no card), three priced
  * tiers per organization, footnotes with what is still off, and the human exit for larger
- * companies. Every tier CTA creates an account — the only action the product can honour today;
- * `?plano=` only records the intent until a plan entity exists. Prices live in `copy.ts` and are
- * mirrored by the JSON-LD offers. The contact button renders only when a mailbox exists.
+ * companies. Each tier's primary CTA goes to its Kiwify checkout, which charges on the day of
+ * purchase; the free month is the link under it (account first, `?plano=` records the intent
+ * until a plan entity exists). Prices and checkout URLs live in `copy.ts` and are mirrored by the
+ * JSON-LD offers. The contact button renders only when a mailbox exists.
  */
 export function Plans() {
   const mailto = contactMailto(PLANS.contact.mailSubject);
@@ -79,14 +80,17 @@ export function Plans() {
                 ))}
               </ul>
 
-              <div className="mt-8">
+              <div className="mt-8 flex flex-col items-center gap-3">
                 <CtaLink
-                  href={`/criar-conta?plano=${tier.slug}`}
+                  href={tier.checkoutUrl}
                   variant={tier.recommended ? "primary" : "secondary"}
                   size="md"
                   className="w-full"
                 >
-                  {PLANS.ctaLabel}
+                  {PLANS.subscribeLabel} {tier.name}
+                </CtaLink>
+                <CtaLink href={`/criar-conta?plano=${tier.slug}`} variant="tertiary" size="sm" className="px-0">
+                  {PLANS.trialLinkLabel}
                 </CtaLink>
               </div>
             </Reveal>

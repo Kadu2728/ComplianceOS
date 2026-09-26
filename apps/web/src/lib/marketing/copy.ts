@@ -246,21 +246,33 @@ export const PLANS = {
   eyebrow: "Plans",
   title: "Primeiro mês grátis. Depois, um plano por organização.",
   lead: "Preços em reais, por mês, por organização. O que ainda está desligado está escrito aqui, não nas letras pequenas.",
-  /** Trial band (08-plans.md §3): Ultimate for 30 days, no card; nobody is charged today — no checkout exists. */
+  /**
+   * Trial band (08-plans.md §3): Ultimate for 30 days, no card — it is the account itself, not a
+   * Kiwify trial. The Kiwify checkouts charge on the day of purchase (verified 2026-09-26: no trial
+   * configured), so the free month is always reached by creating the account first.
+   */
   trial: {
     eyebrow: "Primeiro mês",
     title: "30 dias grátis com tudo do Ultimate",
-    text: "Sem cartão para começar. Após os 30 dias, escolha um plano. A assinatura online ainda não está disponível: até lá, sua conta continua ativa e ninguém é cobrado.",
+    text: "Sem cartão para começar: crie a conta e use tudo do Ultimate por 30 dias. Depois, assine o plano que fizer sentido, com pagamento pela Kiwify.",
     cta: { label: "Começar gratuitamente", href: "/criar-conta" },
   },
   currency: "R$",
   period: "/mês",
   unit: "por organização",
-  ctaLabel: "Começar com 1 mês grátis",
-  /** Plan matrix decided by the Product Strategist (08-plans.md §2); limits are not enforced by the product yet. */
+  /** Tier CTA: "Assinar {name}" → that tier's Kiwify checkout (external, same tab). */
+  subscribeLabel: "Assinar",
+  /** Secondary path under every tier: the free month, with the plan intent in the URL. */
+  trialLinkLabel: "Ou comece com 1 mês grátis",
+  /**
+   * Plan matrix decided by the Product Strategist (08-plans.md §2); limits are not enforced by the
+   * product yet. `checkoutUrl` is the owner-provided Kiwify checkout (2026-09-26); there is no webhook,
+   * so a purchase is matched to its organization by e-mail, by hand (D25).
+   */
   tiers: [
     {
       slug: "standard",
+      checkoutUrl: "https://pay.kiwify.com.br/adfcJVQ",
       name: "Standard",
       price: "39",
       audience: "Para quem precisa organizar a compliance da empresa e saber o que fazer primeiro.",
@@ -279,6 +291,7 @@ export const PLANS = {
     },
     {
       slug: "plus",
+      checkoutUrl: "https://pay.kiwify.com.br/LzcnU7s",
       name: "Plus",
       price: "59",
       audience: "Para empresas que precisam provar a maturidade a clientes, parceiros e auditores.",
@@ -293,6 +306,7 @@ export const PLANS = {
     },
     {
       slug: "ultimate",
+      checkoutUrl: "https://pay.kiwify.com.br/dOnCkbF",
       name: "Ultimate",
       price: "89",
       audience: "Para empresas com várias áreas envolvidas, que reportam à diretoria e respondem a vários clientes.",
@@ -309,6 +323,7 @@ export const PLANS = {
   recommendedLabel: "Recomendado",
   footnotes: [
     "Uma segunda organização é uma segunda assinatura.",
+    "O pagamento pela Kiwify inicia a assinatura mensal na data da compra. Na compra, use o mesmo e-mail da sua conta no Compliance OS.",
     // [PENDENTE D11] and beta upload lines: true today.
     "No beta, o upload de arquivos, os convites de equipe e a recuperação de senha por e-mail ainda estão desligados; evidências por nota, link e documento funcionam.",
   ],
@@ -351,12 +366,13 @@ export const FAQ = {
     },
     {
       q: "Quanto custa? Posso começar gratuitamente?",
-      // 08-plans.md §6 (today's version; the Kiwify version replaces the third sentence).
-      a: "Sim: o primeiro mês é grátis em qualquer plano, sem cartão, e nele você usa tudo do Ultimate. Depois, os planos são Standard (R$ 39), Plus (R$ 59) e Ultimate (R$ 89) por mês, por organização; a diferença está no número de usuários, na Sala de compliance e no Resumo executivo. A assinatura online ainda não está disponível — até lá, sua conta continua ativa e ninguém é cobrado. No beta, o upload de arquivos e os convites de equipe por e-mail ainda estão desligados; evidências por nota, link e documento funcionam.",
+      // 08-plans.md §6, Kiwify version (checkouts live 2026-09-26).
+      a: "Sim: o primeiro mês é grátis em qualquer plano, sem cartão, e nele você usa tudo do Ultimate. Depois, os planos são Standard (R$ 39), Plus (R$ 59) e Ultimate (R$ 89) por mês, por organização; a diferença está no número de usuários, na Sala de compliance e no Resumo executivo. Para assinar, use o botão do plano: o pagamento é processado pela Kiwify. No beta, o upload de arquivos e os convites de equipe por e-mail ainda estão desligados; evidências por nota, link e documento funcionam.",
     },
     {
       q: "Como funciona a assinatura e o cancelamento?",
-      a: "Os planos são mensais, por organização, e serão processados pela Kiwify quando a assinatura online estiver disponível. Uma segunda organização é uma segunda assinatura. Cancelar interrompe as cobranças seguintes; seus registros não são apagados pelo cancelamento. Enquanto não houver assinatura online, não há cobrança nenhuma.",
+      // Coherent with Termos §6–§7 (recurring payment via Kiwify; cancellation stops future charges).
+      a: "Os planos são assinaturas mensais, por organização, pagas pela Kiwify e renovadas automaticamente a cada mês. A cobrança começa na data do pagamento: para usar o mês grátis antes, crie a conta primeiro e assine depois. Na compra, use o mesmo e-mail da sua conta — é por ele que identificamos a assinatura da sua organização. Uma segunda organização é uma segunda assinatura. Para cancelar, use os procedimentos da Kiwify ou fale com a gente pelo e-mail de contato: o cancelamento interrompe as cobranças seguintes e não apaga seus registros.",
     },
     {
       q: "Como meus dados são protegidos? Onde ficam?",

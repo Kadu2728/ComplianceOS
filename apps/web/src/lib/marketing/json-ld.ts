@@ -33,14 +33,16 @@ export function landingJsonLd(site: SiteConfig): Record<string, unknown> {
     inLanguage: "pt-BR",
     description: SEO.softwareDescription,
     featureList: [...SEO.featureList],
-    // Mirrors PLANS.tiers (08-plans.md §7): real monthly prices, no zero-price offer for the trial,
-    // no checkout `url` until billing exists. Change prices here and in copy.ts in the same commit.
+    // Mirrors PLANS.tiers (08-plans.md §7): real monthly prices, no zero-price offer for the trial.
+    // `url` is the tier's Kiwify checkout, which charges on purchase — so the offer does not
+    // promise the free month (that path is the account signup). Prices come from copy.ts only.
     offers: PLANS.tiers.map((tier) => ({
       "@type": "Offer",
       name: tier.name,
+      url: tier.checkoutUrl,
       price: `${tier.price}.00`,
       priceCurrency: "BRL",
-      description: "Por organização, por mês. Primeiro mês grátis, sem cartão.",
+      description: "Por organização, por mês. Assinatura mensal pela Kiwify.",
       priceSpecification: {
         "@type": "UnitPriceSpecification",
         price: `${tier.price}.00`,

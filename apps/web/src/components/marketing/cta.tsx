@@ -21,7 +21,10 @@ export function ctaClass(variant: Variant, size: Size, extra = ""): string {
   return `inline-flex items-center justify-center gap-2 rounded-md font-medium whitespace-nowrap transition-colors duration-(--duration-fast) ${VARIANT[variant]} ${SIZE[size]} ${extra}`;
 }
 
-/** Next `Link` for routes, plain `<a>` for same-page anchors (native scroll, no router work). */
+/**
+ * Next `Link` for routes, plain `<a>` for same-page anchors (native scroll, no router work),
+ * `mailto:` and external `http(s)` URLs (Kiwify checkouts), which the router must not handle.
+ */
 export function CtaLink({
   href,
   variant = "primary",
@@ -38,7 +41,7 @@ export function CtaLink({
   onClick?: () => void;
 }) {
   const cls = ctaClass(variant, size, className);
-  if (href.startsWith("#") || href.startsWith("mailto:")) {
+  if (href.startsWith("#") || href.startsWith("mailto:") || /^https?:\/\//.test(href)) {
     return (
       <a href={href} className={cls} onClick={onClick}>
         {children}
