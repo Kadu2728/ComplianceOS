@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ReopenButton } from "@/components/assessment/reopen-button";
 import { AssessmentRunner } from "@/components/assessment/runner";
 import { AssessmentStart } from "@/components/assessment/start";
-import { Badge } from "@/components/ui/badge";
+import { Badge, SeverityBadge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";
 import { apiGet } from "@/lib/api/server";
@@ -77,7 +77,7 @@ export default async function DiagnosticoPage() {
             <div className="mt-4 flex flex-wrap gap-2">
               {ORDER.filter((k) => counts[k]).map((k) => (
                 <span key={k} className="inline-flex items-center gap-2">
-                  <Badge label={`${counts[k]} ${SEVERITY[k]!.label}`} tone={SEVERITY[k]!.tone} icon={SEVERITY[k]!.icon} />
+                  <SeverityBadge severity={k} label={`${counts[k]} ${SEVERITY[k]!.label}`} />
                 </span>
               ))}
             </div>
@@ -88,7 +88,7 @@ export default async function DiagnosticoPage() {
                     <Link href={`/riscos/${r.id}`} className="font-medium text-text-primary hover:underline">{r.title}</Link>
                     <span className="flex shrink-0 items-center gap-2">
                       {r.status !== "aberto" ? <Badge label={RISK_STATUS[r.status]!.label} tone={RISK_STATUS[r.status]!.tone} icon={RISK_STATUS[r.status]!.icon} /> : null}
-                      <Badge label={SEVERITY[r.severity]!.label} tone={SEVERITY[r.severity]!.tone} icon={SEVERITY[r.severity]!.icon} />
+                      <SeverityBadge severity={r.severity} />
                     </span>
                   </li>
                 ))}
@@ -107,7 +107,7 @@ export default async function DiagnosticoPage() {
                 <span className="text-caption text-text-secondary">Ver explicação na Visão geral</span>
               </span>
               <span className="flex items-baseline gap-2">
-                <span className="text-h2 tabular-nums">{score.score}</span>
+                <span className="text-kpi tabular-nums">{score.score}</span>
                 <Badge label={score.band.label} tone={BAND_TONE[score.band.key] ?? "neutral"} />
               </span>
             </Link>

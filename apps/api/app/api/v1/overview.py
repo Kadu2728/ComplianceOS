@@ -1,21 +1,31 @@
 """Visão geral (CLAUDE.md §4 Dashboard): one round trip for "what needs attention now".
 
 The score itself comes from `/score` (live) and its trend from `/score/history`; this endpoint
-aggregates the operational state — counts, the riskiest open items, the actions to execute,
-the assessment state and (for managers) the latest audit entries.
+aggregates the operational state — counts, the riskiest open items, open risks per category,
+the actions to execute and the most recently touched ones, the assessment state and (for managers)
+the latest audit entries.
 """
 
+import uuid
 from datetime import datetime
 from typing import Any
 
 from fastapi import APIRouter
 from pydantic import BaseModel
 from sqlalchemy import func, nulls_last, select
+from sqlalchemy.orm import Session
 
 from app.api.deps import CurrentMembership, DbSession
 from app.core.permissions import has_permission
 from app.models.assessment import AssessmentStatus
-from app.models.domain import Action, ActionStatus, Risk, RiskSeverity, RiskStatus
+from app.models.domain import (
+    Action,
+    ActionStatus,
+    Risk,
+    RiskCategory,
+    RiskSeverity,
+    RiskStatus,
+)
 from app.schemas.domain import ActionOut, RiskOut
 from app.schemas.identity import AuditLogOut
 from app.services import assessment as assessment_svc
@@ -30,12 +40,28 @@ ITEMS = 5
 ACTIVITY = 8
 
 
+class SeverityCounts(BaseModel):
+    critico: int
+    alto: int
+    medio: int
+    baixo: int
+
+
+class CategoryOverview(BaseModel):
+    category: RiskCategory
+    open: int
+    by_severity: SeverityCounts
+
+
 class RisksOverview(BaseModel):
     open: int
     by_severity: dict[str, int]  # open risks per severity
     in_review: int
     without_owner: int
     items: list[RiskOut]  # open Crítico/Alto first: severity, then earliest due date
+    # Open risks per category (only categories with at least one), worst severity present
+    # first, then more open risks, then the category value.
+    by_category: list[CategoryOverview]
 
 
 class ActionsOverview(BaseModel):
@@ -44,6 +70,7 @@ class ActionsOverview(BaseModel):
     blocked: int
     done: int
     items: list[ActionOut]  # overdue first, then earliest due date
+    recent: list[ActionOut]  # most recently updated, any status (including concluída)
 
 
 class AssessmentOverview(BaseModel):
@@ -104,6 +131,7 @@ def overview(db: DbSession, membership: CurrentMembership) -> OverviewOut:
         )
         or 0
     )
+    by_category = _open_by_category(db, org_id)
     risk_items = db.scalars(
         select(Risk)
         .where(
@@ -137,6 +165,13 @@ def overview(db: DbSession, membership: CurrentMembership) -> OverviewOut:
         .limit(ITEMS)
     )
 
+    recent_actions = db.scalars(
+        select(Action)
+        .where(Action.organization_id == org_id)
+        .order_by(Action.updated_at.desc(), Action.created_at.desc(), Action.id)
+        .limit(ITEMS)
+    )
+
     current = assessment_svc.current(db, org_id)
     if current is None:
         assessment_out = AssessmentOverview(status="none")
@@ -162,6 +197,7 @@ def overview(db: DbSession, membership: CurrentMembership) -> OverviewOut:
             in_review=in_review,
             without_owner=without_owner,
             items=[RiskOut.model_validate(r) for r in risk_items],
+            by_category=by_category,
         ),
         actions=ActionsOverview(
             pending=pending,
@@ -169,8 +205,34 @@ def overview(db: DbSession, membership: CurrentMembership) -> OverviewOut:
             blocked=counts_by_status.get(ActionStatus.BLOQUEADA, 0),
             done=counts_by_status.get(ActionStatus.CONCLUIDA, 0),
             items=[ActionOut.model_validate(a) for a in action_items],
+            recent=[ActionOut.model_validate(a) for a in recent_actions],
         ),
         assessment=assessment_out,
         documents=DocumentsOverview(**documents_svc.summary(db, org_id, today)),
         recent_activity=activity,
     )
+
+
+def _open_by_category(db: Session, org_id: uuid.UUID) -> list[CategoryOverview]:
+    """Open risks per category and severity in one grouped query, folded in Python."""
+    rows = db.execute(
+        select(Risk.category, Risk.severity, func.count())
+        .where(Risk.organization_id == org_id, Risk.status.in_(OPEN_RISK))
+        .group_by(Risk.category, Risk.severity)
+    ).all()
+    counts: dict[RiskCategory, dict[str, int]] = {}
+    for category, severity, count in rows:
+        counts.setdefault(category, {})[severity.value] = count
+    rank = {sev.value: i for i, sev in enumerate(RiskSeverity)}  # declaration order: crítico first
+    ordered = sorted(
+        counts.items(),
+        key=lambda kv: (min(rank[sev] for sev in kv[1]), -sum(kv[1].values()), kv[0].value),
+    )
+    return [
+        CategoryOverview(
+            category=category,
+            open=sum(by_sev.values()),
+            by_severity=SeverityCounts(**{s.value: by_sev.get(s.value, 0) for s in RiskSeverity}),
+        )
+        for category, by_sev in ordered
+    ]

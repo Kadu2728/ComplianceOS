@@ -1,15 +1,7 @@
-import { Geist } from "next/font/google";
 import { headers } from "next/headers";
 import { NAV } from "@/lib/marketing/copy";
 
-// Geist only here (docs/design/tokens.md §3: display family is marketing-only). Two weights,
-// latin subset; exposed as `--font-geist`, consumed by the `font-display` utility.
-const geist = Geist({
-  subsets: ["latin"],
-  weight: ["500", "600"],
-  display: "swap",
-  variable: "--font-geist",
-});
+// Typography: Inter from the root layout, like the app (D39 — Geist retired, visual-v2 §2.4).
 
 /**
  * Marks the document as scripted so the CSS scroll-reveal may hide elements until they enter
@@ -19,13 +11,14 @@ const geist = Geist({
 const jsFlag = `if ("IntersectionObserver" in window) document.documentElement.classList.add("js");`;
 
 /**
- * Public marketing frame (landing, interim legal notices). `.theme-light` pins the light tokens
- * so the page ignores the app's theme choice; sections opt into `.theme-dark` themselves.
+ * Public marketing frame (landing, legal notices). `.theme-light` pins the brand v1 light tokens
+ * and `.landing` the v1 radius/type/shadows, so the page ignores the app's theme and palette v2;
+ * sections opt into `.theme-dark` themselves.
  */
 export default async function MarketingLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const nonce = (await headers()).get("x-nonce") ?? undefined;
   return (
-    <div className={`landing theme-light ${geist.variable} bg-surface-base text-text-primary`}>
+    <div className="landing theme-light bg-surface-base text-text-primary">
       <script nonce={nonce} suppressHydrationWarning dangerouslySetInnerHTML={{ __html: jsFlag }} />
       <a
         href="#conteudo"

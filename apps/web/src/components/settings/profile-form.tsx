@@ -109,7 +109,7 @@ export function ProfileForm({ orgId, value, canEdit }: { orgId: string; value: P
           <div className="grid grid-cols-1 gap-x-6 gap-y-1.5 md:grid-cols-2">
             {DATA.map(([v, l]) => (
               <label key={v} className="inline-flex items-center gap-2 text-body-sm">
-                <input type="checkbox" name="data_categories" value={v} defaultChecked={value.data_categories.includes(v)} className="size-4 accent-electric-blue" />
+                <input type="checkbox" name="data_categories" value={v} defaultChecked={value.data_categories.includes(v)} className="size-4 accent-primary" />
                 {l}
               </label>
             ))}

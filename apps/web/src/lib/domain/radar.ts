@@ -23,3 +23,10 @@ export const RADAR_ROUTES: Record<string, string> = {
 export function radarHref(route: string): string {
   return RADAR_ROUTES[route] ?? "/";
 }
+
+/** "3 críticos · 2 alertas · 1 aviso" — the radar counts line (dashboard section and bell). */
+export function radarCountsLine(counts: Record<string, number>): string {
+  const n = (k: string) => counts[k] ?? 0;
+  const part = (k: string, one: string, many: string) => `${n(k)} ${n(k) === 1 ? one : many}`;
+  return [part("danger", "crítico", "críticos"), part("warning", "alerta", "alertas"), part("info", "aviso", "avisos")].join(" · ");
+}

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ControlStatusControl, LinkRiskControl } from "@/components/domain/control-graph-actions";
 import { EvidencePanel } from "@/components/domain/evidence-panel";
-import { Badge } from "@/components/ui/badge";
+import { Badge, SeverityBadge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";
 import { apiGet } from "@/lib/api/server";
@@ -88,13 +88,12 @@ export default async function ControlePage({ params }: { params: Promise<{ id: s
             ) : (
               <ul className="divide-y divide-border rounded-lg border border-border bg-surface-elevated">
                 {graph.risks.map((r) => {
-                  const sev = SEVERITY[r.severity]!;
                   const rs = RISK_STATUS[r.status]!;
                   return (
                     <li key={r.id} className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 text-body-sm">
                       <Link href={`/riscos/${r.id}`} className="font-medium text-text-primary hover:underline">{r.title}</Link>
                       <span className="flex items-center gap-2">
-                        <Badge label={sev.label} tone={sev.tone} icon={sev.icon} />
+                        <SeverityBadge severity={r.severity} />
                         <Badge label={rs.label} tone={rs.tone} icon={rs.icon} />
                         {manager ? <LinkRiskControl orgId={orgId} controlId={c.id} riskId={r.id} options={[]} mode="unlink" /> : null}
                       </span>

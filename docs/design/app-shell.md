@@ -1,5 +1,7 @@
 # COMPLIANCE OS — APPLICATION SHELL (v1)
 
+> **§2–§3 superseded by `docs/design/visual-v2.md` §3 (D39, 2026-09-26):** sidebar 240px from 1024px, one header with search and bell, drawer below 1024px, bottom tab bar below 768px, the real symbol in the wordmark.
+
 Authority: `.claude/brand-system.md` (§ cited), `.claude/agents/ux-ui-engineer.md`, `docs/design/tokens.md`.
 Decisions applied: D7 pt-BR, D9 (Evidence attached to Actions/Risks; Documents = SHOULD), D10 (score lives in Visão geral), D15 (no logo asset), D16 (no dark mode), D22 (CSS motion).
 Scope: the authenticated application frame only. No marketing page. No product data — every module renders its empty state in Phase 1.

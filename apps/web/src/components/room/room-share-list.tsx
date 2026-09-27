@@ -59,7 +59,7 @@ export function RoomShareList({
                 checked={checked}
                 disabled={busy !== null || (!checked && !!item.blocked)}
                 onChange={(e) => toggle(item, e.target.checked)}
-                className="mt-1 size-4 accent-electric-blue disabled:opacity-40"
+                className="mt-1 size-4 accent-primary disabled:opacity-40"
               />
               <label htmlFor={`share-${kind}-${item.id}`} className="flex flex-1 flex-col gap-0.5">
                 <span className="text-body-sm font-medium">{item.title}</span>

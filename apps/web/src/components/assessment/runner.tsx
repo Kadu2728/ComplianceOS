@@ -93,7 +93,7 @@ export function AssessmentRunner({ orgId, data, canAnswer }: { orgId: string; da
             <span className="tabular-nums text-text-secondary">{answered} de {total}</span>
           </div>
           <div className="mt-2 h-1.5 overflow-hidden rounded-pill bg-surface-hover" role="progressbar" aria-valuemin={0} aria-valuemax={total} aria-valuenow={answered} aria-label="Perguntas respondidas">
-            <div className="h-full bg-electric-blue transition-[width] duration-(--duration-complex) ease-(--ease-out)" style={{ width: `${total ? (answered / total) * 100 : 0}%` }} />
+            <div className="h-full bg-primary transition-[width] duration-(--duration-complex) ease-(--ease-out)" style={{ width: `${total ? (answered / total) * 100 : 0}%` }} />
           </div>
         </div>
         {data.sections.map((s, i) => {
@@ -127,7 +127,7 @@ export function AssessmentRunner({ orgId, data, canAnswer }: { orgId: string; da
                     {OPTIONS.map((o) => {
                       const checked = state?.value === o.value;
                       return (
-                        <label key={o.value} title={o.hint} className={`inline-flex h-10 cursor-pointer items-center rounded-md border px-3 text-body-sm ${checked ? "border-electric-blue bg-info-tint font-medium text-info-text" : "border-border bg-surface-elevated text-text-primary hover:bg-surface-hover"}`}>
+                        <label key={o.value} title={o.hint} className={`inline-flex h-10 cursor-pointer items-center rounded-md border px-3 text-body-sm ${checked ? "border-primary bg-info-tint font-medium text-info-text" : "border-border bg-surface-elevated text-text-primary hover:bg-surface-hover"}`}>
                           <input type="radio" name={q.code} value={o.value} checked={checked} onChange={() => choose(q.code, o.value)} className="sr-only" />
                           {o.label}
                         </label>
@@ -137,7 +137,7 @@ export function AssessmentRunner({ orgId, data, canAnswer }: { orgId: string; da
                   {state?.value === "nao_se_aplica" ? (
                     <div className="mt-3 flex flex-col gap-1.5">
                       <label htmlFor={`${q.code}-j`} className="text-body-sm font-medium">Por que não se aplica?</label>
-                      <input id={`${q.code}-j`} value={state.justification} onChange={(e) => justify(q.code, e.target.value)} maxLength={500} className="h-10 rounded-md border border-border bg-surface-elevated px-3 text-body" placeholder="Ex.: não tratamos dados de menores" />
+                      <input id={`${q.code}-j`} value={state.justification} onChange={(e) => justify(q.code, e.target.value)} maxLength={500} className="h-10 rounded-md border border-border-input bg-surface-elevated px-3 text-body" placeholder="Ex.: não tratamos dados de menores" />
                     </div>
                   ) : null}
                   <p className="mt-4 text-body-sm text-text-secondary">

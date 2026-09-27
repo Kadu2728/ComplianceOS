@@ -36,7 +36,7 @@ export function PlanPanel({
   if (!rec.action_title && !rec.control) return null;
 
   return (
-    <section aria-labelledby="plano" className="rounded-lg border border-electric-blue/40 bg-info-tint/40 p-5">
+    <section aria-labelledby="plano" className="rounded-lg border border-primary/40 bg-info-tint/40 p-5">
       <div className="flex items-center gap-2">
         <Sparkles aria-hidden size={18} strokeWidth={1.5} className="text-info-text" />
         <h2 id="plano" className="text-h3">Plano recomendado</h2>
@@ -73,7 +73,7 @@ export function PlanPanel({
           <div className="grid grid-cols-1 gap-3 md:grid-cols-[1fr_180px_auto] md:items-end">
             <div className="flex flex-col gap-1.5">
               <label htmlFor="plan-owner" className="text-body-sm font-medium">Responsável</label>
-              <select id="plan-owner" name="owner_membership_id" defaultValue={rec.default_owner_membership_id} className="h-10 rounded-md border border-border bg-surface-elevated px-3 text-body">
+              <select id="plan-owner" name="owner_membership_id" defaultValue={rec.default_owner_membership_id} className="h-10 rounded-md border border-border-input bg-surface-elevated px-3 text-body">
                 {members.map((m) => (
                   <option key={m.membership_id} value={m.membership_id}>{m.name}</option>
                 ))}
@@ -81,7 +81,7 @@ export function PlanPanel({
             </div>
             <div className="flex flex-col gap-1.5">
               <label htmlFor="plan-due" className="text-body-sm font-medium">Prazo</label>
-              <input id="plan-due" name="due_date" type="date" defaultValue={rec.default_due_date} className="h-10 rounded-md border border-border bg-surface-elevated px-3 text-body" />
+              <input id="plan-due" name="due_date" type="date" defaultValue={rec.default_due_date} className="h-10 rounded-md border border-border-input bg-surface-elevated px-3 text-body" />
             </div>
             <Button type="submit" disabled={pending}>{pending ? "Planejando…" : "Planejar em um passo"}</Button>
           </div>

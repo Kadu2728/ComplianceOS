@@ -66,7 +66,7 @@ export function StatusControl({
           <select
             value={next}
             onChange={(e) => setNext(e.target.value)}
-            className="h-10 rounded-md border border-border bg-surface-elevated px-3 text-body font-normal"
+            className="h-10 rounded-md border border-border-input bg-surface-elevated px-3 text-body font-normal hover:border-text-muted max-md:h-11"
           >
             {options.map((o) => (
               <option key={o} value={o}>

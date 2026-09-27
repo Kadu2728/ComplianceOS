@@ -2,11 +2,11 @@ import { ArrowDownRight, ArrowUpRight, Minus } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PrioritiesList } from "@/components/domain/priorities-list";
-import { Badge } from "@/components/ui/badge";
+import { Badge, SeverityBadge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";
 import { apiGet } from "@/lib/api/server";
-import { CATEGORY, SEVERITY, formatDate } from "@/lib/domain/labels";
+import { CATEGORY, formatDate } from "@/lib/domain/labels";
 import type { ExecutiveSummary } from "@/lib/domain/queries";
 import { BAND_TONE, formatInstantDay } from "@/lib/domain/score";
 import { getSession } from "@/lib/session/server";
@@ -25,7 +25,7 @@ export default async function ResumoPage() {
   if (!s) {
     return (
       <>
-        <PageHeader eyebrow="Visão geral" title="Resumo executivo" />
+        <PageHeader eyebrow="Relatórios" title="Resumo executivo" />
         <p className="text-body-sm text-text-secondary">Resumo indisponível no momento. Tente novamente em instantes.</p>
       </>
     );
@@ -49,7 +49,7 @@ export default async function ResumoPage() {
   return (
     <>
       <PageHeader
-        eyebrow={session.membership.organization.name}
+        eyebrow={`Relatórios · ${session.membership.organization.name}`}
         title="Resumo executivo"
         description={`Últimos ${s.window_days} dias. Leitura para decisão: onde estamos expostos, o que mudou e o que precisa de você.`}
         action={<ButtonLink href="/" variant="secondary">Voltar à visão geral</ButtonLink>}
@@ -89,12 +89,11 @@ export default async function ResumoPage() {
             ) : (
               <ul className="mt-3 divide-y divide-border">
                 {s.exposures.map((e) => {
-                  const sev = SEVERITY[e.severity]!;
                   return (
                     <li key={e.risk_id} className="flex flex-col gap-1 py-2.5 text-body-sm">
                       <Link href={`/riscos/${e.risk_id}`} className="font-medium text-text-primary hover:underline">{e.title}</Link>
                       <div className="flex flex-wrap items-center gap-2 text-caption text-text-secondary">
-                        <Badge label={sev.label} tone={sev.tone} icon={sev.icon} />
+                        <SeverityBadge severity={e.severity} />
                         <span>{CATEGORY[e.category]}</span>
                         <span>{e.owner?.name ?? "sem responsável"}</span>
                         <span>{e.planned ? "com ação" : "sem ação"}</span>
@@ -130,7 +129,7 @@ export default async function ResumoPage() {
               {gains.map(([label, value]) => (
                 <div key={label} className="flex flex-col">
                   <dt className="text-caption text-text-secondary">{label}</dt>
-                  <dd className={`text-h2 tabular-nums ${value > 0 ? "text-success-text" : "text-text-primary"}`}>{value}</dd>
+                  <dd className={`text-kpi tabular-nums ${value > 0 ? "text-success-text" : "text-text-primary"}`}>{value}</dd>
                 </div>
               ))}
             </dl>
@@ -142,7 +141,7 @@ export default async function ResumoPage() {
               {losses.map(([label, value]) => (
                 <div key={label} className="flex flex-col">
                   <dt className="text-caption text-text-secondary">{label}</dt>
-                  <dd className={`text-h2 tabular-nums ${value > 0 ? "text-danger-text" : "text-text-primary"}`}>{value}</dd>
+                  <dd className={`text-kpi tabular-nums ${value > 0 ? "text-danger-text" : "text-text-primary"}`}>{value}</dd>
                 </div>
               ))}
             </dl>

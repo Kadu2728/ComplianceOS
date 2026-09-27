@@ -1,6 +1,6 @@
 import type { InputHTMLAttributes } from "react";
 
-/** Labeled input with accessible error (tokens.md §5; app-shell.md §7). */
+/** Labeled input with accessible error (visual-v2 §5.7: `border-input` boundary ≥ 3:1). */
 export function TextField({
   id,
   label,
@@ -27,9 +27,9 @@ export function TextField({
         aria-invalid={error ? true : undefined}
         aria-describedby={describedBy || undefined}
         className={[
-          "h-10 rounded-md border bg-surface-elevated px-3 text-body text-text-primary",
+          "h-10 rounded-md border bg-surface-elevated px-3 text-body text-text-primary transition-colors duration-(--duration-fast) max-md:h-11 focus:border-primary-text",
           "placeholder:text-text-muted disabled:cursor-not-allowed disabled:opacity-40",
-          error ? "border-danger-text" : "border-border",
+          error ? "border-danger-text" : "border-border-input hover:border-text-muted",
           className,
         ].join(" ")}
         {...props}

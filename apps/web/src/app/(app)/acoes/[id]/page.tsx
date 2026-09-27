@@ -3,11 +3,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { EvidencePanel } from "@/components/domain/evidence-panel";
 import { StatusControl } from "@/components/domain/status-control";
-import { Badge } from "@/components/ui/badge";
+import { Badge, SeverityBadge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";
 import { apiGet } from "@/lib/api/server";
-import { ACTION_STATUS, ACTION_STATUS_LABELS, EFFORT, SEVERITY, formatDate, isOverdue } from "@/lib/domain/labels";
+import { ACTION_STATUS, ACTION_STATUS_LABELS, EFFORT, formatDate, isOverdue } from "@/lib/domain/labels";
 import { type Action, type ControlGraph, type EvidenceList, type Risk, controlOptions, isManager } from "@/lib/domain/queries";
 import { documentOptions } from "@/lib/domain/queries";
 import { getSession } from "@/lib/session/server";
@@ -58,7 +58,7 @@ export default async function AcaoPage({ params }: { params: Promise<{ id: strin
                 {risk ? (
                   <Link href={`/riscos/${risk.id}`} className="inline-flex items-center gap-2 text-info-text underline underline-offset-2">
                     {risk.title}
-                    <Badge label={SEVERITY[risk.severity]!.label} tone={SEVERITY[risk.severity]!.tone} icon={SEVERITY[risk.severity]!.icon} />
+                    <SeverityBadge severity={risk.severity} />
                   </Link>
                 ) : (
                   "—"

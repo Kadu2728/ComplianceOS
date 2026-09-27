@@ -103,6 +103,8 @@ ROUTES = [
         "/api/v1/orgs/{org}/agent/ask",
         {"question": "Explique este risco", "focus": {"kind": "risk", "id": "{risk}"}},
     ),
+    # Dashboard v2 — global search (B's records all contain "de B")
+    ("GET", "/api/v1/orgs/{org}/search?q=de%20B", None),
 ]
 
 

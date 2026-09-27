@@ -7,7 +7,7 @@ import { EvidencePanel } from "@/components/domain/evidence-panel";
 import { PlanPanel } from "@/components/domain/plan-panel";
 import { RiskExplain } from "@/components/domain/risk-explain";
 import { StatusControl } from "@/components/domain/status-control";
-import { Badge } from "@/components/ui/badge";
+import { Badge, SeverityBadge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";
 import { apiGet } from "@/lib/api/server";
@@ -72,7 +72,7 @@ export default async function RiscoPage({ params }: { params: Promise<{ id: stri
         <div className="flex flex-col gap-6">
           <section className="rounded-lg border border-border bg-surface-elevated p-6">
             <div className="flex flex-wrap items-center gap-2">
-              <Badge label={sev.label} tone={sev.tone} icon={sev.icon} />
+              <SeverityBadge severity={risk.severity} />
               <Badge label={st.label} tone={st.tone} icon={st.icon} />
               <span className="text-caption text-text-secondary">
                 {risk.source === "assessment" ? `Identificado no diagnóstico (${risk.origin_question_code})` : "Registrado manualmente"}

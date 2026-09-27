@@ -1,5 +1,7 @@
 # COMPLIANCE OS — DESIGN TOKENS (v2, themes)
 
+> **Superseded for the app by `docs/design/visual-v2.md` (D39, 2026-09-26).** The values below are the brand v1 tokens, still pinned in the landing scopes (`.theme-light`, `.theme-dark`, `.landing`).
+
 Authority: derived strictly from `.claude/brand-system.md`; section numbers cited as §n.
 Decisions applied: D7 (pt-BR), D14 (text-safe variants), D16 (Light / Dark / System), D22 (CSS-first motion).
 Implementation target: Tailwind CSS 4 `@theme` in `apps/web/src/app/globals.css`. The engineer implements from this file without inventing values.

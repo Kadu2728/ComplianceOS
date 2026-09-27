@@ -30,6 +30,10 @@ PERMISSIONS: dict[str, frozenset[Role]] = {
     "audit.read": MANAGERS,
     # Domain permissions (Phase 3+). Declared now so the matrix is the single source of truth.
     "assessment.answer": CONTRIBUTORS,
+    # Read access to risks and actions is every member's (the list routes need only a
+    # membership); named so that cross-entity reads such as /search gate on the matrix.
+    "risk.read": ALL,
+    "action.read": ALL,
     "risk.create": MANAGERS,
     "risk.update_any": MANAGERS,
     "risk.update_assigned": CONTRIBUTORS,

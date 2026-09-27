@@ -121,7 +121,7 @@ export default async function DocumentosPage({ searchParams }: { searchParams: P
 
 function FilterChip({ href, active, label }: { href: string; active: boolean; label: string }) {
   return (
-    <Link href={href} aria-current={active ? "page" : undefined} className={`inline-flex h-8 items-center rounded-pill border px-3 text-body-sm ${active ? "border-electric-blue bg-info-tint font-medium text-info-text" : "border-border text-text-secondary hover:bg-surface-hover"}`}>
+    <Link href={href} aria-current={active ? "page" : undefined} className={`inline-flex h-8 items-center rounded-pill border px-3 text-body-sm ${active ? "border-primary bg-info-tint font-medium text-info-text" : "border-border text-text-secondary hover:bg-surface-hover"}`}>
       {label}
     </Link>
   );

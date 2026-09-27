@@ -14,6 +14,7 @@ from app.api.v1 import (
     risks,
     room,
     score,
+    search,
 )
 
 api_router = APIRouter(prefix="/api/v1")
@@ -31,3 +32,4 @@ api_router.include_router(profile.router)
 api_router.include_router(insights.router)
 api_router.include_router(room.router)
 api_router.include_router(room.public_router)
+api_router.include_router(search.router)

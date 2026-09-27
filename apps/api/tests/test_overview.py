@@ -40,8 +40,16 @@ def test_empty_organization(org) -> None:  # noqa: ANN001
         "in_review": 0,
         "without_owner": 0,
         "items": [],
+        "by_category": [],
     }
-    assert out["actions"] == {"pending": 0, "overdue": 0, "blocked": 0, "done": 0, "items": []}
+    assert out["actions"] == {
+        "pending": 0,
+        "overdue": 0,
+        "blocked": 0,
+        "done": 0,
+        "items": [],
+        "recent": [],
+    }
     assert out["assessment"] == {
         "status": "none",
         "mode": None,
@@ -143,3 +151,99 @@ def test_audit_log_page_is_enriched_and_paginated(org) -> None:  # noqa: ANN001
     assert first["data"] == {"title": {"from": "Risco auditado", "to": "Renomeado"}}
     assert page["items"][1]["action"] == "risk.created"
     assert org["viewer"].get(f"/api/v1/orgs/{org['id']}/audit-log").status_code == 403
+
+
+def _status(org, kind: str, item: dict, *steps: str) -> None:  # noqa: ANN001
+    for step in steps:
+        r = org["owner"].post(
+            f"/api/v1/orgs/{org['id']}/{kind}/{item['id']}/status", json={"status": step}
+        )
+        assert r.status_code == 200, r.text
+
+
+def test_open_risks_by_category(org) -> None:  # noqa: ANN001
+    _risk(org, "Acesso crítico", 3, 4, category="acesso")
+    _risk(org, "Acesso médio", 2, 3, category="acesso")
+    _risk(org, "Dados crítico", 3, 4, category="dados")
+    _risk(org, "Fornecedor alto", 3, 3, category="fornecedores")
+    _status(org, "risks", _risk(org, "Fornecedor aceito", 3, 4, category="fornecedores"), "aceito")
+    _risk(org, "Segurança alta", 3, 3, category="seguranca")
+    _status(org, "risks", _risk(org, "Pessoas aceito", 1, 1, category="pessoas"), "aceito")
+    resolved = _risk(org, "Documentação resolvida", 3, 4, category="documentacao")
+    _status(org, "risks", resolved, "em_andamento", "em_revisao", "resolvido")
+    # em_revisao is still open (same definition as the counters and the score).
+    _status(
+        org,
+        "risks",
+        _risk(org, "Titulares em revisão", 2, 2, category="titulares"),
+        "em_andamento",
+        "em_revisao",
+    )
+    for n in range(3):
+        _risk(org, f"Incidente baixo {n}", 1, 2, category="incidentes")
+
+    out = org["owner"].get(f"/api/v1/orgs/{org['id']}/overview").json()
+    by_category = out["risks"]["by_category"]
+    # Worst severity present first, then more open risks, then the category value; categories
+    # with only closed risks (aceito, resolvido) are absent.
+    assert [(c["category"], c["open"]) for c in by_category] == [
+        ("acesso", 2),
+        ("dados", 1),
+        ("fornecedores", 1),
+        ("seguranca", 1),
+        ("titulares", 1),
+        ("incidentes", 3),
+    ]
+    assert by_category[0]["by_severity"] == {"critico": 1, "alto": 0, "medio": 1, "baixo": 0}
+    assert by_category[2]["by_severity"] == {"critico": 0, "alto": 1, "medio": 0, "baixo": 0}
+    assert by_category[-1]["by_severity"] == {"critico": 0, "alto": 0, "medio": 0, "baixo": 3}
+    assert sum(c["open"] for c in by_category) == out["risks"]["open"] == 9
+    # Viewers read the same aggregate.
+    viewer = org["viewer"].get(f"/api/v1/orgs/{org['id']}/overview").json()
+    assert viewer["risks"]["by_category"] == by_category
+
+
+def test_recent_actions_any_status_most_recently_updated_first(org) -> None:  # noqa: ANN001
+    actions = [_action(org, f"Ação {n}") for n in range(1, 7)]
+    a1, a2 = actions[0], actions[1]
+    r = org["owner"].patch(
+        f"/api/v1/orgs/{org['id']}/actions/{a1['id']}", json={"title": "Ação 1 revisada"}
+    )
+    assert r.status_code == 200, r.text
+    _status(org, "actions", a2, "em_andamento", "concluida")
+
+    out = org["owner"].get(f"/api/v1/orgs/{org['id']}/overview").json()
+    recent = out["actions"]["recent"]
+    # Last touched first; a concluded action is included; five at most.
+    assert [a["id"] for a in recent] == [
+        a2["id"],
+        a1["id"],
+        actions[5]["id"],
+        actions[4]["id"],
+        actions[3]["id"],
+    ]
+    assert recent[0]["status"] == "concluida" and recent[1]["title"] == "Ação 1 revisada"
+    stamps = [a["updated_at"] for a in recent]
+    assert stamps == sorted(stamps, reverse=True)
+    # `items` keeps its meaning (pending only).
+    assert a2["id"] not in {a["id"] for a in out["actions"]["items"]}
+
+
+def test_new_overview_fields_are_organization_scoped(org) -> None:  # noqa: ANN001
+    _risk(org, "Risco de A", 3, 4, category="acesso")
+    mine = _action(org, "Ação de A")
+    other = make_client()
+    other_org = signup(other, email="owner@outra.com.br", org="Outra Ltda.")["org_id"]
+    r = other.post(
+        f"/api/v1/orgs/{other_org}/risks",
+        json={"title": "Risco de B", "category": "documentacao", "probability": 3, "impact": 4},
+    )
+    assert r.status_code == 201, r.text
+    theirs = other.post(f"/api/v1/orgs/{other_org}/actions", json={"title": "Ação de B"}).json()
+
+    out = org["owner"].get(f"/api/v1/orgs/{org['id']}/overview").json()
+    assert [c["category"] for c in out["risks"]["by_category"]] == ["acesso"]
+    assert [a["id"] for a in out["actions"]["recent"]] == [mine["id"]]
+    b = other.get(f"/api/v1/orgs/{other_org}/overview").json()
+    assert [c["category"] for c in b["risks"]["by_category"]] == ["documentacao"]
+    assert [a["id"] for a in b["actions"]["recent"]] == [theirs["id"]]

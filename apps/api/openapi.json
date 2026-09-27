@@ -96,6 +96,69 @@
         "title": "ActionEffort",
         "type": "string"
       },
+      "ActionGroup": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ActionHit"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "kind": {
+            "const": "action",
+            "title": "Kind",
+            "type": "string"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "kind",
+          "total",
+          "items"
+        ],
+        "title": "ActionGroup",
+        "type": "object"
+      },
+      "ActionHit": {
+        "properties": {
+          "due_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Due Date"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ActionStatus"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "status",
+          "due_date"
+        ],
+        "title": "ActionHit",
+        "type": "object"
+      },
       "ActionOut": {
         "properties": {
           "completed_at": {
@@ -351,6 +414,13 @@
           "pending": {
             "title": "Pending",
             "type": "integer"
+          },
+          "recent": {
+            "items": {
+              "$ref": "#/components/schemas/ActionOut"
+            },
+            "title": "Recent",
+            "type": "array"
           }
         },
         "required": [
@@ -358,7 +428,8 @@
           "overdue",
           "blocked",
           "done",
-          "items"
+          "items",
+          "recent"
         ],
         "title": "ActionsOverview",
         "type": "object"
@@ -1038,6 +1109,27 @@
         "title": "Body_upload_file_api_v1_orgs__org_id__evidence_files_post",
         "type": "object"
       },
+      "CategoryOverview": {
+        "properties": {
+          "by_severity": {
+            "$ref": "#/components/schemas/SeverityCounts"
+          },
+          "category": {
+            "$ref": "#/components/schemas/RiskCategory"
+          },
+          "open": {
+            "title": "Open",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "category",
+          "open",
+          "by_severity"
+        ],
+        "title": "CategoryOverview",
+        "type": "object"
+      },
       "CompleteOut": {
         "properties": {
           "by_severity": {
@@ -1196,6 +1288,56 @@
           "evidence_count"
         ],
         "title": "ControlGraphOut",
+        "type": "object"
+      },
+      "ControlGroup": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ControlHit"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "kind": {
+            "const": "control",
+            "title": "Kind",
+            "type": "string"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "kind",
+          "total",
+          "items"
+        ],
+        "title": "ControlGroup",
+        "type": "object"
+      },
+      "ControlHit": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ControlStatus"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "status"
+        ],
+        "title": "ControlHit",
         "type": "object"
       },
       "ControlKind": {
@@ -1624,6 +1766,56 @@
           "category"
         ],
         "title": "DocumentCreate",
+        "type": "object"
+      },
+      "DocumentGroup": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/DocumentHit"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "kind": {
+            "const": "document",
+            "title": "Kind",
+            "type": "string"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "kind",
+          "total",
+          "items"
+        ],
+        "title": "DocumentGroup",
+        "type": "object"
+      },
+      "DocumentHit": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/DocumentStatus"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "status"
+        ],
+        "title": "DocumentHit",
         "type": "object"
       },
       "DocumentLinkOut": {
@@ -4211,6 +4403,64 @@
         "title": "RiskCreate",
         "type": "object"
       },
+      "RiskGroup": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/RiskHit"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "kind": {
+            "const": "risk",
+            "title": "Kind",
+            "type": "string"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "kind",
+          "total",
+          "items"
+        ],
+        "title": "RiskGroup",
+        "type": "object"
+      },
+      "RiskHit": {
+        "properties": {
+          "category": {
+            "$ref": "#/components/schemas/RiskCategory"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "severity": {
+            "$ref": "#/components/schemas/RiskSeverity"
+          },
+          "status": {
+            "$ref": "#/components/schemas/RiskStatus"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "severity",
+          "status",
+          "category"
+        ],
+        "title": "RiskHit",
+        "type": "object"
+      },
       "RiskOut": {
         "properties": {
           "answer_uncertain": {
@@ -4555,6 +4805,13 @@
       },
       "RisksOverview": {
         "properties": {
+          "by_category": {
+            "items": {
+              "$ref": "#/components/schemas/CategoryOverview"
+            },
+            "title": "By Category",
+            "type": "array"
+          },
           "by_severity": {
             "additionalProperties": {
               "type": "integer"
@@ -4587,7 +4844,8 @@
           "by_severity",
           "in_review",
           "without_owner",
-          "items"
+          "items",
+          "by_category"
         ],
         "title": "RisksOverview",
         "type": "object"
@@ -5346,6 +5604,54 @@
         "title": "ScoreOut",
         "type": "object"
       },
+      "SearchOut": {
+        "properties": {
+          "groups": {
+            "items": {
+              "discriminator": {
+                "mapping": {
+                  "action": "#/components/schemas/ActionGroup",
+                  "control": "#/components/schemas/ControlGroup",
+                  "document": "#/components/schemas/DocumentGroup",
+                  "risk": "#/components/schemas/RiskGroup"
+                },
+                "propertyName": "kind"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/RiskGroup"
+                },
+                {
+                  "$ref": "#/components/schemas/ActionGroup"
+                },
+                {
+                  "$ref": "#/components/schemas/ControlGroup"
+                },
+                {
+                  "$ref": "#/components/schemas/DocumentGroup"
+                }
+              ]
+            },
+            "title": "Groups",
+            "type": "array"
+          },
+          "query": {
+            "title": "Query",
+            "type": "string"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "query",
+          "total",
+          "groups"
+        ],
+        "title": "SearchOut",
+        "type": "object"
+      },
       "SectionOut": {
         "properties": {
           "name": {
@@ -5413,6 +5719,34 @@
         ],
         "title": "Segment",
         "type": "string"
+      },
+      "SeverityCounts": {
+        "properties": {
+          "alto": {
+            "title": "Alto",
+            "type": "integer"
+          },
+          "baixo": {
+            "title": "Baixo",
+            "type": "integer"
+          },
+          "critico": {
+            "title": "Critico",
+            "type": "integer"
+          },
+          "medio": {
+            "title": "Medio",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "critico",
+          "alto",
+          "medio",
+          "baixo"
+        ],
+        "title": "SeverityCounts",
+        "type": "object"
       },
       "SignupRequest": {
         "properties": {
@@ -9979,6 +10313,77 @@
         "summary": "History",
         "tags": [
           "score"
+        ]
+      }
+    },
+    "/api/v1/orgs/{org_id}/search": {
+      "get": {
+        "operationId": "search_api_v1_orgs__org_id__search_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "org_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Org Id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "2\u2013100 characters after trimming.",
+            "in": "query",
+            "name": "q",
+            "required": true,
+            "schema": {
+              "description": "2\u2013100 characters after trimming.",
+              "maxLength": 100,
+              "minLength": 2,
+              "pattern": "^[^\\x00]*$",
+              "title": "Q",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Items per group.",
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 5,
+              "description": "Items per group.",
+              "maximum": 10,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Search",
+        "tags": [
+          "search"
         ]
       }
     },

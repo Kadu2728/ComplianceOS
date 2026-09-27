@@ -1,8 +1,8 @@
 import { Clock } from "lucide-react";
 import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
+import { Badge, SeverityBadge } from "@/components/ui/badge";
 import type { paths } from "@/lib/api/schema";
-import { RISK_STATUS, SEVERITY, formatDate, isOverdue } from "@/lib/domain/labels";
+import { RISK_STATUS, formatDate, isOverdue } from "@/lib/domain/labels";
 
 export type RiskRow =
   paths["/api/v1/orgs/{org_id}/risks"]["get"]["responses"]["200"]["content"]["application/json"]["items"][number];
@@ -51,12 +51,11 @@ function Deadline({ risk }: { risk: RiskRow }) {
 }
 
 function Row({ risk }: { risk: RiskRow }) {
-  const sev = SEVERITY[risk.severity]!;
   const st = RISK_STATUS[risk.status]!;
   return (
     <tr className="h-11 border-b border-border last:border-0 hover:bg-surface-hover">
       <td className="px-4">
-        <Badge label={sev.label} tone={sev.tone} icon={sev.icon} />
+        <SeverityBadge severity={risk.severity} />
       </td>
       <td className="px-4">
         <Link href={`/riscos/${risk.id}`} className="font-medium text-text-primary hover:underline">
@@ -75,7 +74,6 @@ function Row({ risk }: { risk: RiskRow }) {
 }
 
 function Card({ risk }: { risk: RiskRow }) {
-  const sev = SEVERITY[risk.severity]!;
   const st = RISK_STATUS[risk.status]!;
   return (
     <li className="rounded-lg border border-border bg-surface-elevated p-4">
@@ -86,7 +84,7 @@ function Card({ risk }: { risk: RiskRow }) {
         <Badge label={st.label} tone={st.tone} icon={st.icon} />
       </div>
       <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-caption text-text-secondary">
-        <Badge label={sev.label} tone={sev.tone} icon={sev.icon} />
+        <SeverityBadge severity={risk.severity} />
         <span>{risk.owner?.name ?? "Sem responsável"}</span>
         <span>·</span>
         <Deadline risk={risk} />

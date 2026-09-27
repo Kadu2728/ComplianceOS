@@ -18,10 +18,10 @@ export function PrioritiesPanel({
   className?: string;
 }) {
   return (
-    <section aria-labelledby="prioridades" className={`rounded-lg border border-border bg-surface-elevated p-5 ${className}`}>
+    <section aria-labelledby="prioridades" className={`rounded-lg border border-border bg-surface-elevated p-4 sm:p-6 ${className}`}>
       <div className="flex items-baseline justify-between gap-3">
         <h2 id="prioridades" className="text-h3">O que fazer primeiro</h2>
-        <Link href="/acoes?status=pendentes" className="text-body-sm text-info-text hover:underline">Ver todas</Link>
+        <Link href="/acoes?status=pendentes" className="shrink-0 text-body-sm font-medium text-primary-text hover:text-primary-text-hover hover:underline">Ver todas</Link>
       </div>
       <p className="mt-1 text-caption text-text-secondary">Ordenado por risco reduzido, contexto do perfil, urgência e esforço. O número verde é o ganho estimado no score ao concluir com evidência.</p>
       {prio ? <PrioritiesList prio={prio} compact={compact} /> : <p className="mt-3 text-body-sm text-text-secondary">Prioridades indisponíveis no momento.</p>}

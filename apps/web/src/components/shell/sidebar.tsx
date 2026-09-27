@@ -1,43 +1,34 @@
 import { AccountBlock } from "./account-block";
-import { ICON_STROKE, navItemsFor } from "./nav-items";
-import { NavLink } from "./nav-link";
+import { NavList } from "./nav-list";
 import { type OrganizationOption, OrgSwitcher } from "./org-switcher";
 import { Wordmark } from "./wordmark";
 
 /**
- * Desktop/tablet sidebar (app-shell.md §2). Viewport-height and sticky: the organization at the
- * top frames every page, the navigation scrolls on its own if it ever needs to, and the account
- * block (theme, settings, exit) stays visible at the bottom no matter how long the page is.
- * Server component; NavLink, the switcher, the theme toggle and the exit are the client children.
+ * Sidebar v2 (visual-v2 §3.2), ≥ 1024 only: 240px, viewport-height and sticky. Logo row 64, the
+ * organization right below (owner decision 2026-09-17), the grouped nav scrolling on its own, and
+ * the compact account block (theme + exit) always visible at the bottom.
  */
 export function Sidebar({
   currentId,
   organizations,
-  userName,
   role,
 }: {
   currentId: string;
   organizations: OrganizationOption[];
-  userName: string;
   role: string;
 }) {
   return (
-    <aside className="sticky top-0 hidden h-dvh w-[248px] shrink-0 flex-col self-start border-r border-border bg-surface-elevated md:flex">
+    <aside className="sticky top-0 hidden h-dvh w-[240px] shrink-0 flex-col self-start border-r border-border bg-surface-base lg:flex print:hidden">
+      <div className="flex h-16 shrink-0 items-center px-6">
+        <Wordmark size="lg" />
+      </div>
       <div className="px-3 pb-3">
-        <Wordmark />
         <OrgSwitcher currentId={currentId} organizations={organizations} />
       </div>
-      <nav aria-label="Principal" className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto px-3 pt-1">
-        {navItemsFor(role).map((item) => (
-          <NavLink
-            key={item.href}
-            href={item.href}
-            label={item.label}
-            icon={<item.icon aria-hidden size={20} strokeWidth={ICON_STROKE} />}
-          />
-        ))}
+      <nav aria-label="Principal" className="min-h-0 flex-1 overflow-y-auto px-3 pt-1 pb-3">
+        <NavList role={role} />
       </nav>
-      <AccountBlock userName={userName} role={role} />
+      <AccountBlock variant="compact" userName="" role={role} />
     </aside>
   );
 }

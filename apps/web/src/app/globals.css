@@ -1,88 +1,128 @@
 @import "tailwindcss";
 
 /*
- * Design tokens — single source: docs/design/tokens.md (derived from .claude/brand-system.md).
- * Theme-aware tokens. Components reference tokens, never raw hex.
+ * Design tokens v2 — single source: docs/design/visual-v2.md §2 (decision D39, 2026-09-26), which
+ * supersedes docs/design/tokens.md for the app. Components reference tokens, never raw hex.
+ *
+ * Four colour blocks, every colour in all four (globals-theme.test.ts, contrast.test.ts):
+ *   @theme                      app light v2 (also the default for non-colour tokens)
+ *   html[data-theme="dark"]     app dark v2 — the default theme (D16 amended)
+ *   .theme-light / .theme-dark  landing, brand v1 values, frozen until the landing migrates
  */
 @theme {
-  /* Core (brand §8) */
+  /* Core brand v1 (landing only) */
   --color-obsidian: #0b0d0f;
   --color-off-white: #f4f4f0;
   --color-electric-blue: #356ae6;
 
-  /* Neutrals, light (brand §10) */
-  --color-surface-base: #f4f4f0;
+  /* App light v2 */
+  --color-surface-base: #f5f7fa;
   --color-surface-elevated: #ffffff;
-  --color-surface-hover: #ebebe7;
-  --color-border: #d9d9d3;
-  --color-text-primary: #0b0d0f;
-  --color-text-secondary: #52575c;
-  --color-text-muted: #73787d;
+  --color-surface-hover: #eef1f5;
+  --color-border: #e5e7eb;
+  --color-border-strong: #d1d5db;
+  --color-border-input: #7d8799;
+  --color-text-primary: #0b0f14;
+  --color-text-secondary: #4b5563;
+  --color-text-muted: #626b7a;
 
-  /* Semantic (brand §9) + text-safe variants (decision D14) */
-  --color-info-fill: #356ae6;
-  --color-info-text: #3264d9;
-  --color-info-tint: #ebf0fc;
-  --color-info-border: #aec3f5;
-  --color-success-fill: #28a36a;
-  --color-success-text: #207c52;
-  --color-success-tint: #eaf6f0;
-  --color-success-border: #a9dac3;
-  --color-warning-fill: #d99a2b;
-  --color-warning-text: #8f6721;
-  --color-warning-tint: #fbf5ea;
-  --color-warning-border: #f0d7aa;
-  --color-danger-fill: #d95757;
-  --color-danger-text: #b44a4a;
-  --color-danger-tint: #fbeeee;
-  --color-danger-border: #f0bcbc;
+  --color-primary: #06b6d4;
+  --color-primary-foreground: #0b0f14;
+  --color-primary-hover: #06a9c5;
+  --color-primary-active: #079bb5;
+  --color-primary-text: #0e7490;
+  --color-primary-text-hover: #155e75;
+  --color-primary-tint: #e6f8fb;
+  --color-outline: #0e7490;
+  --color-outline-hover: #e6f8fb;
+  --color-focus: #0e7490;
+  --color-on-fill: #0b0f14;
 
-  /* Action states (tokens.md §2, §5) */
-  --color-primary-hover: #3263d5;
-  --color-primary-active: #2e5bc4;
+  --color-info-fill: #06b6d4;
+  --color-info-text: #0e7490;
+  --color-info-tint: #e6f8fb;
+  --color-info-border: #a8e5f0;
+  --color-success-fill: #10b981;
+  --color-success-text: #047857;
+  --color-success-tint: #e7f8f2;
+  --color-success-border: #abe7d3;
+  --color-warning-fill: #f59e0b;
+  --color-warning-text: #a34c0a;
+  --color-warning-tint: #fef5e7;
+  --color-warning-border: #fcddaa;
+  --color-danger-fill: #ef4444;
+  --color-danger-text: #b91c1c;
+  --color-danger-tint: #fdecec;
+  --color-danger-border: #f9bebe;
 
-  /* Typography (brand §13–§15; app rows only) */
+  --color-sev-critical: #dc2626;
+  --color-sev-high: #ea580c;
+  --color-sev-medium: #a16207;
+  --color-sev-low: #0d9488;
+  --color-score-fill: #0d9488;
+  --color-score-track: #e2f2f1;
+  --color-backdrop: rgb(11 15 20 / 0.4);
+
+  /* Typography — Inter only (visual-v2 §2.4) */
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --text-h1: 2rem;
-  --text-h1--line-height: 1.18;
-  --text-h1--letter-spacing: -0.02em;
+  --text-h1: 1.75rem;
+  --text-h1--line-height: 1.2;
+  --text-h1--letter-spacing: -0.012em;
   --text-h1--font-weight: 600;
-  --text-h2: 1.5rem;
-  --text-h2--line-height: 1.25;
-  --text-h2--letter-spacing: -0.02em;
+  --text-h1-compact: 1.5rem;
+  --text-h1-compact--line-height: 1.25;
+  --text-h1-compact--letter-spacing: -0.012em;
+  --text-h1-compact--font-weight: 600;
+  --text-h2: 1.25rem;
+  --text-h2--line-height: 1.3;
+  --text-h2--letter-spacing: -0.012em;
   --text-h2--font-weight: 600;
-  --text-h3: 1.125rem;
+  --text-h3: 1rem;
   --text-h3--line-height: 1.4;
-  --text-h3--letter-spacing: -0.01em;
+  --text-h3--letter-spacing: -0.006em;
   --text-h3--font-weight: 600;
-  --text-score: 3rem;
+  --text-score: 3.5rem;
   --text-score--line-height: 1;
-  --text-score--letter-spacing: -0.03em;
+  --text-score--letter-spacing: -0.024em;
   --text-score--font-weight: 600;
+  --text-score-compact: 2.5rem;
+  --text-score-compact--line-height: 1;
+  --text-score-compact--letter-spacing: -0.02em;
+  --text-score-compact--font-weight: 600;
+  --text-kpi: 1.5rem;
+  --text-kpi--line-height: 1.2;
+  --text-kpi--letter-spacing: -0.012em;
+  --text-kpi--font-weight: 600;
   --text-body-lg: 1.125rem;
-  --text-body-lg--line-height: 1.55;
+  --text-body-lg--line-height: 1.6;
   --text-body: 1rem;
-  --text-body--line-height: 1.5;
+  --text-body--line-height: 1.6;
   --text-body-sm: 0.875rem;
-  --text-body-sm--line-height: 1.45;
+  --text-body-sm--line-height: 1.5;
   --text-label: 0.75rem;
-  --text-label--line-height: 1.3;
+  --text-label--line-height: 1.35;
   --text-label--letter-spacing: 0.04em;
   --text-label--font-weight: 500;
-  --text-caption: 0.6875rem;
-  --text-caption--line-height: 1.3;
+  --text-caption: 0.75rem;
+  --text-caption--line-height: 1.4;
+  --text-micro: 0.6875rem;
+  --text-micro--line-height: 1;
+  --text-micro--font-weight: 600;
 
-  /* Radius (brand §17) */
+  /* Radius (visual-v2 §2.5) */
   --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 8px;
-  --radius-xl: 12px;
-  --radius-2xl: 16px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
   --radius-pill: 9999px;
 
-  /* Shadows (brand §19) — exactly two */
-  --shadow-popover: 0 4px 12px rgb(11 13 15 / 0.08), 0 1px 2px rgb(11 13 15 / 0.06);
-  --shadow-modal: 0 16px 40px rgb(11 13 15 / 0.16);
+  /* Shadows (visual-v2 §2.6): floating layers only; cards have none */
+  --shadow-popover: 0 8px 24px rgb(11 15 20 / 0.1), 0 2px 6px rgb(11 15 20 / 0.06);
+  --shadow-modal: 0 24px 56px rgb(11 15 20 / 0.18);
+
+  /* Breakpoint for the 6-across module row (`wide:`) */
+  --breakpoint-wide: 90rem;
 
   /* Motion (brand §33, decision D22) */
   --duration-fast: 150ms;
@@ -91,65 +131,56 @@
   --duration-complex: 400ms;
   --ease-out: cubic-bezier(0.2, 0, 0, 1);
 
-  /* Marketing scale (brand §13–§14; landing only). Ceilings of the fluid sizes in @utility below. */
-  --text-display-xl: 4.5rem;
-  --text-display-xl--line-height: 1;
-  --text-display-xl--letter-spacing: -0.03em;
-  --text-display-xl--font-weight: 600;
-  --text-display-l: 4rem;
-  --text-display-l--line-height: 1.05;
-  --text-display-l--letter-spacing: -0.03em;
-  --text-display-l--font-weight: 600;
-  --text-display-m: 3rem;
-  --text-display-m--line-height: 1.08;
-  --text-display-m--letter-spacing: -0.02em;
+  /* Marketing display scale (visual-v2 §2.4; landing only). Ceilings of the fluid sizes below. */
+  --text-display-xl: 3.5rem;
+  --text-display-xl--line-height: 1.05;
+  --text-display-xl--letter-spacing: -0.012em;
+  --text-display-xl--font-weight: 700;
+  --text-display-l: 3rem;
+  --text-display-l--line-height: 1.08;
+  --text-display-l--letter-spacing: -0.012em;
+  --text-display-l--font-weight: 700;
+  --text-display-m: 2.5rem;
+  --text-display-m--line-height: 1.12;
+  --text-display-m--letter-spacing: -0.012em;
   --text-display-m--font-weight: 600;
-  --text-display-s: 2.5rem;
-  --text-display-s--line-height: 1.12;
-  --text-display-s--letter-spacing: -0.02em;
+  --text-display-s: 2rem;
+  --text-display-s--line-height: 1.18;
+  --text-display-s--letter-spacing: -0.012em;
   --text-display-s--font-weight: 600;
   --duration-story: 600ms;
 }
 
-/*
- * Display family (Geist, loaded only by the marketing layout as `--font-geist` on its wrapper).
- * `inline` so the `font-display` utility carries the var() chain itself: a plain @theme value
- * would be resolved on :root, where `--font-geist` does not exist, and fall back to nothing.
- */
+/* Inter is the only family (D39); `font-display` stays so existing classes still resolve. */
 @theme inline {
-  --font-display: var(--font-geist), var(--font-sans);
+  --font-display: var(--font-sans);
 }
 
-/* Fluid display sizes (03-ux-spec §1.2): floor at 360px, ceiling = the tokens above. */
+/* Fluid display sizes (visual-v2 §2.4): floor at 360px, ceiling = the tokens above. */
 @utility text-hero {
-  /* `--font-display` is inlined into the `font-display` utility only (see @theme inline above); custom
-     utilities must carry the chain themselves so it resolves on the element, inside the landing wrapper. */
-  font-family: var(--font-geist), var(--font-sans);
-  font-size: clamp(2.375rem, 1rem + 5vw, var(--text-display-xl));
+  font-family: var(--font-sans);
+  font-size: clamp(2.25rem, 1.2rem + 3.6vw, var(--text-display-xl));
   line-height: var(--text-display-xl--line-height);
   letter-spacing: var(--text-display-xl--letter-spacing);
   font-weight: var(--text-display-xl--font-weight);
-  @media (width < 48rem) {
-    line-height: 1.05;
-  }
 }
 @utility text-final {
-  font-family: var(--font-geist), var(--font-sans);
-  font-size: clamp(2.25rem, 1rem + 4vw, var(--text-display-l));
+  font-family: var(--font-sans);
+  font-size: clamp(2rem, 1.1rem + 3vw, var(--text-display-l));
   line-height: var(--text-display-l--line-height);
   letter-spacing: var(--text-display-l--letter-spacing);
   font-weight: var(--text-display-l--font-weight);
 }
 @utility text-section {
-  font-family: var(--font-geist), var(--font-sans);
-  font-size: clamp(2rem, 1.25rem + 2.5vw, var(--text-display-m));
+  font-family: var(--font-sans);
+  font-size: clamp(1.75rem, 1.2rem + 1.9vw, var(--text-display-m));
   line-height: var(--text-display-m--line-height);
   letter-spacing: var(--text-display-m--letter-spacing);
   font-weight: var(--text-display-m--font-weight);
 }
 @utility text-section-long {
-  font-family: var(--font-geist), var(--font-sans);
-  font-size: clamp(1.75rem, 1.1rem + 2.2vw, var(--text-display-s));
+  font-family: var(--font-sans);
+  font-size: clamp(1.625rem, 1.2rem + 1.2vw, var(--text-display-s));
   line-height: var(--text-display-s--line-height);
   letter-spacing: var(--text-display-s--letter-spacing);
   font-weight: var(--text-display-s--font-weight);
@@ -158,27 +189,101 @@
 @layer base {
   html {
     color-scheme: light;
+    --score-glow: 0 0 0 transparent;
+    --trend-area: 0.14;
   }
 
   /*
-   * Dark theme (decision D16, tokens.md §8). Neutrals are the brand §10 dark tokens verbatim;
-   * semantic variants are D14-style extensions with AA-verified contrast on these surfaces.
-   * Overriding the theme variables here means every utility (bg-surface-*, text-text-*,
-   * border-*) adapts without page-specific variants. Core brand colors (obsidian, off-white,
-   * electric blue) and the primary button hover/active are NOT overridden: white text on the
-   * button must stay ≥ 4.5:1 in both themes. `.theme-dark` reuses the same block for a section
-   * that is Obsidian regardless of the user's theme (landing "dark beats", 03-ux-spec §1.8).
+   * App dark v2 — the default theme (D16 amended by D39). Screen only: printing (/resumo) always
+   * uses the light values. Overriding the theme variables here means every utility adapts
+   * without page-specific variants.
    */
-  html[data-theme="dark"],
+  @media screen {
+    html[data-theme="dark"] {
+      color-scheme: dark;
+      --score-glow: 0 0 6px rgb(45 212 191 / 0.35);
+      --trend-area: 0.24;
+      --shadow-popover: 0 8px 24px rgb(0 0 0 / 0.45), 0 2px 6px rgb(0 0 0 / 0.3);
+      --shadow-modal: 0 24px 56px rgb(0 0 0 / 0.6);
+
+      --color-surface-base: #0b0f14;
+      --color-surface-elevated: #111827;
+      --color-surface-hover: #18212f;
+      --color-border: #1f2937;
+      --color-border-strong: #374151;
+      --color-border-input: #6b7280;
+      --color-text-primary: #f3f4f6;
+      --color-text-secondary: #b4bdca;
+      --color-text-muted: #8a94a6;
+
+      --color-primary: #06b6d4;
+      --color-primary-foreground: #0b0f14;
+      --color-primary-hover: #22d3ee;
+      --color-primary-active: #0891b2;
+      --color-primary-text: #22d3ee;
+      --color-primary-text-hover: #67e8f9;
+      --color-primary-tint: #0a2d37;
+      --color-outline: #22d3ee;
+      --color-outline-hover: #0a2d37;
+      --color-focus: #22d3ee;
+      --color-on-fill: #0b0f14;
+
+      --color-info-fill: #06b6d4;
+      --color-info-text: #22d3ee;
+      --color-info-tint: #0a2d37;
+      --color-info-border: #095a6a;
+      --color-success-fill: #10b981;
+      --color-success-text: #34d399;
+      --color-success-tint: #0c2e28;
+      --color-success-border: #0d5c45;
+      --color-warning-fill: #f59e0b;
+      --color-warning-text: #fbbf24;
+      --color-warning-tint: #352912;
+      --color-warning-border: #744f10;
+      --color-danger-fill: #ef4444;
+      --color-danger-text: #f87171;
+      --color-danger-tint: #34191d;
+      --color-danger-border: #72272a;
+
+      --color-sev-critical: #ef4444;
+      --color-sev-high: #f97316;
+      --color-sev-medium: #facc15;
+      --color-sev-low: #2dd4bf;
+      --color-score-fill: #2dd4bf;
+      --color-score-track: #15343e;
+      --color-backdrop: rgb(0 0 0 / 0.6);
+    }
+  }
+
+  /*
+   * Landing dark scope (`.theme-dark`, 03-ux-spec §1.8): a section that is Obsidian regardless of
+   * the user's theme. Brand v1 values, frozen until the landing migrates to palette v2 — the
+   * app's theme must never leak into it (globals-theme.test.ts).
+   */
   .theme-dark {
     color-scheme: dark;
+
     --color-surface-base: #0b0d0f;
     --color-surface-elevated: #111416;
     --color-surface-hover: #161a1d;
     --color-border: #292e32;
+    --color-border-strong: #292e32;
+    --color-border-input: #858b91;
     --color-text-primary: #f4f4f0;
     --color-text-secondary: #b7bcc1;
     --color-text-muted: #858b91;
+
+    --color-primary: #356ae6;
+    --color-primary-foreground: #ffffff;
+    --color-primary-hover: #3263d5;
+    --color-primary-active: #2e5bc4;
+    --color-primary-text: #b7c9ff;
+    --color-primary-text-hover: #6c93f4;
+    --color-primary-tint: #1b2948;
+    --color-outline: #f4f4f0;
+    --color-outline-hover: #161a1d;
+    --color-focus: #356ae6;
+    --color-on-fill: #ffffff;
 
     --color-info-fill: #6c93f4;
     --color-info-text: #b7c9ff;
@@ -196,22 +301,44 @@
     --color-danger-text: #ffb5b5;
     --color-danger-tint: #432425;
     --color-danger-border: #a65d60;
+
+    --color-sev-critical: #e46d6d;
+    --color-sev-high: #e6ad4d;
+    --color-sev-medium: #6c93f4;
+    --color-sev-low: #858b91;
+    --color-score-fill: #6c93f4;
+    --color-score-track: #161a1d;
+    --color-backdrop: rgb(11 13 15 / 0.4);
   }
 
   /*
-   * Light scope: re-applies the @theme light values so a subtree ignores the app's theme toggle
-   * (the landing must look the same for everyone). Mirror of the light values above — the unit
-   * test `globals-theme.test.ts` fails if the two drift apart.
+   * Landing light scope: brand v1 light values, so the landing ignores the app's theme and
+   * palette. globals-theme.test.ts fails if any colour the app themes set is missing here.
    */
   .theme-light {
     color-scheme: light;
+
     --color-surface-base: #f4f4f0;
     --color-surface-elevated: #ffffff;
     --color-surface-hover: #ebebe7;
     --color-border: #d9d9d3;
+    --color-border-strong: #d9d9d3;
+    --color-border-input: #73787d;
     --color-text-primary: #0b0d0f;
     --color-text-secondary: #52575c;
     --color-text-muted: #73787d;
+
+    --color-primary: #356ae6;
+    --color-primary-foreground: #ffffff;
+    --color-primary-hover: #3263d5;
+    --color-primary-active: #2e5bc4;
+    --color-primary-text: #3264d9;
+    --color-primary-text-hover: #356ae6;
+    --color-primary-tint: #ebf0fc;
+    --color-outline: #0b0d0f;
+    --color-outline-hover: #ebebe7;
+    --color-focus: #356ae6;
+    --color-on-fill: #ffffff;
 
     --color-info-fill: #356ae6;
     --color-info-text: #3264d9;
@@ -229,6 +356,53 @@
     --color-danger-text: #b44a4a;
     --color-danger-tint: #fbeeee;
     --color-danger-border: #f0bcbc;
+
+    --color-sev-critical: #d95757;
+    --color-sev-high: #d99a2b;
+    --color-sev-medium: #356ae6;
+    --color-sev-low: #73787d;
+    --color-score-fill: #356ae6;
+    --color-score-track: #ebebe7;
+    --color-backdrop: rgb(11 13 15 / 0.4);
+  }
+
+  /* Landing non-colour pins (visual-v2 §2.8): only the family and display sizes change there. */
+  .landing {
+    --radius-md: 6px;
+    --radius-lg: 8px;
+    --radius-xl: 12px;
+    --radius-2xl: 16px;
+    --text-h1: 2rem;
+    --text-h1--line-height: 1.18;
+    --text-h1--letter-spacing: -0.02em;
+    --text-h2: 1.5rem;
+    --text-h2--line-height: 1.25;
+    --text-h2--letter-spacing: -0.02em;
+    --text-h3: 1.125rem;
+    --text-h3--line-height: 1.4;
+    --text-h3--letter-spacing: -0.01em;
+    --text-score: 3rem;
+    --text-score--letter-spacing: -0.03em;
+    --text-body-lg--line-height: 1.55;
+    --text-body--line-height: 1.5;
+    --text-body-sm--line-height: 1.45;
+    --text-label--line-height: 1.3;
+    --text-caption: 0.6875rem;
+    --text-caption--line-height: 1.3;
+    --shadow-popover: 0 4px 12px rgb(11 13 15 / 0.08), 0 1px 2px rgb(11 13 15 / 0.06);
+    --shadow-modal: 0 16px 40px rgb(11 13 15 / 0.16);
+    --score-glow: 0 0 0 transparent;
+  }
+  /* The landing page chrome stays light while the app default is dark. */
+  html:has(.landing) {
+    color-scheme: light;
+  }
+  body:has(.landing) {
+    background: var(--color-off-white);
+  }
+  /* In-page anchors (#radar, #agente, #por-que) clear the sticky 56–64px header. */
+  html:not(:has(.landing)) {
+    scroll-padding-top: 5rem;
   }
 
   body {
@@ -238,15 +412,19 @@
     -webkit-font-smoothing: antialiased;
   }
 
-  /* Visible focus everywhere (brand §49). Never removed. */
+  /* Visible focus everywhere (brand §49). Never removed. `focus` passes 3:1 in both themes. */
   :focus-visible {
-    outline: 2px solid var(--color-electric-blue);
+    outline: 2px solid var(--color-focus);
     outline-offset: 2px;
   }
 
-  /* Native dialog used for the mobile drawer: lock scroll while open. */
+  /* Native dialogs (drawer, mobile search/bell): lock scroll while open. `::backdrop` inherits
+     custom properties only in recent engines (visual-v2 §3.6), hence the var() fallback. */
   body:has(dialog[open]) {
     overflow: hidden;
+  }
+  dialog::backdrop {
+    background: var(--color-backdrop, rgb(0 0 0 / 0.5));
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -254,8 +432,82 @@
     *::before,
     *::after {
       animation-duration: 0ms !important;
+      animation-delay: 0ms !important;
+      animation-iteration-count: 1 !important;
       transition-duration: 0ms !important;
     }
+  }
+}
+
+/*
+ * App motion (visual-v2 §6): CSS only, opacity / transform / stroke-dashoffset. Entrance
+ * animations define only their `from` state, so reduced motion (0ms) leaves the final state.
+ */
+@layer components {
+  @keyframes app-pop {
+    from {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+  }
+  @keyframes app-sheet {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+  }
+  @keyframes app-drawer {
+    from {
+      opacity: 0;
+      transform: translateX(-16px);
+    }
+  }
+  @keyframes app-ring {
+    from {
+      stroke-dashoffset: var(--ring-c);
+    }
+  }
+  @keyframes app-reveal-x {
+    from {
+      clip-path: inset(0 100% 0 0);
+    }
+  }
+  @keyframes app-fade {
+    from {
+      opacity: 0;
+    }
+  }
+  @keyframes app-pulse {
+    50% {
+      opacity: 0.6;
+    }
+  }
+  .app-pop {
+    animation: app-pop var(--duration-fast) var(--ease-out);
+  }
+  .app-sheet[open] {
+    animation: app-sheet var(--duration-base) var(--ease-out);
+  }
+  .app-drawer[open] {
+    animation: app-drawer var(--duration-base) var(--ease-out);
+  }
+  /* Score ring arc: draws from empty on mount; the glow is static and dark-theme only. */
+  .score-arc {
+    filter: drop-shadow(var(--score-glow));
+    animation: app-ring var(--duration-complex) var(--ease-out) 100ms backwards;
+  }
+  /* Left-to-right reveal (the line keeps a non-scaling stroke, so dash tricks cannot draw it). */
+  .trend-line {
+    animation: app-reveal-x var(--duration-complex) var(--ease-out) 150ms backwards;
+  }
+  .trend-area {
+    animation: app-fade var(--duration-slow) var(--ease-out) 350ms backwards;
+  }
+  .trend-marker {
+    animation: app-fade var(--duration-fast) var(--ease-out) 500ms backwards;
+  }
+  .skeleton-pulse {
+    animation: app-pulse 1.6s ease-in-out infinite;
   }
 }
 

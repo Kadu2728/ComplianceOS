@@ -42,7 +42,7 @@ export function parseRiskFilters(params: Params): RiskFilters {
   const severity = one(params, "severity");
   const owner = one(params, "owner");
   return {
-    status: status && status in RISK_STATUS_FILTERS ? (status as RiskFilters["status"]) : undefined,
+    status: status && Object.hasOwn(RISK_STATUS_FILTERS, status) ? (status as RiskFilters["status"]) : undefined,
     severity: SEVERITIES.find((s) => s === severity),
     owner: owner && UUID.test(owner) ? owner : undefined,
   };
@@ -84,7 +84,7 @@ export function parseActionFilters(params: Params): ActionFilters {
   const status = one(params, "status");
   const owner = one(params, "owner");
   return {
-    status: status && status in ACTION_STATUS_FILTERS ? (status as ActionFilters["status"]) : undefined,
+    status: status && Object.hasOwn(ACTION_STATUS_FILTERS, status) ? (status as ActionFilters["status"]) : undefined,
     overdue: one(params, "overdue") === "1" || undefined,
     owner: owner && UUID.test(owner) ? owner : undefined,
   };

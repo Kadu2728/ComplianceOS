@@ -15,8 +15,8 @@ const OPTIONS: Array<{ value: ThemePreference; label: string; Icon: typeof Sun }
   { value: "system", label: "Sistema", Icon: Monitor },
 ];
 
-/** Browser chrome tint (brand §10 base surfaces). The layout renders one meta per scheme. */
-const THEME_COLOR = { light: "#f4f4f0", dark: "#0b0d0f" } as const;
+/** Browser chrome tint (visual-v2 §3.7 base surfaces). The layout renders one meta per scheme. */
+const THEME_COLOR = { light: "#f5f7fa", dark: "#0b0f14" } as const;
 
 function readPreference(): ThemePreference {
   let stored: string | null = null;
@@ -25,7 +25,8 @@ function readPreference(): ThemePreference {
   } catch {
     // Storage may be blocked (private mode, policy); the choice then lasts for the page only.
   }
-  return stored === "light" || stored === "dark" || stored === "system" ? stored : "system";
+  // No stored choice = dark, the default theme (D16 amended by D39).
+  return stored === "light" || stored === "dark" || stored === "system" ? stored : "dark";
 }
 
 function applyTheme(preference: ThemePreference) {
@@ -61,7 +62,7 @@ function getSnapshot(): ThemePreference {
 }
 
 function getServerSnapshot(): ThemePreference {
-  return "system";
+  return "dark";
 }
 
 function choose(value: ThemePreference) {
@@ -91,7 +92,7 @@ export function ThemeToggle({ labels = false }: { labels?: boolean }) {
   }, []);
 
   return (
-    <fieldset className="flex items-center self-start rounded-md border border-border bg-surface-base p-0.5">
+    <fieldset className="flex items-center self-start rounded-md border border-border bg-surface-elevated p-0.5">
       <legend className="sr-only">Tema da interface</legend>
       {OPTIONS.map(({ value, label, Icon }) => (
         <button
@@ -101,9 +102,9 @@ export function ThemeToggle({ labels = false }: { labels?: boolean }) {
           aria-pressed={preference === value}
           aria-label={`Usar tema ${label.toLowerCase()}`}
           title={label}
-          className={`flex h-8 items-center justify-center gap-1.5 rounded-sm transition-colors duration-(--duration-fast) ${labels ? "px-2" : "w-9"} ${
+          className={`flex h-8 items-center justify-center gap-1.5 rounded-[6px] transition-colors duration-(--duration-fast) ${labels ? "px-2" : "w-9"} ${
             preference === value
-              ? "bg-surface-elevated text-text-primary shadow-sm"
+              ? "bg-primary-tint text-text-primary [&_svg]:text-primary-text"
               : "text-text-secondary hover:bg-surface-hover hover:text-text-primary"
           }`}
         >

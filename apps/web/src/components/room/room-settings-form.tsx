@@ -43,7 +43,7 @@ export function RoomSettingsForm({ orgId, room }: { orgId: string; room: Room })
       }}
     >
       <label className="flex items-start gap-3 rounded-md border border-border bg-surface-base p-4">
-        <input type="checkbox" name="enabled" defaultChecked={room.enabled} className="mt-1 size-4 accent-electric-blue" />
+        <input type="checkbox" name="enabled" defaultChecked={room.enabled} className="mt-1 size-4 accent-primary" />
         <span className="flex flex-col gap-0.5">
           <span className="text-body font-medium">Sala publicada</span>
           <span className="text-caption text-text-secondary">
@@ -64,11 +64,11 @@ export function RoomSettingsForm({ orgId, room }: { orgId: string; room: Room })
       <fieldset className="flex flex-col gap-2">
         <legend className="text-body-sm font-medium">O que a sala mostra</legend>
         <label className="flex items-center gap-3 text-body-sm">
-          <input type="checkbox" name="show_score" defaultChecked={room.show_score} className="size-4 accent-electric-blue" />
+          <input type="checkbox" name="show_score" defaultChecked={room.show_score} className="size-4 accent-primary" />
           Score de Compliance (número, faixa e data; nunca os fatores nem o histórico)
         </label>
         <label className="flex items-center gap-3 text-body-sm">
-          <input type="checkbox" name="show_controls" defaultChecked={room.show_controls} className="size-4 accent-electric-blue" />
+          <input type="checkbox" name="show_controls" defaultChecked={room.show_controls} className="size-4 accent-primary" />
           Controles compartilhados (só implementados ou verificados)
         </label>
         <p className="text-caption text-text-secondary">Riscos, ações, evidências e pessoas nunca aparecem na sala.</p>

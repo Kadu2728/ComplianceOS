@@ -18,6 +18,11 @@ export type EvidenceList =
   paths["/api/v1/orgs/{org_id}/evidence"]["get"]["responses"]["200"]["content"]["application/json"];
 export type Overview =
   paths["/api/v1/orgs/{org_id}/overview"]["get"]["responses"]["200"]["content"]["application/json"];
+export type OverviewCategory = Overview["risks"]["by_category"][number];
+export type SearchResult =
+  paths["/api/v1/orgs/{org_id}/search"]["get"]["responses"]["200"]["content"]["application/json"];
+/** Discriminated by `kind`: risk | action | control | document. */
+export type SearchGroup = SearchResult["groups"][number];
 export type AuditPage =
   paths["/api/v1/orgs/{org_id}/audit-log"]["get"]["responses"]["200"]["content"]["application/json"];
 export type DocumentPage =

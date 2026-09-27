@@ -38,4 +38,4 @@ export function FilterForm({ action, children }: { action: string; children: Rea
 }
 
 export const FILTER_SELECT =
-  "h-9 max-w-full rounded-md border border-border bg-surface-elevated px-2 text-body-sm text-text-primary";
+  "h-9 max-w-full rounded-md border border-border-input bg-surface-elevated px-2 text-body-sm text-text-primary hover:border-text-muted max-md:h-11";

@@ -44,7 +44,7 @@ export function BasisList({ basis }: { basis: Shown["basis"] }) {
         <Link
           key={`${b.kind}-${b.id}`}
           href={refHref({ kind: b.kind as ScoreRef["kind"], id: b.id })}
-          className="inline-flex h-6 items-center rounded-pill border border-border px-2 text-caption text-text-primary hover:bg-surface-hover"
+          className="inline-flex h-6 items-center rounded-pill border border-border-strong px-2.5 text-caption font-medium text-text-primary hover:bg-surface-hover"
         >
           {b.title}
         </Link>
@@ -97,9 +97,10 @@ export function AgentPanel({
   }
 
   return (
-    <section aria-labelledby="agente" className={`rounded-lg border border-border bg-surface-elevated p-5 ${className}`}>
+    <section aria-labelledby="agente" className={`scroll-mt-24 rounded-lg border border-border bg-surface-elevated p-4 sm:p-6 ${className}`}>
+      <p className="mb-1 text-label uppercase text-text-secondary">Risk Brain</p>
       <div className="flex items-center gap-2">
-        <MessageSquareText aria-hidden size={18} strokeWidth={1.5} className="text-text-secondary" />
+        <MessageSquareText aria-hidden size={18} strokeWidth={1.5} className="text-primary-text" />
         <h2 id="agente" className="text-h3">Agente de compliance</h2>
       </div>
       <p className="mt-1 text-caption text-text-secondary">
@@ -116,10 +117,10 @@ export function AgentPanel({
                 onClick={() => askCanonical(q)}
                 disabled={pending !== null}
                 aria-pressed={active}
-                className={`inline-flex h-8 items-center rounded-pill border px-3 text-body-sm transition-colors duration-(--duration-fast) disabled:opacity-60 ${
+                className={`inline-flex h-8 items-center rounded-pill border px-3 text-left text-body-sm transition-colors duration-(--duration-fast) disabled:opacity-60 max-md:min-h-10 ${
                   active
-                    ? "border-electric-blue bg-info-tint font-medium text-info-text"
-                    : "border-border text-text-secondary hover:bg-surface-hover hover:text-text-primary"
+                    ? "border-primary-text bg-primary-tint font-medium text-text-primary"
+                    : "border-border-strong text-text-secondary hover:bg-surface-hover hover:text-text-primary"
                 }`}
               >
                 {pending === q.key ? "Consultando…" : q.question}
@@ -147,7 +148,7 @@ export function AgentPanel({
               onChange={(e) => setText(e.target.value)}
               maxLength={maxLength}
               placeholder="Ex.: qual risco tem o prazo mais próximo e quem é o responsável?"
-              className="h-10 rounded-md border border-border bg-surface-elevated px-3 text-body placeholder:text-text-muted"
+              className="h-10 rounded-md border border-border-input bg-surface-elevated px-3 text-body placeholder:text-text-muted hover:border-text-muted focus:border-primary-text max-md:h-11"
             />
           </div>
           <Button type="submit" disabled={pending !== null || text.trim().length < 3}>

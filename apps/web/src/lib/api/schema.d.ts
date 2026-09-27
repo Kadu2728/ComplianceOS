@@ -1089,6 +1089,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/orgs/{org_id}/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Search */
+        get: operations["search_api_v1_orgs__org_id__search_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/public/rooms/{token}": {
         parameters: {
             query?: never;
@@ -1149,6 +1166,31 @@ export interface components {
          * @enum {string}
          */
         ActionEffort: "baixo" | "medio" | "alto";
+        /** ActionGroup */
+        ActionGroup: {
+            /** Items */
+            items: components["schemas"]["ActionHit"][];
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "action";
+            /** Total */
+            total: number;
+        };
+        /** ActionHit */
+        ActionHit: {
+            /** Due Date */
+            due_date: string | null;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            status: components["schemas"]["ActionStatus"];
+            /** Title */
+            title: string;
+        };
         /** ActionOut */
         ActionOut: {
             /** Completed At */
@@ -1219,6 +1261,8 @@ export interface components {
             overdue: number;
             /** Pending */
             pending: number;
+            /** Recent */
+            recent: components["schemas"]["ActionOut"][];
         };
         /** AgentAnswerOut */
         AgentAnswerOut: {
@@ -1442,6 +1486,13 @@ export interface components {
             /** Valid Until */
             valid_until?: string | null;
         };
+        /** CategoryOverview */
+        CategoryOverview: {
+            by_severity: components["schemas"]["SeverityCounts"];
+            category: components["schemas"]["RiskCategory"];
+            /** Open */
+            open: number;
+        };
         /** CompleteOut */
         CompleteOut: {
             /** By Severity */
@@ -1489,6 +1540,29 @@ export interface components {
             evidence_count: number;
             /** Risks */
             risks: components["schemas"]["RiskRefOut"][];
+        };
+        /** ControlGroup */
+        ControlGroup: {
+            /** Items */
+            items: components["schemas"]["ControlHit"][];
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "control";
+            /** Total */
+            total: number;
+        };
+        /** ControlHit */
+        ControlHit: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            status: components["schemas"]["ControlStatus"];
+            /** Title */
+            title: string;
         };
         /**
          * ControlKind
@@ -1631,6 +1705,29 @@ export interface components {
              * @default 1.0
              */
             version: string;
+        };
+        /** DocumentGroup */
+        DocumentGroup: {
+            /** Items */
+            items: components["schemas"]["DocumentHit"][];
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "document";
+            /** Total */
+            total: number;
+        };
+        /** DocumentHit */
+        DocumentHit: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            status: components["schemas"]["DocumentStatus"];
+            /** Title */
+            title: string;
         };
         /** DocumentLinkOut */
         DocumentLinkOut: {
@@ -2450,6 +2547,31 @@ export interface components {
             /** Treatment */
             treatment?: string | null;
         };
+        /** RiskGroup */
+        RiskGroup: {
+            /** Items */
+            items: components["schemas"]["RiskHit"][];
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "risk";
+            /** Total */
+            total: number;
+        };
+        /** RiskHit */
+        RiskHit: {
+            category: components["schemas"]["RiskCategory"];
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            severity: components["schemas"]["RiskSeverity"];
+            status: components["schemas"]["RiskStatus"];
+            /** Title */
+            title: string;
+        };
         /** RiskOut */
         RiskOut: {
             /** Answer Uncertain */
@@ -2553,6 +2675,8 @@ export interface components {
         };
         /** RisksOverview */
         RisksOverview: {
+            /** By Category */
+            by_category: components["schemas"]["CategoryOverview"][];
             /** By Severity */
             by_severity: {
                 [key: string]: number;
@@ -2817,6 +2941,15 @@ export interface components {
             /** Top Reducers */
             top_reducers?: components["schemas"]["ReducerOut"][];
         };
+        /** SearchOut */
+        SearchOut: {
+            /** Groups */
+            groups: (components["schemas"]["RiskGroup"] | components["schemas"]["ActionGroup"] | components["schemas"]["ControlGroup"] | components["schemas"]["DocumentGroup"])[];
+            /** Query */
+            query: string;
+            /** Total */
+            total: number;
+        };
         /** SectionOut */
         SectionOut: {
             /** Name */
@@ -2842,6 +2975,17 @@ export interface components {
          * @enum {string}
          */
         Segment: "software_saas" | "servicos" | "comercio" | "industria" | "saude" | "educacao" | "financeiro" | "outro";
+        /** SeverityCounts */
+        SeverityCounts: {
+            /** Alto */
+            alto: number;
+            /** Baixo */
+            baixo: number;
+            /** Critico */
+            critico: number;
+            /** Medio */
+            medio: number;
+        };
         /** SignupRequest */
         SignupRequest: {
             /**
@@ -5526,6 +5670,42 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HistoryOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    search_api_v1_orgs__org_id__search_get: {
+        parameters: {
+            query: {
+                /** @description 2–100 characters after trimming. */
+                q: string;
+                /** @description Items per group. */
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                org_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SearchOut"];
                 };
             };
             /** @description Validation Error */

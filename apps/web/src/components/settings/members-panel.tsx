@@ -116,11 +116,11 @@ export function MembersPanel({
           <div className="grid grid-cols-1 gap-3 md:grid-cols-[1fr_200px_auto] md:items-end">
             <div className="flex flex-col gap-1.5">
               <label htmlFor="invite-email" className="text-body-sm font-medium">E-mail</label>
-              <input id="invite-email" name="email" type="email" required className="h-10 rounded-md border border-border bg-surface-elevated px-3 text-body" placeholder="pessoa@empresa.com.br" />
+              <input id="invite-email" name="email" type="email" required className="h-10 rounded-md border border-border-input bg-surface-elevated px-3 text-body" placeholder="pessoa@empresa.com.br" />
             </div>
             <div className="flex flex-col gap-1.5">
               <label htmlFor="invite-role" className="text-body-sm font-medium">Papel</label>
-              <select id="invite-role" name="role" defaultValue="member" className="h-10 rounded-md border border-border bg-surface-elevated px-3 text-body">
+              <select id="invite-role" name="role" defaultValue="member" className="h-10 rounded-md border border-border-input bg-surface-elevated px-3 text-body">
                 {ROLES.filter((r) => isOwner || r !== "owner").map((r) => (
                   <option key={r} value={r}>{ROLE_LABEL[r]}</option>
                 ))}
@@ -152,7 +152,7 @@ export function MembersPanel({
                 {canManage && !self ? (
                   <>
                     <label className="sr-only" htmlFor={`role-${m.id}`}>Papel de {m.user.name}</label>
-                    <select id={`role-${m.id}`} value={m.role} disabled={busy === m.id || (m.role === "owner" && !isOwner)} onChange={(e) => changeRole(m.id, e.target.value)} className="h-9 rounded-md border border-border bg-surface-elevated px-2 text-body-sm">
+                    <select id={`role-${m.id}`} value={m.role} disabled={busy === m.id || (m.role === "owner" && !isOwner)} onChange={(e) => changeRole(m.id, e.target.value)} className="h-9 rounded-md border border-border-input bg-surface-elevated px-2 text-body-sm">
                       {ROLES.filter((r) => isOwner || r !== "owner").map((r) => (
                         <option key={r} value={r}>{ROLE_LABEL[r]}</option>
                       ))}

@@ -1,7 +1,7 @@
 import { ArrowUpRight, Clock } from "lucide-react";
 import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
-import { ACTION_STATUS, EFFORT, SEVERITY, formatDate, isOverdue } from "@/lib/domain/labels";
+import { Badge, SeverityBadge } from "@/components/ui/badge";
+import { ACTION_STATUS, EFFORT, formatDate, isOverdue } from "@/lib/domain/labels";
 import type { Priorities } from "@/lib/domain/queries";
 
 /**
@@ -35,7 +35,7 @@ export function PrioritiesList({ prio, compact = false }: { prio: Priorities; co
                   ) : null}
                 </div>
                 <div className="flex flex-wrap items-center gap-2 text-caption text-text-secondary">
-                  {it.risk_severity ? <Badge label={SEVERITY[it.risk_severity]!.label} tone={SEVERITY[it.risk_severity]!.tone} icon={SEVERITY[it.risk_severity]!.icon} /> : null}
+                  {it.risk_severity ? <SeverityBadge severity={it.risk_severity} /> : null}
                   <Badge label={st.label} tone={st.tone} icon={st.icon} />
                   <span>{it.owner?.name ?? "Sem responsável"}</span>
                   <span className={`inline-flex items-center gap-1 tabular-nums ${late ? "text-danger-text" : ""}`}>
@@ -55,12 +55,11 @@ export function PrioritiesList({ prio, compact = false }: { prio: Priorities; co
           <h3 className="text-body-sm font-medium">Riscos críticos/altos sem ação</h3>
           <ul className="mt-1 divide-y divide-border">
             {unplanned.map((r) => {
-              const sev = SEVERITY[r.severity]!;
               return (
                 <li key={r.risk_id} className="flex items-center justify-between gap-3 py-2 text-body-sm">
                   <Link href={`/riscos/${r.risk_id}`} className="font-medium text-text-primary hover:underline">{r.title}</Link>
                   <span className="flex shrink-0 items-center gap-2 text-caption text-text-secondary">
-                    <Badge label={sev.label} tone={sev.tone} icon={sev.icon} />
+                    <SeverityBadge severity={r.severity} />
                     {r.score_gain != null && r.score_gain > 0 ? <span className="tabular-nums text-success-text">+{r.score_gain}</span> : null}
                     <Link href={`/riscos/${r.risk_id}#plano`} className="text-info-text underline underline-offset-2">Planejar</Link>
                   </span>

@@ -2,15 +2,19 @@ import Link from "next/link";
 import { BrandSymbol } from "@/components/ui/brand-symbol";
 
 /**
- * Application wordmark: the approved symbol (decision D15 — `public/brand/symbol.png`, added
- * 2026-09-19, rendered as a currentColor mask) in the 24px slot reserved since Phase 1, plus the
- * text. Same height and gap as before, so the shell does not reflow.
+ * Application wordmark v2 (visual-v2 §3.2–§3.3): the owner's real symbol (D15, a currentColor
+ * mask) in cyan `primary-text` — the mockup hexagon is a placeholder, never used — plus the name
+ * in text-primary. `lg` = sidebar (28 + 18px), `md` = top bars (24 + 16px). No glow, no gradient.
  */
-export function Wordmark() {
+export function Wordmark({ size = "md", onNavigate }: { size?: "md" | "lg"; onNavigate?: () => void }) {
   return (
-    <Link href="/" className="flex h-14 items-center gap-2 px-3 text-text-primary">
-      <BrandSymbol size={24} />
-      <span className="text-[16px] font-semibold tracking-[-0.01em]">Compliance OS</span>
+    <Link href="/" onClick={onNavigate} className="flex items-center gap-2.5 text-text-primary">
+      <span className="text-primary-text">
+        <BrandSymbol size={size === "lg" ? 28 : 24} />
+      </span>
+      <span className={`${size === "lg" ? "text-[18px]" : "text-[16px]"} font-semibold tracking-[-0.012em] whitespace-nowrap`}>
+        Compliance OS
+      </span>
     </Link>
   );
 }

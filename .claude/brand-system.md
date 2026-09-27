@@ -1,8 +1,13 @@
 # COMPLIANCE OS — BRAND SYSTEM
 
-Version: 1.0
+Version: 2.0 (2026-09-26 — decision D39: palette v2, dark default, Inter only; see §08–§17, §41, §80)
 Status: Official
 Authority: Brand Source of Truth
+
+Version 2.0 was decided by the owner from two official visual references (dashboard + design-system
+sheet). Implementation values live in `docs/design/visual-v2.md` and `apps/web/src/app/globals.css`.
+The public landing keeps the v1 palette (Obsidian / Off-white / Electric Blue) until it migrates;
+every other surface follows v2.
 
 ---
 
@@ -334,61 +339,33 @@ The logo must remain proprietary and restrained.
 
 # 08. COLOR SYSTEM
 
+Palette v2 (D39, 2026-09-26). Dark is the default product theme; a light variant exists.
+
 ## Core Colors
 
-### Obsidian
+### Dark — #0B0F14
 
-#0B0D0F
+Role: Authority / Foundation. Page background, sidebar, header.
 
-Role:
+### Surface — #111827
 
-Authority / Foundation
+Role: Structure. Cards, inputs, popovers, drawer (dark theme). Border: #1F2937.
 
-Use for:
+### Primary Cyan — #06B6D4
 
-- Dark backgrounds
-- Primary text
-- Navigation
-- Institutional communication
-- Premium surfaces
+Role: Control / Action — "you can act here / you are here".
 
----
+Use for: primary actions, links, focus, active navigation, selection, progress.
+On the cyan fill, text is always Dark (#0B0F14): white on cyan fails contrast.
 
-### Off-white
+### Control Teal — #2DD4BF (light theme #0D9488)
 
-#F4F4F0
+Role: Level of control. The Compliance Score ring, the score trend and the "low" end of the severity
+ramp. Never used for actions.
 
-Role:
+## Legacy v1 (landing only, until it migrates)
 
-Clarity / Canvas
-
-Use for:
-
-- Primary backgrounds
-- Content areas
-- Documentation
-- Marketing
-- Light interfaces
-
----
-
-### Electric Blue
-
-#356AE6
-
-Role:
-
-Control / Action
-
-Use for:
-
-- Primary actions
-- Links
-- Focus
-- Progress
-- Active states
-- Strategic highlights
-- Brand accents
+Obsidian #0B0D0F · Off-white #F4F4F0 · Electric Blue #356AE6.
 
 ---
 
@@ -396,19 +373,19 @@ Use for:
 
 ## Success
 
-#28A36A
+#10B981
 
 ## Warning
 
-#D99A2B
+#F59E0B
 
 ## Danger
 
-#D95757
+#EF4444
 
 ## Info
 
-#356AE6
+#06B6D4 (the primary hue)
 
 Semantic colors communicate state.
 
@@ -416,56 +393,38 @@ They are NOT decorative brand colors.
 
 Never use red, green, or yellow simply to make an interface visually interesting.
 
+Text in a semantic hue always uses its AA-safe `-text` variant (see `docs/design/visual-v2.md` §2.2).
+
+## Severity ramp (risks only)
+
+Critical #EF4444 · High #F97316 · Medium #FACC15 · Low #2DD4BF — always with a text label, and an
+icon in badges. Severity never reuses the status tones.
+
 ---
 
 # 10. UI NEUTRALS
 
+## Dark (default)
+
+Background: #0B0F14
+Surface: #111827
+Surface Hover: #18212F
+Border: #1F2937
+Text Primary: #F3F4F6
+Text Secondary: #B4BDCA
+Text Muted: #8A94A6
+
 ## Light
 
-Surface Base:
-#F4F4F0
-
-Surface Elevated:
-#FFFFFF
-
-Border:
-#D9D9D3
-
-Text Primary:
-#0B0D0F
-
-Text Secondary:
-#52575C
-
-Text Muted:
-#73787D
-
----
-
-## Dark
-
-Background:
-#0B0D0F
-
-Surface:
-#111416
-
-Surface Elevated:
-#161A1D
-
-Border:
-#292E32
-
-Text Primary:
-#F4F4F0
-
-Text Secondary:
-#B7BCC1
-
-Text Muted:
-#858B91
+Surface Base: #F5F7FA
+Surface Elevated: #FFFFFF
+Border: #E5E7EB
+Text Primary: #0B0F14
+Text Secondary: #4B5563
+Text Muted: #626B7A
 
 These are functional UI tokens and should not be interpreted as additional core brand colors.
+Every pair is machine-checked for WCAG AA (`apps/web/src/lib/__tests__/contrast.test.ts`).
 
 ---
 
@@ -473,23 +432,23 @@ These are functional UI tokens and should not be interpreted as additional core 
 
 As a general visual direction:
 
-70% — Neutral / Off-white
-20% — Obsidian / Dark surfaces
-10% — Electric Blue + semantic states
+70% — Dark surfaces and neutrals
+20% — Elevated surfaces and structure
+10% — Cyan / Teal + semantic states
 
 This is a visual guideline, not a strict mathematical requirement.
 
 The brand should feel controlled and restrained.
 
-Avoid interfaces dominated by blue.
+Avoid interfaces dominated by cyan.
 
 ---
 
 # 12. CORE COLOR PRINCIPLE
 
-## BLUE MEANS CONTROL
+## CYAN MEANS CONTROL
 
-Electric Blue should have a reason to exist.
+Primary cyan should have a reason to exist (v1: Electric Blue).
 
 It can represent:
 
@@ -501,93 +460,45 @@ It can represent:
 - Focus
 - Next step
 
-Blue should not become visual noise.
+Cyan should not become visual noise.
 
 ---
 
 # 13. TYPOGRAPHY
 
-## Display / Brand Typography
+## One family: Inter (v2, D39)
 
-Geist
-
-Use for:
-
-- Hero headlines
-- Marketing
-- Large numbers
-- Campaigns
-- Presentations
-- Brand communication
-
-Approved primary weights:
-
-500
-600
-700
-
-Weight 700 should be used selectively.
-
----
-
-## Product / UI Typography
-
-Inter
-
-Use for:
-
-- Interface
-- Body text
-- Forms
-- Tables
-- Navigation
-- Labels
-- Documentation
-- Operational information
+Inter for everything — product, marketing, presentations. Geist is retired.
 
 Approved weights:
 
-400
-500
-600
-700
+400 — body
+500 — labels, UI emphasis
+600 — headings, numbers
+700 — marketing H1/H2 only
+
+Weight 700 is never used inside the product.
 
 ---
 
 # 14. TYPOGRAPHIC SCALE
 
-Display XL:
-72px / 1.0
+Brand / marketing (from the official sheet):
 
-Display L:
-64px / 1.05
+H1: 56px / 1.05, Bold, −1.2%
+H2: 40px / 1.12, Semibold, −1.2%
+H3: 28px / 1.18, Semibold, −1.2%
+Body: 16px / 1.6, Regular
+Caption: 14px / 1.4, Medium
 
-H1:
-48px / 1.08
+Product (app):
 
-H2:
-40px / 1.12
-
-H3:
-32px / 1.18
-
-H4:
-24px / 1.25
-
-Body Large:
-18px / 1.55
-
-Body:
-16px / 1.5
-
-Body Small:
-14px / 1.45
-
-Label:
-12px / 1.3
-
-Caption:
-11px / 1.3
+Page title: 28px / 1.2, 600 (24px below 640px)
+Section title: 20px / 1.3, 600
+Card title: 16px / 1.4, 600
+Score numeral: 56px / 1, 600 (40px compact)
+KPI numeral: 24px / 1.2, 600
+Body: 16px / 1.6 · Body Small: 14px / 1.5 · Label: 12px uppercase +0.04em · Caption: 12px / 1.4
 
 ---
 
@@ -595,7 +506,7 @@ Caption:
 
 Display / headlines:
 
--0.02em to -0.04em
+−0.012em (−1.2%, v2) — up to −0.024em for the score numeral
 
 Body:
 
@@ -653,17 +564,15 @@ Whitespace is a major part of the Compliance OS visual identity.
 
 # 17. BORDER RADIUS
 
-4px — small elements
+4px — small elements (kbd, checkbox)
 
-6px — inputs / controls
+8px — controls: buttons, inputs, search, navigation items, icon tiles
 
-8px — cards
+12px — cards, table containers, popovers
 
-12px — important containers
+16px — dialogs, drawer
 
-16px — special elements
-
-Pills may be used for tags and statuses.
+Pills are used for statuses, tags, chips and count badges.
 
 Do not use extreme rounded corners as the default visual language.
 
@@ -1251,7 +1160,7 @@ Avoid:
 - Excessive blue
 - Generic SaaS gradients
 - Glassmorphism
-- Neon
+- Neon (v2 allows one discreet static glow: the Compliance Score ring, dark theme only)
 - Heavy 3D
 - Excessive rounded corners
 - Excessive shadows
@@ -1283,27 +1192,19 @@ Buttons, inputs, cards, tables, modals, navigation, and other components must fe
 
 Primary:
 
-Electric Blue
+Cyan fill (#06B6D4) with Dark text (#0B0F14). One per page.
 
-Used for the main action.
+Outline:
 
-Secondary:
-
-Obsidian / Outline
-
-Used for secondary actions.
+1px cyan border, primary text. Secondary actions.
 
 Tertiary:
 
-Text-based
-
-Used for low-priority actions.
+Text-based, cyan (AA-safe variant), underlined.
 
 Destructive:
 
-Danger
-
-Used exclusively for destructive actions.
+Danger fill with Dark text. Used exclusively for destructive actions, never next to the primary.
 
 Avoid multiple competing primary CTAs in the same interface.
 
@@ -2167,14 +2068,12 @@ COMPLIANCE OS
 
 THE CONTROL LAYER
 
-OBSIDIAN
+DARK
 +
-OFF-WHITE
+CYAN
 +
-ELECTRIC BLUE
+TEAL
 
-GEIST
-+
 INTER
 
 LAYERS

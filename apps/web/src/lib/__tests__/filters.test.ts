@@ -30,3 +30,11 @@ describe("action filters", () => {
     expect(parseActionFilters({ overdue: "0" }).overdue).toBeUndefined();
   });
 });
+
+describe("filters ignore prototype keys (QA 2026-09-27)", () => {
+  it("does not crash on ?status=constructor or ?status=toString", () => {
+    expect(parseRiskFilters({ status: "constructor" }).status).toBeUndefined();
+    expect(parseRiskFilters({ status: "toString" }).status).toBeUndefined();
+    expect(parseActionFilters({ status: "__proto__" }).status).toBeUndefined();
+  });
+});

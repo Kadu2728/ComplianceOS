@@ -163,7 +163,7 @@ export function EvidencePanel({
       <form onSubmit={onSubmit} className="flex flex-col gap-3 rounded-lg border border-border bg-surface-base p-4">
         <div role="radiogroup" aria-label="Tipo de evidência" className="flex flex-wrap gap-2">
           {(["note", "link", "file", "document"] as const).map((k) => (
-            <label key={k} className={`inline-flex h-9 cursor-pointer items-center gap-2 rounded-md border px-3 text-body-sm ${kind === k ? "border-electric-blue bg-info-tint text-info-text" : "border-border bg-surface-elevated text-text-secondary"}`}>
+            <label key={k} className={`inline-flex h-9 cursor-pointer items-center gap-2 rounded-md border px-3 text-body-sm ${kind === k ? "border-primary bg-info-tint text-info-text" : "border-border bg-surface-elevated text-text-secondary"}`}>
               <input type="radio" name="kind" value={k} checked={kind === k} onChange={() => setKind(k)} className="sr-only" />
               {k === "note" ? "Nota" : k === "link" ? "Link" : k === "file" ? "Arquivo" : "Documento"}
             </label>
@@ -175,7 +175,7 @@ export function EvidencePanel({
               Nenhum documento cadastrado ainda. <Link href="/documentos/novo" className="text-info-text underline underline-offset-2">Adicione um documento</Link> para citá-lo aqui.
             </p>
           ) : (
-            <select name="document_id" required aria-label="Documento" className="h-10 rounded-md border border-border bg-surface-elevated px-3 text-body">
+            <select name="document_id" required aria-label="Documento" className="h-10 rounded-md border border-border-input bg-surface-elevated px-3 text-body">
               {documents.map((d) => (
                 <option key={d.id} value={d.id}>
                   {d.name}
@@ -185,17 +185,17 @@ export function EvidencePanel({
           )
         ) : null}
         {kind === "link" ? (
-          <input name="url" type="url" required placeholder="https://…" aria-label="URL" className="h-10 rounded-md border border-border bg-surface-elevated px-3 text-body" />
+          <input name="url" type="url" required placeholder="https://…" aria-label="URL" className="h-10 rounded-md border border-border-input bg-surface-elevated px-3 text-body" />
         ) : null}
         {kind === "file" ? (
           <input name="file" type="file" required aria-label="Arquivo" accept=".pdf,.png,.jpg,.jpeg,.txt,.csv,.docx,.xlsx" className="text-body-sm" />
         ) : null}
-        <textarea name="note" required={kind === "note"} placeholder={kind === "note" ? "O que foi feito e quando" : kind === "document" ? "Por que este documento comprova o controle (opcional)" : "Observação (opcional)"} aria-label="Nota" className="min-h-20 rounded-md border border-border bg-surface-elevated px-3 py-2 text-body" />
+        <textarea name="note" required={kind === "note"} placeholder={kind === "note" ? "O que foi feito e quando" : kind === "document" ? "Por que este documento comprova o controle (opcional)" : "Observação (opcional)"} aria-label="Nota" className="min-h-20 rounded-md border border-border-input bg-surface-elevated px-3 py-2 text-body" />
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
           {!target.control_id && controls.length > 0 ? (
             <label className="flex flex-col gap-1 text-caption text-text-secondary">
               Comprova o controle (opcional)
-              <select name="control_id" className="h-9 rounded-md border border-border bg-surface-elevated px-2 text-body-sm text-text-primary">
+              <select name="control_id" className="h-9 rounded-md border border-border-input bg-surface-elevated px-2 text-body-sm text-text-primary">
                 <option value="">Nenhum</option>
                 {controls.map((c) => (
                   <option key={c.id} value={c.id}>{c.title}</option>
@@ -205,7 +205,7 @@ export function EvidencePanel({
           ) : null}
           <label className="flex flex-col gap-1 text-caption text-text-secondary">
             Válida até (opcional)
-            <input name="valid_until" type="date" className="h-9 rounded-md border border-border bg-surface-elevated px-2 text-body-sm text-text-primary" />
+            <input name="valid_until" type="date" className="h-9 rounded-md border border-border-input bg-surface-elevated px-2 text-body-sm text-text-primary" />
           </label>
         </div>
         {error ? <Alert tone="danger">{error}</Alert> : null}

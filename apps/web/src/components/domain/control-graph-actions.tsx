@@ -50,7 +50,7 @@ export function ControlStatusControl({
     >
       <label htmlFor="control-next" className="text-body-sm font-medium">Mudar maturidade para</label>
       <div className="flex gap-2">
-        <select id="control-next" value={next} onChange={(e) => setNext(e.target.value)} className="h-10 flex-1 rounded-md border border-border bg-surface-elevated px-3 text-body">
+        <select id="control-next" value={next} onChange={(e) => setNext(e.target.value)} className="h-10 flex-1 rounded-md border border-border-input bg-surface-elevated px-3 text-body">
           {options.map((o) => (
             <option key={o} value={o} disabled={o === "verificado" && evidenceCount === 0}>
               {labels[o] ?? o}{o === "verificado" && evidenceCount === 0 ? " (anexe evidência)" : ""}
@@ -119,7 +119,7 @@ export function LinkRiskControl({
       }}
     >
       <div className="flex gap-2">
-        <select aria-label={controlId ? "Risco a vincular" : "Controle a vincular"} value={choice} onChange={(e) => setChoice(e.target.value)} className="h-9 min-w-0 flex-1 rounded-md border border-border bg-surface-elevated px-2 text-body-sm">
+        <select aria-label={controlId ? "Risco a vincular" : "Controle a vincular"} value={choice} onChange={(e) => setChoice(e.target.value)} className="h-9 min-w-0 flex-1 rounded-md border border-border-input bg-surface-elevated px-2 text-body-sm">
           {options.map((o) => (
             <option key={o.id} value={o.id}>{o.label}</option>
           ))}

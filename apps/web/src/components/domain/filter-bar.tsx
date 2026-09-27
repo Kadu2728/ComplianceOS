@@ -47,8 +47,8 @@ export function FilterBar({
         </label>
       ))}
       {toggles.map((t) => (
-        <label key={t.name} className="inline-flex h-9 cursor-pointer items-center gap-2 rounded-md border border-border px-3 text-body-sm text-text-primary has-checked:border-electric-blue has-checked:bg-info-tint has-checked:text-info-text">
-          <input type="checkbox" name={t.name} value="1" defaultChecked={t.checked} className="size-4 accent-electric-blue" />
+        <label key={t.name} className="inline-flex h-9 cursor-pointer items-center gap-2 rounded-md border border-border px-3 text-body-sm text-text-primary has-checked:border-primary has-checked:bg-info-tint has-checked:text-info-text">
+          <input type="checkbox" name={t.name} value="1" defaultChecked={t.checked} className="size-4 accent-primary" />
           {t.label}
         </label>
       ))}

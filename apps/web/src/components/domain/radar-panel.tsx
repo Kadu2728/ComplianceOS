@@ -1,49 +1,33 @@
-import { CircleAlert, Info, Radar as RadarIcon, TriangleAlert } from "lucide-react";
-import Link from "next/link";
+import { Radar as RadarIcon } from "lucide-react";
+import { RadarItem } from "@/components/domain/radar-item";
 import type { Radar } from "@/lib/domain/queries";
-import { radarHref } from "@/lib/domain/radar";
-
-const TONE = {
-  danger: { icon: CircleAlert, text: "text-danger-text", ring: "border-danger-border" },
-  warning: { icon: TriangleAlert, text: "text-warning-text", ring: "border-warning-border" },
-  info: { icon: Info, text: "text-info-text", ring: "border-info-border" },
-} as const;
+import { radarCountsLine } from "@/lib/domain/radar";
 
 /**
- * Risk Radar (D30, brief §10): "what needs attention today", ranked by tone then count. Server
- * component — plain links, no client JavaScript. Every line says why it matters and where to act.
+ * Risk Radar (D30, visual-v2 §4.5 section 7): "what needs attention today", ranked by tone then
+ * count. Server component — plain links, no client JavaScript. Every line says why it matters and
+ * where to act. `#radar` is the target of the module card and of the bell's footer link.
  */
-export function RadarPanel({ radar }: { radar: Radar }) {
+export function RadarPanel({ radar, className = "" }: { radar: Radar; className?: string }) {
   return (
-    <section aria-labelledby="radar" className="rounded-lg border border-border bg-surface-elevated p-5">
+    <section aria-labelledby="radar" className={`scroll-mt-24 rounded-lg border border-border bg-surface-elevated p-4 sm:p-6 ${className}`}>
+      <p className="mb-1 text-label uppercase text-text-secondary">Risk Radar</p>
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h2 id="radar" className="flex items-center gap-2 text-h3">
-          <RadarIcon aria-hidden size={18} strokeWidth={1.5} className="text-text-secondary" />
+          <RadarIcon aria-hidden size={18} strokeWidth={1.5} className="text-primary-text" />
           O que precisa de atenção hoje
         </h2>
-        <span className="text-caption text-text-secondary">
-          {radar.counts.danger} {radar.counts.danger === 1 ? "crítico" : "críticos"} · {radar.counts.warning} {radar.counts.warning === 1 ? "alerta" : "alertas"} · {radar.counts.info} {radar.counts.info === 1 ? "aviso" : "avisos"}
-        </span>
+        <span className="text-caption text-text-secondary">{radarCountsLine(radar.counts)}</span>
       </div>
       {radar.items.length === 0 ? (
         <p className="mt-3 text-body-sm text-text-secondary">Nada exige atenção agora. Mantenha as evidências em dia e revise o diagnóstico periodicamente.</p>
       ) : (
-        <ul className="mt-3 grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3">
-          {radar.items.map((it) => {
-            const tone = TONE[it.tone as keyof typeof TONE] ?? TONE.info;
-            const Icon = tone.icon;
-            return (
-              <li key={it.kind} className={`rounded-md border-l-2 ${tone.ring} bg-surface-base px-3 py-2`}>
-                <Link href={radarHref(it.route)} className="group flex items-start gap-2">
-                  <Icon aria-hidden size={16} strokeWidth={1.5} className={`mt-0.5 shrink-0 ${tone.text}`} />
-                  <span className="min-w-0">
-                    <span className="block text-body-sm font-medium text-text-primary group-hover:underline">{it.title}</span>
-                    <span className="block text-caption text-text-secondary">{it.reason}</span>
-                  </span>
-                </Link>
-              </li>
-            );
-          })}
+        <ul className="mt-4 grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3">
+          {radar.items.map((it) => (
+            <li key={it.kind}>
+              <RadarItem item={it} inset />
+            </li>
+          ))}
         </ul>
       )}
     </section>
