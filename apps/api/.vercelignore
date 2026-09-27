@@ -12,3 +12,5 @@ docker-entrypoint.sh
 .env.*
 .claude
 .agents
+.pgdata
+.vercel
