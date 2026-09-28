@@ -1,49 +1,78 @@
-import type { CSSProperties } from "react";
+import { ArrowRight, ClipboardList, FileText, History, ListChecks, ListOrdered, type LucideIcon, ScanSearch } from "lucide-react";
 import { HOW_IT_WORKS } from "@/lib/marketing/copy";
-import { Container, Section, SectionHeading } from "./primitives";
+import { Container, IconTile, Section, SectionIntro } from "./primitives";
 import { Reveal } from "./reveal";
 
-const d = (ms: number): CSSProperties => ({ ["--d" as string]: `${ms}ms` });
+const ICONS: Record<string, LucideIcon> = {
+  clipboard: ClipboardList,
+  scan: ScanSearch,
+  order: ListOrdered,
+  checks: ListChecks,
+  file: FileText,
+  history: History,
+};
 
 /**
- * How it works as a vertical ledger (03-ux-spec §2.6): sticky heading on the left (≥ lg), six
- * steps on a rail whose blue segment grows as each step enters (PROGRESS). Destination of the
- * hero's secondary CTA (`#como-funciona`).
+ * Divider/padding per item (landing-v2 §4.6): 3 per row from 640, 6 in a row from 1280. An item
+ * that starts a row has no left border or padding; one that ends a row has no right padding.
+ */
+function itemClass(i: number, count: number): string {
+  const c: string[] = [];
+  if (i % 3 !== 0) c.push("sm:border-l", "sm:pl-5");
+  if (i % 3 !== 2) c.push("sm:pr-5");
+  c.push(i === 0 ? "xl:border-l-0 xl:pl-0" : "xl:border-l xl:pl-5");
+  c.push(i === count - 1 ? "xl:pr-0" : "xl:pr-5");
+  return `relative sm:border-border ${c.join(" ")}`;
+}
+
+/**
+ * Como funciona (landing-v2 §4.6): the core flow in six steps — a row of six from 1280, 3 × 2
+ * from 640, a vertical timeline below. Arrow badges sit on the dividers; numbers are decorative.
  */
 export function Steps() {
   const steps = HOW_IT_WORKS.steps;
   return (
-    <Section id={HOW_IT_WORKS.id} tone="dark">
-      <Container className="lg:grid lg:grid-cols-12 lg:gap-12">
-        <Reveal className="lg:col-span-5 lg:sticky lg:top-24 lg:self-start">
-          <SectionHeading eyebrowLang="en" id={HOW_IT_WORKS.id} eyebrow={HOW_IT_WORKS.eyebrow} title={HOW_IT_WORKS.title} lead={HOW_IT_WORKS.lead} />
+    <Section id={HOW_IT_WORKS.id}>
+      <Container>
+        <Reveal className="max-w-[720px]">
+          <SectionIntro id={HOW_IT_WORKS.id} eyebrow={HOW_IT_WORKS.eyebrow} title={HOW_IT_WORKS.title} />
         </Reveal>
-        <ol className="mt-10 md:mt-12 lg:col-span-7 lg:mt-0">
-          {steps.map((step, idx) => {
-            const last = idx === steps.length - 1;
+        <Reveal as="ol" className="mt-8 grid grid-cols-1 sm:mt-10 sm:grid-cols-3 sm:gap-y-10 xl:grid-cols-6">
+          {steps.map((step, i) => {
+            const Icon = ICONS[step.icon] ?? ClipboardList;
+            const endOfRowSm = (i + 1) % 3 === 0;
+            const last = i === steps.length - 1;
             return (
-              <Reveal as="li" key={step.number} className={`relative grid grid-cols-[40px_1fr] gap-x-4 lg:grid-cols-[56px_1fr] lg:gap-x-6 ${last ? "" : "pb-10"}`}>
+              <li key={step.title} className={`m-rise grid grid-cols-[40px_1fr] gap-x-4 pb-6 sm:block sm:pb-0 ${itemClass(i, steps.length)}`} style={{ ["--d" as string]: `${i * 60}ms` }}>
                 <div className="relative">
-                  <span aria-hidden className="m-dot absolute top-1 left-0 flex size-4 items-center justify-center rounded-full border-[1.5px] border-text-primary bg-surface-base">
-                    <span className="m-dot-fill size-1.5 rounded-full" />
+                  <IconTile>
+                    <Icon size={20} strokeWidth={1.5} />
+                  </IconTile>
+                  {/* Timeline connector below 640 */}
+                  {!last ? <span aria-hidden className="m-draw-y absolute top-11 bottom-[-20px] left-5 w-px bg-border sm:hidden" style={{ ["--d" as string]: `${i * 60 + 120}ms` }} /> : null}
+                </div>
+                <div>
+                  <span aria-hidden className="block text-label text-text-muted tabular-nums sm:mt-4">
+                    {String(i + 1).padStart(2, "0")}
                   </span>
-                  <span className="absolute top-1 left-6 text-label tabular-nums text-text-secondary lg:left-7">{step.number}</span>
-                  {!last ? (
-                    <>
-                      <span aria-hidden className="absolute top-6 bottom-0 left-[7.5px] w-px bg-border" />
-                      <span aria-hidden className="m-draw-y absolute top-6 bottom-0 left-[7px] w-[1.5px] bg-electric-blue" style={d(100)} />
-                    </>
-                  ) : null}
+                  <h3 className="mt-1 text-h3 text-text-primary">{step.title}</h3>
+                  <p className="mt-2 text-body-sm text-text-secondary">{step.text}</p>
                 </div>
-                <div className="min-w-0">
-                  <h3 className="text-h3 text-text-primary">{step.title}</h3>
-                  <p className="mt-2 max-w-[60ch] text-pretty text-body-sm text-text-secondary">{step.text}</p>
-                  {"note" in step ? <p className="mt-2 max-w-[60ch] text-caption text-text-secondary">{step.note}</p> : null}
-                </div>
-              </Reveal>
+                {!last ? (
+                  <span
+                    aria-hidden
+                    className={`m-node absolute top-2 -right-3 z-[1] hidden size-6 items-center justify-center rounded-full bg-surface-base text-text-muted sm:flex ${
+                      endOfRowSm ? "sm:hidden xl:flex" : ""
+                    }`}
+                    style={{ ["--d" as string]: `${i * 60 + 120}ms` }}
+                  >
+                    <ArrowRight size={16} strokeWidth={1.5} />
+                  </span>
+                ) : null}
+              </li>
             );
           })}
-        </ol>
+        </Reveal>
       </Container>
     </Section>
   );

@@ -1,18 +1,16 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
-import { BeforeAfter } from "@/components/marketing/before-after";
-import { ControlChain } from "@/components/marketing/control-chain";
+import { AiAutomation } from "@/components/marketing/ai-automation";
+import { ControlLayer } from "@/components/marketing/control-layer";
 import { Faq } from "@/components/marketing/faq";
-import { FeatureStories } from "@/components/marketing/feature-story";
 import { FinalCta } from "@/components/marketing/final-cta";
 import { Hero, HERO_SENTINEL_ID } from "@/components/marketing/hero";
 import { Plans } from "@/components/marketing/plans";
-import { RoomShowcase } from "@/components/marketing/room-showcase";
-import { ScoreExplainer } from "@/components/marketing/score-explainer";
+import { Problem } from "@/components/marketing/problem";
+import { Product } from "@/components/marketing/product";
 import { SiteFooter } from "@/components/marketing/site-footer";
 import { SiteHeader } from "@/components/marketing/site-header";
 import { Steps } from "@/components/marketing/steps";
-import { TrustGrid } from "@/components/marketing/trust-grid";
 import { NAV, SEO } from "@/lib/marketing/copy";
 import { landingJsonLd, serializeJsonLd } from "@/lib/marketing/json-ld";
 import { site } from "@/lib/marketing/site";
@@ -47,21 +45,17 @@ const NAV_ITEMS = NAV.items.map((item) => ({ label: item.label, href: item.hash 
 
 export default async function LandingPage() {
   const nonce = (await headers()).get("x-nonce") ?? undefined;
-  // Fixture dates are relative to the request: nothing on the page ever reads as overdue.
-  const now = new Date();
   return (
     <>
       <script type="application/ld+json" nonce={nonce} suppressHydrationWarning dangerouslySetInnerHTML={{ __html: serializeJsonLd(landingJsonLd(site)) }} />
       <SiteHeader items={NAV_ITEMS} login={NAV.login} cta={NAV.cta} sentinelId={HERO_SENTINEL_ID} />
       <main id="conteudo" tabIndex={-1} className="focus-visible:outline-none">
-        <Hero now={now} />
-        <BeforeAfter />
-        <ControlChain />
+        <Hero />
+        <Problem />
+        <ControlLayer />
         <Steps />
-        <FeatureStories now={now} />
-        <ScoreExplainer now={now} />
-        <RoomShowcase now={now} />
-        <TrustGrid />
+        <Product />
+        <AiAutomation />
         <Plans />
         <Faq />
         <FinalCta />

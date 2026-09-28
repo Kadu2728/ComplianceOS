@@ -39,10 +39,21 @@ export function BrandSymbol({ size = 24, label, className = "" }: { size?: numbe
  * anchor on purpose: `next/link` would prefetch `/` from the landing, and prefetches bypass the
  * middleware rewrite — an anonymous visitor would cache the application's redirect to /entrar.
  */
-export function Lockup({ size = 24, href = "/", symbolOnlyBelowSm = false }: { size?: 24 | 32; href?: string; symbolOnlyBelowSm?: boolean }) {
+export function Lockup({
+  size = 24,
+  href = "/",
+  symbolOnlyBelowSm = false,
+  symbolClassName = "",
+}: {
+  size?: 24 | 32;
+  href?: string;
+  symbolOnlyBelowSm?: boolean;
+  /** Colour of the symbol only (the landing passes `text-primary-text`); the name stays text-primary. */
+  symbolClassName?: string;
+}) {
   return (
     <a href={href} aria-label="Compliance OS — início" className="inline-flex items-center gap-2 text-text-primary">
-      <BrandSymbol size={size} />
+      <BrandSymbol size={size} className={symbolClassName} />
       <span className={`${size === 32 ? "text-[20px]" : "text-[16px]"} font-semibold tracking-[-0.01em] whitespace-nowrap ${symbolOnlyBelowSm ? "hidden sm:inline" : ""}`}>
         Compliance OS
       </span>

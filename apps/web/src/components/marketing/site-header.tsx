@@ -9,11 +9,11 @@ import { CtaLink } from "./cta";
 export type NavItem = { label: string; href: string };
 
 /**
- * Landing header (03-ux-spec §2.1): sticky Obsidian bar, five anchor links (drawer below lg),
- * "Entrar" and the primary CTA. While the hero is on screen the CTA is secondary (one big
- * primary per viewport, copy §D); once `sentinelId` scrolls out it becomes primary. Without
- * JavaScript it stays secondary — still a valid CTA. The drawer is a native <dialog>, as in the
- * app shell: focus trap, Escape, backdrop and scroll lock come from the platform.
+ * Landing header v2 (landing-v2 §4.1): opaque canvas bar, the anchor links (drawer below lg),
+ * "Entrar" and the CTA. While the hero is on screen the CTA is outline (one filled button per
+ * viewport); once `sentinelId` scrolls out it becomes primary. A hairline appears once the page
+ * scrolls. The drawer is a native <dialog>: focus trap, Escape, backdrop and scroll lock come
+ * from the platform.
  */
 export function SiteHeader({
   items,
@@ -28,6 +28,7 @@ export function SiteHeader({
   sentinelId?: string;
 }) {
   const [pastHero, setPastHero] = useState(!sentinelId);
+  const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const dialog = useRef<HTMLDialogElement>(null);
 
@@ -42,6 +43,13 @@ export function SiteHeader({
     return () => io.disconnect();
   }, [sentinelId]);
 
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 0);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   const show = () => {
     dialog.current?.showModal();
     setOpen(true);
@@ -51,15 +59,20 @@ export function SiteHeader({
   };
 
   return (
-    <header data-past-hero={pastHero ? "true" : undefined} className="theme-dark sticky top-0 z-40 border-b border-border bg-surface-base text-text-primary">
+    <header
+      data-past-hero={pastHero ? "true" : undefined}
+      className={`sticky top-0 z-40 border-b bg-surface-base text-text-primary transition-colors duration-(--duration-fast) print:hidden ${
+        scrolled ? "border-border" : "border-transparent"
+      }`}
+    >
       <Container className="flex h-14 items-center justify-between gap-4 md:h-16">
-        <div className="flex items-center gap-8">
-          <Lockup symbolOnlyBelowSm />
+        <div className="flex items-center gap-10">
+          <Lockup symbolOnlyBelowSm symbolClassName="text-primary-text" />
           <nav aria-label="Principal" className="hidden lg:block">
-            <ul className="flex items-center gap-1">
+            <ul className="flex items-center">
               {items.map((item) => (
                 <li key={item.href}>
-                  <a href={item.href} className="inline-flex h-10 items-center px-2 text-body-sm text-text-secondary transition-colors duration-(--duration-fast) hover:text-text-primary">
+                  <a href={item.href} className="inline-flex h-10 items-center px-3 text-body-sm font-medium text-text-secondary transition-colors duration-(--duration-fast) hover:text-text-primary">
                     {item.label}
                   </a>
                 </li>
@@ -68,10 +81,13 @@ export function SiteHeader({
           </nav>
         </div>
         <div className="flex items-center gap-2 md:gap-3">
-          <CtaLink href={login.href} variant="tertiary" size="sm" className="hidden md:inline-flex">
+          <a
+            href={login.href}
+            className="hidden h-10 items-center px-3 text-body-sm font-medium text-text-secondary transition-colors duration-(--duration-fast) hover:text-text-primary md:inline-flex"
+          >
             {login.label}
-          </CtaLink>
-          <CtaLink href={cta.href} variant={pastHero ? "primary" : "secondary"} size="sm" className="my-1">
+          </a>
+          <CtaLink href={cta.href} variant={pastHero ? "primary" : "outline"} size="sm" arrow="forward" className="max-md:[&>svg]:hidden">
             {cta.label}
           </CtaLink>
           <button
@@ -79,7 +95,7 @@ export function SiteHeader({
             onClick={show}
             aria-label="Abrir navegação"
             aria-expanded={open}
-            className="flex size-11 items-center justify-center rounded-md text-text-primary hover:bg-surface-hover lg:hidden"
+            className="flex size-11 items-center justify-center rounded-md text-text-secondary hover:bg-surface-hover hover:text-text-primary lg:hidden"
           >
             <Menu aria-hidden size={20} strokeWidth={1.5} />
           </button>
@@ -96,11 +112,11 @@ export function SiteHeader({
         onClick={(e) => {
           if (e.target === dialog.current) close();
         }}
-        className="m-drawer theme-dark m-0 ml-auto h-dvh max-h-none w-[280px] max-w-[85vw] bg-surface-elevated p-0 text-text-primary shadow-modal backdrop:bg-obsidian/40 open:flex open:flex-col"
+        className="m-drawer m-0 ml-auto h-dvh max-h-none w-[300px] max-w-[85vw] bg-surface-elevated p-0 text-text-primary shadow-modal open:flex open:flex-col"
       >
         <div className="flex h-14 items-center justify-between border-b border-border pr-2 pl-4">
-          <Lockup />
-          <button type="button" onClick={close} aria-label="Fechar navegação" className="flex size-11 items-center justify-center rounded-md hover:bg-surface-hover">
+          <Lockup symbolClassName="text-primary-text" />
+          <button type="button" onClick={close} aria-label="Fechar navegação" className="flex size-11 items-center justify-center rounded-md text-text-secondary hover:bg-surface-hover hover:text-text-primary">
             <X aria-hidden size={20} strokeWidth={1.5} />
           </button>
         </div>
@@ -115,10 +131,10 @@ export function SiteHeader({
             ))}
           </ul>
           <div className="mt-3 flex flex-col gap-3 border-t border-border pt-4">
-            <CtaLink href={login.href} variant="secondary" size="md" className="w-full" onClick={close}>
+            <CtaLink href={login.href} variant="outline" size="md" className="w-full" onClick={close}>
               {login.label}
             </CtaLink>
-            <CtaLink href={cta.href} variant="primary" size="md" className="w-full" onClick={close}>
+            <CtaLink href={cta.href} variant="primary" size="md" arrow="forward" className="w-full" onClick={close}>
               {cta.label}
             </CtaLink>
           </div>

@@ -1,115 +1,86 @@
 import type { CSSProperties, ReactNode } from "react";
 
 /**
- * Landing primitives (03-ux-spec §2.3–§2.4). Server components. The "ponto de controle" is the
- * brand's geometric unit (brand §22–§24): a ring in `currentColor` with an optional Electric Blue
- * centre — the only blue allowed in a section header. Decorative, so always `aria-hidden`.
+ * Landing primitives v2 (docs/design/landing-v2.md §3.3). Server components. The "ponto de
+ * controle" is the brand's geometric unit (brand §22–§24): a muted ring with a cyan centre.
+ * Decorative, so always `aria-hidden`.
  */
-export function ControlDot({
-  size = 12,
-  filled = false,
-  className = "",
-  fillClassName = "",
-  style,
-  fillStyle,
-}: {
-  size?: 12 | 16;
-  filled?: boolean;
-  className?: string;
-  fillClassName?: string;
-  style?: CSSProperties;
-  fillStyle?: CSSProperties;
-}) {
-  const ring = size === 16 ? "size-4" : "size-3";
-  const centre = size === 16 ? "size-1.5" : "size-1";
+export function ControlDot({ className = "", style }: { className?: string; style?: CSSProperties }) {
   return (
-    <span aria-hidden style={style} className={`inline-flex ${ring} shrink-0 items-center justify-center rounded-full border-[1.5px] border-current ${className}`}>
-      <span style={fillStyle} className={`${centre} rounded-full ${filled ? "bg-electric-blue" : "bg-transparent"} ${fillClassName}`} />
+    <span aria-hidden style={style} className={`inline-flex size-3 shrink-0 items-center justify-center rounded-full border-[1.5px] border-text-muted ${className}`}>
+      <span className="size-1 rounded-full bg-primary-text" />
     </span>
   );
 }
 
-/** Uppercase label preceding a heading. Never a heading itself. `lang="en"` for the English section labels. */
-export function Eyebrow({
-  children,
-  as: Tag = "p",
-  lang,
-  dot = true,
-  className = "",
-  style,
-}: {
-  children: ReactNode;
-  as?: "p" | "span";
-  lang?: "en";
-  dot?: boolean;
-  className?: string;
-  style?: CSSProperties;
-}) {
+/** Uppercase cyan label preceding a heading. Never a heading itself. `lang="en"` for English labels. */
+export function Eyebrow({ children, lang, className = "" }: { children: ReactNode; lang?: "en"; className?: string }) {
   return (
-    <Tag lang={lang} style={style} className={`inline-flex items-center gap-2 text-label uppercase tracking-[0.06em] text-text-secondary ${className}`}>
-      {dot ? <ControlDot filled /> : null}
+    <p lang={lang} className={`text-label uppercase tracking-[0.08em] text-primary-text ${className}`}>
       {children}
-    </Tag>
+    </p>
   );
 }
 
-/** Page container: same 1200px as the app content so real components keep their density. */
+/** Page container: the same 1136px content box as the app (landing-v2 §3.2). */
 export function Container({ children, className = "" }: { children: ReactNode; className?: string }) {
   return <div className={`mx-auto w-full max-w-[1200px] px-4 md:px-6 lg:px-8 ${className}`}>{children}</div>;
 }
 
 /**
  * Landing section: id + aria-labelledby (`{id}-heading`), scroll margin for the sticky header,
- * vertical rhythm 64 / 96 / 128 (03-ux-spec §1.3) and the light/dark beat (§1.4).
+ * padding 48 / 64 / 80 and a full-bleed hairline on top — one dark canvas, no alternating beats.
  */
-export function Section({
-  id,
-  tone = "light",
-  className = "",
-  children,
-}: {
-  id: string;
-  tone?: "light" | "dark";
-  className?: string;
-  children: ReactNode;
-}) {
-  const beat = tone === "dark" ? "theme-dark bg-surface-base text-text-primary" : "bg-surface-base text-text-primary";
+export function Section({ id, className = "", children }: { id: string; className?: string; children: ReactNode }) {
   return (
-    <section id={id} aria-labelledby={`${id}-heading`} className={`scroll-mt-[72px] py-16 md:scroll-mt-20 md:py-24 lg:py-32 ${beat} ${className}`}>
+    <section
+      id={id}
+      aria-labelledby={`${id}-heading`}
+      className={`scroll-mt-[72px] border-t border-border py-12 md:scroll-mt-20 md:py-16 xl:py-20 ${className}`}
+    >
       {children}
     </section>
   );
 }
 
-/** Eyebrow + H2 (+ lead). `size` picks Display M (default) or Display S for the long room title. */
-export function SectionHeading({
+/** Eyebrow + H2 (+ lead, + CTA slot). `size` "s" = display-s (most sections), "m" = display-m. */
+export function SectionIntro({
   id,
   eyebrow,
   eyebrowLang,
   title,
   lead,
-  size = "m",
-  align = "start",
+  size = "s",
+  children,
   className = "",
 }: {
   id: string;
   eyebrow: string;
-  /** "en" for the English section labels (THE PROBLEM…); omit for language-neutral ones (FAQ). */
   eyebrowLang?: "en";
   title: string;
   lead?: string;
-  size?: "m" | "s";
-  align?: "start" | "center";
+  size?: "s" | "m";
+  /** Optional CTA row, 32px under the lead. */
+  children?: ReactNode;
   className?: string;
 }) {
-  const centred = align === "center";
   return (
-    <div className={`flex flex-col ${centred ? "items-center text-center" : "items-start"} ${className}`}>
+    <div className={`flex flex-col items-start ${className}`}>
       <Eyebrow lang={eyebrowLang}>{eyebrow}</Eyebrow>
-      <h2 id={`${id}-heading`} className={`mt-4 max-w-[20ch] text-pretty text-text-primary ${size === "s" ? "text-section-long" : "text-section"}`}>
+      <h2 id={`${id}-heading`} className={`mt-3 max-w-[22ch] text-pretty text-text-primary ${size === "m" ? "text-section" : "text-section-long"}`}>
         {title}
       </h2>
-      {lead ? <p className="mt-4 max-w-[60ch] text-pretty text-body-lg text-text-secondary md:mt-5 lg:mt-6">{lead}</p> : null}
+      {lead ? <p className="mt-4 max-w-[56ch] text-pretty text-body text-text-secondary">{lead}</p> : null}
+      {children ? <div className="mt-8 flex flex-wrap gap-3">{children}</div> : null}
     </div>
+  );
+}
+
+/** App icon tile (visual-v2 §5.4): cyan icon on the primary tint; decorative. */
+export function IconTile({ children, className = "" }: { children: ReactNode; className?: string }) {
+  return (
+    <span aria-hidden className={`flex size-10 shrink-0 items-center justify-center rounded-md bg-primary-tint text-primary-text ${className}`}>
+      {children}
+    </span>
   );
 }

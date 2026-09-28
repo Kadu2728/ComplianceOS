@@ -226,3 +226,56 @@ def test_audit_log_is_tenant_scoped(two_orgs) -> None:  # noqa: ANN001
 def test_me_lists_only_own_memberships(two_orgs) -> None:  # noqa: ANN001
     me = two_orgs["a"].get("/api/v1/me").json()
     assert [m["organization"]["id"] for m in me["memberships"]] == [two_orgs["a_org"]]
+
+
+def test_uploads_and_room_link_revocation_are_tenant_scoped(two_orgs) -> None:  # noqa: ANN001
+    """The three org-scoped routes that do not fit ROUTES (multipart bodies, a link id minted by
+    B): A gets 404 on each and B's data is untouched (landing FAQ "verificado por testes")."""
+    a: TestClient = two_orgs["a"]
+    b: TestClient = two_orgs["b"]
+    org_b = two_orgs["b_org"]
+    base_b = f"/api/v1/orgs/{org_b}"
+    pdf = b"%PDF-1.4\n%\xe2\xe3\xcf\xd3\n1 0 obj<<>>endobj\ntrailer<<>>\n%%EOF\n"
+
+    r = a.post(
+        f"{base_b}/documents/{two_orgs['b_document']}/file",
+        files={"file": ("x.pdf", pdf, "application/pdf")},
+    )
+    assert r.status_code == 404 and r.json()["code"] == "not_found", r.text
+
+    r = a.post(
+        f"{base_b}/evidence/files",
+        data={"risk_id": two_orgs["b_risk"], "note": "injetada"},
+        files={"file": ("x.pdf", pdf, "application/pdf")},
+    )
+    assert r.status_code == 404 and r.json()["code"] == "not_found", r.text
+
+    b.put(f"{base_b}/room", json={"enabled": True})
+    created = b.post(f"{base_b}/room/links", json={"label": "Cliente B"})
+    assert created.status_code == 201, created.text
+    link_id = created.json()["link"]["id"]
+    r = a.delete(f"{base_b}/room/links/{link_id}")
+    assert r.status_code == 404 and r.json()["code"] == "not_found", r.text
+    links = b.get(f"{base_b}/room").json()["links"]
+    assert [lk["active"] for lk in links if lk["id"] == link_id] == [True]
+
+
+def test_uploads_and_room_link_revocation_unknown_org_is_404(two_orgs) -> None:  # noqa: ANN001
+    """Random-UUID variant of the test above: unknown organization or ids are 404, never 403."""
+    a: TestClient = two_orgs["a"]
+    base = f"/api/v1/orgs/{uuid.uuid4()}"
+    pdf = b"%PDF-1.4\n%%EOF\n"
+    responses = (
+        a.post(
+            f"{base}/documents/{uuid.uuid4()}/file",
+            files={"file": ("x.pdf", pdf, "application/pdf")},
+        ),
+        a.post(
+            f"{base}/evidence/files",
+            data={"risk_id": str(uuid.uuid4())},
+            files={"file": ("x.pdf", pdf, "application/pdf")},
+        ),
+        a.delete(f"{base}/room/links/{uuid.uuid4()}"),
+    )
+    for r in responses:
+        assert r.status_code == 404 and r.json()["code"] == "not_found", r.text

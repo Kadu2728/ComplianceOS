@@ -1,6 +1,6 @@
 # COMPLIANCE OS — DESIGN TOKENS (v2, themes)
 
-> **Superseded for the app by `docs/design/visual-v2.md` (D39, 2026-09-26).** The values below are the brand v1 tokens, still pinned in the landing scopes (`.theme-light`, `.theme-dark`, `.landing`).
+> **Retired.** Superseded by `docs/design/visual-v2.md` (app, D39) and `docs/design/landing-v2.md` (landing, D40). The v1 values below are no longer used anywhere; kept for history.
 
 Authority: derived strictly from `.claude/brand-system.md`; section numbers cited as §n.
 Decisions applied: D7 (pt-BR), D14 (text-safe variants), D16 (Light / Dark / System), D22 (CSS-first motion).

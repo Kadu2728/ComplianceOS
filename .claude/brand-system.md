@@ -1,13 +1,13 @@
 # COMPLIANCE OS — BRAND SYSTEM
 
-Version: 2.0 (2026-09-26 — decision D39: palette v2, dark default, Inter only; see §08–§17, §41, §80)
+Version: 2.1 (2026-09-27 — D40: the landing joins palette v2; 2026-09-26 — D39: palette v2, dark default, Inter only; see §08–§17, §39, §41, §50, §80)
 Status: Official
 Authority: Brand Source of Truth
 
 Version 2.0 was decided by the owner from two official visual references (dashboard + design-system
 sheet). Implementation values live in `docs/design/visual-v2.md` and `apps/web/src/app/globals.css`.
-The public landing keeps the v1 palette (Obsidian / Off-white / Electric Blue) until it migrates;
-every other surface follows v2.
+Version 2.1 moves the public landing to v2 as well (dark for every visitor, cyan accent, canvas
+#030712; `docs/design/landing-v2.md`, D40). The v1 palette is retired everywhere.
 
 ---
 
@@ -363,9 +363,16 @@ On the cyan fill, text is always Dark (#0B0F14): white on cyan fails contrast.
 Role: Level of control. The Compliance Score ring, the score trend and the "low" end of the severity
 ramp. Never used for actions.
 
-## Legacy v1 (landing only, until it migrates)
+## Retired v1 (for reference)
 
-Obsidian #0B0D0F · Off-white #F4F4F0 · Electric Blue #356AE6.
+Obsidian #0B0D0F · Off-white #F4F4F0 · Electric Blue #356AE6 — retired on the product (D39) and the
+landing (D40). Kept here only to read older material.
+
+## Landing canvas
+
+The public landing uses one deeper step of the v2 neutral scale as its page background: #030712
+(gray-950). Cards on it are the product's card surface (#111827), so landing and product share one
+surface language (D40).
 
 ---
 
@@ -1160,7 +1167,9 @@ Avoid:
 - Excessive blue
 - Generic SaaS gradients
 - Glassmorphism
-- Neon (v2 allows one discreet static glow: the Compliance Score ring, dark theme only)
+- Neon (v2 allows a closed list of discreet, static glows — never blur, never animated: the
+  Compliance Score ring in the dark app; on the landing, the hero device backdrop, the Control
+  Layer diagram, the free-month band and the final CTA card, as radial gradients)
 - Heavy 3D
 - Excessive rounded corners
 - Excessive shadows
@@ -1365,11 +1374,13 @@ Never communicate important information through color alone.
 
 # 50. LANDING PAGE
 
-The landing page should feel like an extension of the product.
+The landing page should feel like an extension of the product: the same dark surfaces, the same
+cards, the real product on screen (screenshots of the live app with fictitious data, labelled as
+such).
 
-Recommended narrative:
+Narrative (D40, owner reference 2026-09-27):
 
-Hero
+Hero (the real dashboard on a laptop and a phone)
 ↓
 Problem
 ↓
@@ -1377,13 +1388,13 @@ Control Layer
 ↓
 How It Works
 ↓
-Product
+Product (the six modules)
 ↓
-Risk → Action → Evidence
+Less manual work (what the system computes — never an AI claim the product cannot back)
 ↓
-Compliance Room
+Plans
 ↓
-Trust
+FAQ (carries the security facts, the score explanation and the Compliance Room rules)
 ↓
 CTA
 

@@ -1,103 +1,93 @@
+import { CalendarCheck } from "lucide-react";
 import { PLANS } from "@/lib/marketing/copy";
 import { contactMailto } from "@/lib/marketing/site";
 import { CtaLink } from "./cta";
-import { Container, ControlDot, Section, SectionHeading } from "./primitives";
+import { Container, ControlDot, Eyebrow, IconTile, Section, SectionIntro } from "./primitives";
 import { Reveal } from "./reveal";
 
+const TAG = "inline-flex h-6 items-center rounded-pill border border-border-strong px-2.5 text-caption font-medium text-text-secondary";
+
 /**
- * Planos (decision D38, 08-plans.md): a trial band (30 days of Ultimate, no card), three priced
- * tiers per organization, footnotes with what is still off, and the human exit for larger
- * companies. Each tier's primary CTA goes to its Kiwify checkout, which charges on the day of
- * purchase; the free month is the link under it (account first, `?plano=` records the intent
- * until a plan entity exists). Prices and checkout URLs live in `copy.ts` and are mirrored by the
- * JSON-LD offers. The contact button renders only when a mailbox exists.
+ * Planos (decision D38, landing-v2 §4.9): the free-month band — the section's only filled button —
+ * three priced tiers per organization whose buttons go to their Kiwify checkouts (charged on
+ * purchase, so the free month is the link under each), the footnotes with what is still off, and
+ * the human exit for larger companies. Prices and checkout URLs live in `copy.ts` and are mirrored
+ * by the JSON-LD offers. The contact link renders only when a mailbox exists.
  */
 export function Plans() {
   const mailto = contactMailto(PLANS.contact.mailSubject);
   return (
     <Section id={PLANS.id}>
       <Container>
-        <Reveal>
-          <SectionHeading eyebrowLang="en" id={PLANS.id} eyebrow={PLANS.eyebrow} title={PLANS.title} lead={PLANS.lead} className="max-w-[760px]" />
+        <Reveal className="max-w-[720px]">
+          <SectionIntro id={PLANS.id} eyebrow={PLANS.eyebrow} title={PLANS.title} lead={PLANS.lead} />
         </Reveal>
 
-        <Reveal as="div" className="mt-10 rounded-lg border border-electric-blue/40 bg-info-tint/40 p-6 md:mt-12 md:p-8 lg:mt-16">
-          <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-            <div className="max-w-[640px]">
-              <p className="text-label uppercase tracking-[0.06em] text-text-secondary">{PLANS.trial.eyebrow}</p>
-              <p className="mt-2 text-h2 text-text-primary">{PLANS.trial.title}</p>
-              <p className="mt-3 text-body-sm text-text-secondary">{PLANS.trial.text}</p>
-            </div>
-            <CtaLink href={PLANS.trial.cta.href} variant="primary" size="md" className="w-full sm:w-auto lg:shrink-0">
-              {PLANS.trial.cta.label}
-            </CtaLink>
+        <Reveal className="m-wash mt-10 flex flex-col gap-5 rounded-lg border border-info-border bg-surface-elevated p-5 md:p-6 lg:flex-row lg:items-center lg:gap-8 lg:p-8">
+          <IconTile>
+            <CalendarCheck size={20} strokeWidth={1.5} />
+          </IconTile>
+          <div className="min-w-0 flex-1">
+            <Eyebrow>{PLANS.trial.eyebrow}</Eyebrow>
+            <p className="mt-1 text-h2 text-text-primary">{PLANS.trial.title}</p>
+            <p className="mt-2 max-w-[64ch] text-body-sm text-text-secondary">{PLANS.trial.text}</p>
           </div>
+          <CtaLink href={PLANS.trial.cta.href} variant="primary" size="md" arrow="forward" className="w-full shrink-0 sm:w-auto">
+            {PLANS.trial.cta.label}
+          </CtaLink>
         </Reveal>
 
-        <ul className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3 lg:items-stretch" aria-label="Planos">
+        <Reveal as="ul" aria-label="Planos" className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-6">
           {PLANS.tiers.map((tier, i) => (
-            <Reveal
+            <li
               key={tier.slug}
-              as="li"
-              delay={i * 80}
-              className={`flex flex-col rounded-lg border p-6 md:p-8 ${
-                tier.recommended ? "border-text-primary bg-surface-elevated" : "border-border bg-surface-elevated"
-              }`}
+              className={`m-rise flex flex-col rounded-lg border bg-surface-elevated p-6 xl:p-8 ${tier.recommended ? "border-primary-text" : "border-border"}`}
+              style={{ ["--d" as string]: `${i * 60}ms` }}
             >
               <div className="flex items-start justify-between gap-3">
-                <h3 className="text-h3 text-text-primary">{tier.name}</h3>
+                <h3 className="text-h2 text-text-primary">{tier.name}</h3>
                 {tier.recommended ? (
-                  <span className="rounded-pill border border-text-primary px-2.5 py-1 text-caption font-medium text-text-primary">
-                    {PLANS.recommendedLabel}
-                  </span>
+                  <span className="inline-flex h-6 items-center rounded-pill bg-primary-tint px-2.5 text-caption font-medium text-primary-text">{PLANS.recommendedLabel}</span>
                 ) : null}
               </div>
-              <p className="mt-4 flex items-baseline gap-1 text-text-primary">
-                <span className="text-body-sm font-medium">{PLANS.currency}</span>
-                <span className="text-score font-display tabular-nums">{tier.price}</span>
+              <p className="mt-4 flex items-baseline gap-1">
+                <span className="text-body-sm font-medium text-text-secondary">{PLANS.currency}</span>
+                <span className="text-score-compact text-text-primary tabular-nums">{tier.price}</span>
                 <span className="text-body-sm text-text-secondary">{PLANS.period}</span>
               </p>
-              <p className="text-caption text-text-secondary">{PLANS.unit}</p>
+              <p className="text-caption text-text-muted">{PLANS.unit}</p>
               <p className="mt-4 text-body-sm text-text-secondary">{tier.audience}</p>
-
-              <ul className="mt-5 flex flex-wrap gap-2" aria-label="Limites">
+              <ul className="mt-4 flex flex-wrap gap-2" aria-label="Limites">
                 {tier.limits.map((limit) => (
-                  <li key={limit} className="rounded-pill border border-border px-2.5 py-1 text-caption text-text-secondary">
+                  <li key={limit} className={TAG}>
                     {limit}
                   </li>
                 ))}
               </ul>
-
-              <p className="mt-6 text-label uppercase tracking-[0.06em] text-text-secondary">
-                {"includedLabel" in tier ? tier.includedLabel : "Inclui"}
-              </p>
-              <ul className="mt-3 flex flex-1 flex-col gap-2.5">
-                {tier.included.map((item) => (
-                  <li key={item} className="flex items-start gap-2 text-body-sm text-text-primary">
-                    <ControlDot filled className="mt-1.5" />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-
+              <div className="mt-6 flex flex-1 flex-col border-t border-border pt-6">
+                <p className="text-label uppercase tracking-[0.08em] text-text-muted">{"includedLabel" in tier ? tier.includedLabel : "Inclui"}</p>
+                <ul className="mt-3 flex flex-1 flex-col gap-2.5">
+                  {tier.included.map((item) => (
+                    <li key={item} className="flex items-start gap-2 text-body-sm text-text-primary">
+                      <ControlDot className="mt-1" />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
               <div className="mt-8 flex flex-col items-center gap-3">
-                <CtaLink
-                  href={tier.checkoutUrl}
-                  variant={tier.recommended ? "primary" : "secondary"}
-                  size="md"
-                  className="w-full"
-                >
+                <CtaLink href={tier.checkoutUrl} variant="outline" size="md" arrow="external" className="w-full">
                   {PLANS.subscribeLabel} {tier.name}
                 </CtaLink>
-                <CtaLink href={`/criar-conta?plano=${tier.slug}`} variant="tertiary" size="sm" className="px-0">
+                <CtaLink href={`/criar-conta?plano=${tier.slug}`} variant="tertiary" size="sm" className="min-h-11 text-body-sm">
                   {PLANS.trialLinkLabel}
                 </CtaLink>
               </div>
-            </Reveal>
+            </li>
           ))}
-        </ul>
+        </Reveal>
 
-        <Reveal as="div" className="mt-6 flex flex-col gap-2">
+        <Reveal className="mt-6 flex max-w-[80ch] flex-col gap-2">
           {PLANS.footnotes.map((note) => (
             <p key={note} className="text-body-sm text-text-secondary">
               {note}
@@ -105,18 +95,16 @@ export function Plans() {
           ))}
         </Reveal>
 
-        <Reveal as="article" delay={80} className="mt-10 rounded-lg border border-border bg-surface-base p-6 md:p-8">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div className="max-w-[640px]">
-              <h3 className="text-h3 text-text-primary">{PLANS.contact.title}</h3>
-              <p className="mt-2 text-body-sm text-text-secondary">{PLANS.contact.text}</p>
-            </div>
-            {mailto ? (
-              <CtaLink href={mailto} variant="tertiary" size="sm" className="px-0 md:shrink-0">
-                {PLANS.contact.ctaLabel}
-              </CtaLink>
-            ) : null}
+        <Reveal className="mt-10 flex flex-col gap-4 rounded-lg border border-border p-6 md:flex-row md:items-center md:justify-between">
+          <div className="max-w-[640px]">
+            <h3 className="text-h3 text-text-primary">{PLANS.contact.title}</h3>
+            <p className="mt-2 text-body-sm text-text-secondary">{PLANS.contact.text}</p>
           </div>
+          {mailto ? (
+            <CtaLink href={mailto} variant="tertiary" size="sm" className="min-h-11 shrink-0 self-start text-body-sm md:self-auto">
+              {PLANS.contact.ctaLabel}
+            </CtaLink>
+          ) : null}
         </Reveal>
       </Container>
     </Section>

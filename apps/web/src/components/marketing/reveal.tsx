@@ -53,6 +53,7 @@ export function Reveal({
   children: ReactNode;
   id?: string;
   "aria-labelledby"?: string;
+  "aria-label"?: string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);

@@ -1,249 +1,127 @@
 /**
- * Landing copy — the text of `02-copy.md` (Marketing & Growth, 2026-09-18) with the corrections
- * mandated by `04-legal-review.md` (lines 29, 33, 34, 41, 47, 49) applied per the Orchestrator's
- * decision C. Engineering does not edit wording here; a copy change is a change to this file only.
- * `[PENDENTE D11]` lines are included (true today); the paid-plans commitment is not (no approval).
+ * Landing copy v2 — `landing-v2/02-copy.md` (Marketing & Growth, 2026-09-27) fitted to the slot
+ * limits of `docs/design/landing-v2.md` §9. Sentences tagged [approved] in 02-copy.md keep the
+ * wording that passed `04-legal-review.md` (2026-09-18). Engineering does not edit wording here;
+ * a copy change is a change to this file only. Every claim is traceable to a product fact
+ * (02-copy.md "Claims to verify"); new visitor-facing copy still needs human legal review (D37).
  */
 
 export const NAV = {
+  /** Page order (landing-v2 §4.1). "Dúvidas" echoes the FAQ title; there is no "Sobre" page. */
   items: [
-    { label: "Produto", hash: "#produto" },
     { label: "Como funciona", hash: "#como-funciona" },
-    { label: "Segurança", hash: "#seguranca" },
+    { label: "Produto", hash: "#produto" },
     { label: "Planos", hash: "#planos" },
-    { label: "FAQ", hash: "#faq" },
+    { label: "Dúvidas", hash: "#faq" },
   ],
   login: { label: "Entrar", href: "/entrar" },
-  cta: { label: "Começar gratuitamente", href: "/criar-conta" },
+  cta: { label: "Comece grátis", href: "/criar-conta" },
   skip: "Pular para o conteúdo",
 } as const;
 
 export const HERO = {
   eyebrow: "Plataforma de operações de compliance",
-  title: ["Know your risk.", "Control your business."] as const,
-  lead: "Identifique riscos, organize controles, transforme lacunas em ações com responsável e prazo — e acompanhe tudo em um único sistema. Compliance corporativo sem precisar de um departamento de compliance.",
+  title: ["Conheça seus riscos.", "Controle seu negócio."] as const,
+  lead: "Veja onde estão os riscos da sua empresa, o que corrigir primeiro e a prova do que foi feito — em um único sistema. Compliance corporativo sem precisar de um departamento de compliance.",
+  /** Always shown: it qualifies the ICP (Product review 2026-09-27, MUST 2). [approved] */
   audience: "Para empresas que precisam mostrar controle sobre dados e riscos a clientes, parceiros e auditores.",
-  primary: { label: "Começar gratuitamente", href: "/criar-conta" },
+  primary: { label: "Comece grátis", href: "/criar-conta" },
   secondary: { label: "Ver como funciona", href: "#como-funciona" },
-  microcopy: ["Primeiro mês grátis", "Sem cartão de crédito", "12 perguntas para o primeiro Score"],
-  showcaseCaption: "Exemplo com dados ilustrativos de uma organização fictícia.",
-  showcaseAlt:
-    "Visão geral do Compliance OS para a organização fictícia Acme Tecnologia Ltda.: “O que precisa de atenção hoje” com itens e motivos, card do Score de Compliance com 74 de 100 e faixa Organizado, seção “Por que 74?” com os cinco fatores, e “O que fazer primeiro”.",
+  /** Facts, not topics (landing-v2 §4.3.2); the approved hero microcopy. */
+  facts: ["Primeiro mês grátis", "Sem cartão de crédito", "12 perguntas para o primeiro Score"],
+  callout: ["Mais clareza.", "Mais controle.", "Mais confiança."],
+  caption: "Exemplo com dados ilustrativos de uma organização fictícia.",
+  /** Numbers are the ones visible in `assets/marketing/hero-desktop.webp` (captured 2026-09-27). */
+  desktopAlt:
+    "Visão geral do Compliance OS para a organização fictícia Acme Tecnologia Ltda.: Score de Compliance 69 de 100, faixa Organizado, evolução de abril a setembro; riscos em atenção por severidade; próximo passo; e os seis módulos do produto.",
+  phoneAlt: "A mesma visão geral no celular.",
 } as const;
 
 export const PROBLEM = {
   id: "problema",
-  eyebrow: "The problem",
-  title: "Compliance espalhado não é controle.",
-  lead: "Um cliente maior pede a documentação de segurança e privacidade. A resposta vira uma corrida por planilhas, pastas e e-mails — e ninguém sabe o que está atualizado.",
-  before: {
-    label: "Sem sistema",
-    items: [
-      "Riscos numa planilha do ano passado.",
-      "Políticas numa pasta que ninguém revisa.",
-      "Ações na cabeça de uma pessoa.",
-      "Evidência em lugar nenhum.",
-      "Sem saber o que falta — nem o que vem primeiro.",
-    ],
-  },
-  after: {
-    label: "Com o Compliance OS",
-    items: [
-      "Riscos com severidade explicada e responsável.",
-      "Controles com maturidade e prova ligada.",
-      "Ações com responsável, prazo e estado.",
-      "Evidências com validade.",
-      "Um Score que diz o que puxa para baixo — e o próximo passo.",
-    ],
-  },
-  figureAlt: "Diagrama: à esquerda, fragmentos dispersos representando riscos, políticas e ações sem conexão; à direita, os mesmos itens ligados em sequência.",
-  cost: "O custo não é só tempo. É a oportunidade que fica parada e a insegurança na hora de responder.",
-  closing: "Controle é quando risco, controle, ação e evidência estão ligados — e visíveis.",
+  eyebrow: "O problema",
+  title: "Compliance não deveria depender de planilhas, documentos espalhados e processos manuais.",
+  lead: "Riscos numa planilha do ano passado, políticas numa pasta que ninguém revisa, ações na cabeça de uma pessoa. O Compliance OS reúne riscos, controles, ações e evidências em um único sistema — e mostra o que vem primeiro.",
+  cards: [
+    { icon: "clock", title: "Processos manuais", text: "Controle feito à mão, em planilhas e e-mails. Nada mostra o que venceu ou atrasou." },
+    { icon: "folder", title: "Informações dispersas", text: "Riscos, políticas e provas em lugares diferentes. Ninguém sabe o que está atualizado." },
+    { icon: "inbox", title: "Pedidos de clientes", text: "Um cliente maior pede documentação e evidências. A resposta vira uma corrida." },
+  ],
 } as const;
 
 export const CONTROL_LAYER = {
   id: "control-layer",
   eyebrow: "The Control Layer",
-  title: "Uma camada de controle sobre a complexidade.",
-  lead: "O Compliance OS liga risco, controle, ação e evidência em um único sistema — e mantém tudo sob monitoramento. Cada item sabe de onde veio e o que prova.",
-  links: [
-    { code: "RISK", title: "O risco explica a si mesmo.", text: "Probabilidade, impacto e severidade visíveis. Você sabe por que ele existe e por que importa para a sua empresa." },
-    { code: "CONTROL", title: "O risco aponta para um controle.", text: "Cada risco liga-se a um controle do catálogo, com responsável e maturidade: Planejado, Parcial, Implementado, Verificado." },
-    { code: "ACTION", title: "O controle vira ação.", text: "Responsável, prazo, esforço e estado. Risco sem ação é só informação." },
-    { code: "EVIDENCE", title: "A ação deixa prova.", text: "Nota, link ou documento, com validade. Um controle só chega a Verificado com evidência ligada a ele." },
-    { code: "MONITORING", title: "Tudo continua visível.", text: "O Score, “O que precisa de atenção hoje” e o Histórico refletem cada mudança — e trazem de volta o que vence." },
+  title: "Uma camada de controle para o seu negócio.",
+  lead: "O Compliance OS liga risco, controle, ação e evidência em um único sistema — e mantém tudo visível. Cada item sabe de onde veio, o que resolve e o que prova.",
+  cta: { label: "Conheça o produto", href: "#produto" },
+  /** Top → bottom; evidence is the base the rest stands on (≤ 14 chars; descriptors ≥ 1024 only). */
+  layers: [
+    { label: "Visão geral", note: "Score e atenção do dia" },
+    { label: "Riscos", note: "Severidade e prioridade" },
+    { label: "Controles", note: "Maturidade e documentos" },
+    { label: "Ações", note: "Responsável, prazo e estado" },
+    { label: "Evidências", note: "Nota, link ou documento" },
   ],
-  figureAlt: "Diagrama da camada de controle: cinco pontos ligados em sequência — risco, controle, ação, evidência, monitoramento — com o monitoramento voltando ao risco.",
-  closing: "Não é um checklist. Não é um cofre de documentos. É um sistema em que cada item explica por que existe, o que resolve e o que prova.",
-  support: "Compliance que você consegue operar.",
+  figureCaption:
+    "Ilustração de cinco camadas empilhadas: Visão geral no topo; abaixo, Riscos, Controles, Ações e, na base, Evidências.",
 } as const;
 
 export const HOW_IT_WORKS = {
   id: "como-funciona",
-  eyebrow: "How it works",
-  title: "Seis etapas. Um único sistema.",
-  lead: "Você responde sobre a sua operação. O sistema devolve riscos, prioridades, ações e um Score explicado — e mantém o ciclo aberto enquanto a empresa muda.",
+  eyebrow: "Como funciona",
+  title: "Do diagnóstico à prova, em um único fluxo.",
+  /** The core flow (CLAUDE.md §3). The seven areas stay in the Diagnóstico FAQ. */
   steps: [
-    {
-      number: "01",
-      title: "Diagnosticar",
-      text: "Responda ao Diagnóstico: 42 perguntas em 7 áreas de proteção de dados, escritas na linguagem da sua operação. O modo curto, com 12 perguntas, gera o primeiro Score na mesma sessão — e você pode pausar, retomar e revisar.",
-      note: "Dados e finalidades · Acesso e armazenamento · Segurança · Fornecedores e terceiros · Políticas e registros · Titulares e incidentes · Pessoas e responsabilidades",
-    },
-    { number: "02", title: "Entender", text: "Cada resposta “não”, “parcial” ou “não sei” vira um risco com probabilidade, impacto e severidade explicados. “Não sei” fica registrado como incerteza, não como “não”." },
-    { number: "03", title: "Priorizar", text: "“O que fazer primeiro” ordena as ações pendentes por severidade do risco, exposição do seu perfil, urgência e esforço — e mostra quanto o Score ganha em cada uma. “O que precisa de atenção hoje” lista o que venceu, atrasou ou ficou sem prova, com o motivo." },
-    { number: "04", title: "Corrigir", text: "Para cada risco, uma recomendação: o controle do catálogo, a ação sugerida e a evidência esperada. Um passo cria o plano; a ação ganha responsável, prazo, esforço e estado." },
-    { number: "05", title: "Comprovar", text: "Registre a prova como nota, link ou documento, ligada ao risco, à ação ou ao controle. Evidências têm validade; documentos têm versão, responsável e status." },
-    { number: "06", title: "Monitorar", text: "O Score guarda histórico e mostra o que mais o reduz. O Histórico registra quem mudou o quê; o Resumo executivo lê o estado da organização em uma página." },
+    { icon: "clipboard", title: "Diagnosticar", text: "42 perguntas em 7 áreas. Modo curto: 12 perguntas e o primeiro Score." },
+    { icon: "scan", title: "Entender", text: "Cada lacuna vira um risco com probabilidade, impacto e severidade explicados." },
+    { icon: "order", title: "Priorizar", text: "Ações ordenadas por severidade, exposição, urgência e esforço." },
+    { icon: "checks", title: "Corrigir", text: "Plano em um passo: controle e ação com responsável e prazo." },
+    { icon: "file", title: "Comprovar", text: "Prova por nota, link ou documento, ligada ao que ela comprova." },
+    { icon: "history", title: "Monitorar", text: "Score com histórico e o que precisa de atenção hoje." },
   ],
 } as const;
 
 export const PRODUCT = {
   id: "produto",
-  eyebrow: "The product",
+  eyebrow: "Produto",
   title: "Veja o risco. Corrija a lacuna. Prove o controle.",
-  lead: "Cada parte do Compliance OS existe para responder a uma pergunta da sua operação. Sem módulos decorativos.",
-  stories: [
-    {
-      key: "risco",
-      title: "Veja o risco.",
-      modules: "Diagnóstico · Riscos",
-      problem: "Você sabe que tem riscos. Não sabe quais, quanto pesam, nem por quê.",
-      value: "O Diagnóstico transforma cada resposta em um risco com categoria, probabilidade, impacto, severidade e responsável — e um texto de “Por que este risco existe”.",
-      action: "Abra o risco. Leia por que ele importa para a sua empresa e o que fazer primeiro.",
-      alt: "Lista de Riscos com título, severidade, responsável, prazo e status.",
-    },
-    {
-      key: "importa",
-      title: "Entenda o que importa.",
-      modules: "“O que precisa de atenção hoje” · “O que fazer primeiro” · Perfil da organização",
-      problem: "A lista de riscos é sempre maior que a capacidade de agir.",
-      value: "O radar mostra o que venceu, atrasou ou ficou sem prova, com o motivo. As prioridades ordenam as ações por severidade, exposição do seu perfil, urgência e esforço — com o ganho de Score de cada uma.",
-      action: "Complete o Perfil da organização — segmento, porte, dados tratados, se vende para empresas maiores. Ele contextualiza a prioridade; nunca afirma obrigações.",
-      alt: "“O que fazer primeiro” com ações ordenadas, motivos e ganho de Score.",
-    },
-    {
-      key: "acao",
-      title: "Transforme risco em ação.",
-      modules: "Ações",
-      problem: "Risco anotado não é risco tratado.",
-      value: "Cada risco recebe uma recomendação — controle, ação sugerida, evidência esperada — e um plano em um passo. Ações têm responsável, prazo, esforço e estado: A fazer, Em andamento, Revisão, Concluída, Bloqueada.",
-      action: "Atribua. Acompanhe. O que atrasa entra no radar.",
-      alt: "Recomendação de plano para um risco: controle, ação sugerida e evidência esperada; abaixo, a ação com estado, responsável, prazo e esforço.",
-    },
-    {
-      key: "evidencia",
-      title: "Conecte controle e evidência.",
-      modules: "Controles · Evidências · Documentos",
-      problem: "Um documento diz que o controle existe. Não diz se ele funciona.",
-      value: "Controles com maturidade (Planejado, Parcial, Implementado, Verificado); evidências por nota, link ou documento, com validade (Vigente, Vencendo, Vencida); documentos com versão, responsável e status: Atualizado, Vencendo, Vencido, Faltante, Em revisão.",
-      action: "Ligue a prova ao controle. Só assim ele chega a Verificado.",
-      alt: "Controle com maturidade Verificado, evidência vigente com validade e documento com versão e status Atualizado.",
-    },
-    {
-      key: "maturidade",
-      title: "Prove sua maturidade.",
-      modules: "Sala de compliance · Resumo executivo · Histórico",
-      problem: "Quando alguém de fora pede prova, ela está na cabeça de alguém.",
-      value: "O Resumo executivo lê o estado da organização em uma página. O Histórico registra quem mudou o quê. A Sala de compliance mostra, a quem você escolher, o que você decidiu compartilhar.",
-      action: "Compartilhe com prazo e revogação — e veja cada acesso no Histórico.",
-      alt: "Histórico do Compliance OS com registros de quem alterou o quê e quando.",
-    },
+  lead: "Seis módulos, os mesmos registros. Cada módulo responde a uma pergunta da sua operação — e o que muda em um aparece nos outros.",
+  cta: { label: "Comece grátis", href: "/criar-conta" },
+  modules: [
+    { icon: "brain", name: "Risk Brain", text: "Oito perguntas prontas sobre seus riscos, respondidas a partir dos seus registros." },
+    { icon: "graph", name: "Control Graph", text: "Riscos ligados a controles, ações e evidências. Controle só chega a Verificado com evidência." },
+    { icon: "radar", name: "Risk Radar", text: "O que precisa de atenção hoje, com o motivo de cada item." },
+    { icon: "plan", name: "Action Plan", text: "Riscos viram ações com responsável, prazo e estado — planejadas em um passo." },
+    { icon: "vault", name: "Evidence Vault", text: "Evidências com validade; documentos com versão, responsável e status." },
+    { icon: "room", name: "Compliance Room", text: "Quando um cliente pedir prova, envie um link do que você liberar, com prazo e revogação.", tag: "Plus e Ultimate" },
   ],
+  /** Doubles as the demo-data caption of the preview (landing-v2 §4.7.3). */
+  chip: "Visão geral · dados ilustrativos",
+  previewAlt: "Visão geral do Compliance OS no celular, com o Score de Compliance e sua evolução, para uma organização fictícia.",
 } as const;
 
-export const SCORE = {
-  id: "score",
-  eyebrow: "The score",
-  title: "Por que essa pontuação?",
-  lead: "O Score de Compliance é um indicador de maturidade de 0 a 100, calculado a partir do que a sua organização registrou. Cinco fatores, pesos visíveis e a lista do que puxa para baixo.",
-  factorsTitle: "Cinco fatores. Pesos visíveis.",
-  factors: [
-    { label: "Diagnóstico", weight: 0.1, text: "Quanto do diagnóstico foi respondido, e quantas respostas ficaram em “não sei”." },
-    { label: "Riscos", weight: 0.4, text: "O peso dos riscos em aberto, por severidade. É o fator que mais pesa." },
-    { label: "Controles", weight: 0.2, text: "Quantos riscos críticos e altos têm um controle implementado." },
-    { label: "Execução", weight: 0.15, text: "Riscos críticos e altos com ação planejada; ações atrasadas." },
-    { label: "Evidências", weight: 0.15, text: "Quantos itens fechados têm evidência ligada." },
-  ],
-  bandsTitle: "Quatro faixas.",
-  bands: [
-    { label: "Inicial", range: "< 40" },
-    { label: "Em estruturação", range: "40–59" },
-    { label: "Organizado", range: "60–79", active: true },
-    { label: "Maduro", range: "80–100" },
-  ],
-  card: [
-    { title: "“Por que N?”", text: "cada fator com peso, pontos obtidos e um resumo em uma linha." },
-    { title: "“O que mais reduz o score”", text: "os itens que mais pesam, com os pontos de cada um." },
-    { title: "“Próximos passos”", text: "as ações que mais recuperam pontos, com o ganho simulado." },
-  ],
-  limit: "Indicador de maturidade operacional, calculado a partir do que a organização registrou. Não é certificação, auditoria nem atestado de conformidade.",
-  closing: "Você não recebe apenas uma nota. Você entende o que precisa melhorar.",
-  alt: "Card do Score de Compliance: número, faixa, “Por que N?” com cinco fatores e pesos, “O que mais reduz o score” e “Próximos passos”.",
-} as const;
-
-export const ROOM = {
-  id: "sala",
-  eyebrow: "Compliance Room",
-  title: "Não basta dizer que sua empresa está preparada. Você precisa conseguir provar.",
-  lead: "Seus clientes querem saber se sua empresa está preparada — e pedem documentação, controles e evidências antes de assinar. A Sala de compliance mostra, em um único lugar, o que você escolheu compartilhar.",
+/** The reference's "IA + Automação" slot, honest (owner decision 2, 2026-09-27): no AI claim. */
+export const AUTOMATION = {
+  id: "automacao",
+  eyebrow: "Risk Brain + Risk Radar",
+  title: "Menos trabalho manual.",
+  lead: "O Compliance OS faz as contas que você faria em planilhas: transforma respostas em riscos, ordena prioridades, recalcula o Score e aponta o que precisa de atenção — com o motivo e os registros de origem.",
+  cta: { label: "Ver os planos", href: "#planos" },
   items: [
-    { title: "Você escolhe o que entra.", text: "Só documentos existentes e controles implementados ou verificados. Documentos faltantes e controles não implementados não podem ser compartilhados." },
-    { title: "Link com prazo e revogação.", text: "De 1 a 90 dias, mostrado uma única vez, revogável a qualquer momento. Até 20 links ativos." },
-    { title: "Quem recebe vê sem criar conta.", text: "Nome da organização, apresentação, contato, documentos e controles liberados — e o Score, se você ativar. Nunca riscos, ações, evidências, membros ou respostas do diagnóstico." },
-    { title: "Cada acesso fica no Histórico.", text: "Visualizações e downloads são registrados. Só o Proprietário da organização gerencia a Sala." },
+    { icon: "brain", title: "Perguntas respondidas", text: "Risk Brain: 8 perguntas prontas, com os registros de origem." },
+    { icon: "radar", title: "Atenção do dia", text: "Risk Radar: o que venceu, atrasou ou ficou sem prova." },
+    { icon: "checks", title: "Plano em um passo", text: "Controle, ação sugerida e evidência esperada para cada risco." },
+    { icon: "trend", title: "Score explicado", text: "Recalculado a cada mudança, com o que mais o reduz." },
   ],
-  uses: ["Procurement", "revisão de segurança de cliente", "onboarding de fornecedor", "due diligence", "qualificação de parceria"],
-  acquisition: "Seu passaporte de compliance para vender para empresas maiores.",
-  caveat: "A Sala mostra o que a sua empresa organizou. Não é certificação, auditoria independente nem atestado de conformidade legal.",
-  alt: "Página pública da Sala de compliance vista por um visitante: nome da organização, apresentação, documentos e controles liberados e o aviso de que não constitui certificação nem atestado de conformidade.",
-} as const;
-
-export const TRUST = {
-  id: "seguranca",
-  eyebrow: "Security",
-  title: "Só o que podemos provar.",
-  lead: "O Compliance OS está em beta e não tem certificações. O que temos são decisões de arquitetura verificáveis e transparência sobre o que está ligado e o que está desligado.",
-  groups: [
-    {
-      title: "Arquitetura e segurança",
-      items: [
-        { lead: "Isolamento por organização.", text: "Cada registro pertence a uma organização; um identificador de outra organização responde “não encontrado”. Verificado por testes automatizados a cada alteração, nas rotas que tocam dados da organização." },
-        { lead: "Sessão.", text: "Cookies httpOnly com SameSite; token de acesso de 15 minutos; renovação rotativa com detecção de reuso; verificação de origem em operações de escrita; limites de taxa." },
-        { lead: "Senhas.", text: "Armazenadas com Argon2id." },
-        // 04-legal-review.md line 29 (REESCREVER) applied.
-        { lead: "Trilha de auditoria.", text: "Criação, edição, mudanças de status, de responsável e de permissão, e acessos à Sala ficam registrados em uma trilha que a aplicação não permite editar, com redação de dados sensíveis." },
-        { lead: "Cabeçalhos de segurança.", text: "CSP com nonce por requisição; HSTS em produção." },
-        { lead: "Papéis explícitos.", text: "Proprietário, Administrador, Membro e Leitura, com autorização verificada no servidor." },
-        { lead: "Residência de dados.", text: "Banco de dados hospedado em São Paulo (Brasil); aplicação executada na região de São Paulo." },
-        // 04-legal-review.md line 33 (VETO) applied.
-        { lead: "Dependências auditadas.", text: "Dependências do servidor auditadas a cada release (pip-audit), sem alertas abertos." },
-      ],
-    },
-    {
-      title: "Metodologia",
-      items: [
-        { lead: "Score explicável.", text: "Fatores, pesos, “O que mais reduz o score” e “Próximos passos” visíveis dentro do produto, com histórico." },
-        { lead: "Riscos explicados.", text: "Probabilidade × impacto com severidade derivada; “não sei” tratado como incerteza, não como “não”." },
-        // 04-legal-review.md line 34 (REESCREVER) applied.
-        { lead: "Conteúdo versionado, em revisão.", text: "O Diagnóstico é versionado (42 perguntas, 7 áreas), construído a partir de fontes primárias e está em revisão legal humana. Até essa revisão terminar, o produto não cita base legal." },
-        { lead: "Controle só é Verificado com prova.", text: "Um controle chega a Verificado apenas com evidência ligada a ele." },
-      ],
-    },
-    {
-      title: "Estágio",
-      items: [
-        // [PENDENTE D11] sentence included: true today (relay not activated).
-        { lead: "Beta, declarado.", text: "Upload de arquivos ainda não está disponível (evidências por nota, link e documento funcionam). Convites de equipe e recuperação de senha por e-mail estão em ativação." },
-        { lead: "Limites, declarados.", text: "Não é certificação, não é auditoria, não é parecer jurídico. Não substitui advogados, DPOs ou consultores." },
-      ],
-    },
-  ],
+  // Mandatory as written (legal review L43, 2026-09-27): true while the language model is off (D35).
+  footnote:
+    "Respostas calculadas por regras explícitas: os mesmos registros geram a mesma resposta. Perguntas em texto livre ainda não estão disponíveis.",
 } as const;
 
 export const PLANS = {
   id: "planos",
-  eyebrow: "Plans",
+  eyebrow: "Planos",
   title: "Primeiro mês grátis. Depois, um plano por organização.",
   lead: "Preços em reais, por mês, por organização. O que ainda está desligado está escrito aqui, não nas letras pequenas.",
   /**
@@ -255,7 +133,7 @@ export const PLANS = {
     eyebrow: "Primeiro mês",
     title: "30 dias grátis com tudo do Ultimate",
     text: "Sem cartão para começar: crie a conta e use tudo do Ultimate por 30 dias. Depois, assine o plano que fizer sentido, com pagamento pela Kiwify.",
-    cta: { label: "Começar gratuitamente", href: "/criar-conta" },
+    cta: { label: "Comece grátis", href: "/criar-conta" },
   },
   currency: "R$",
   period: "/mês",
@@ -335,17 +213,58 @@ export const PLANS = {
   },
 } as const;
 
+/**
+ * FAQ v2 (02-copy.md §9): the reference's six questions first, then the approved ones that
+ * survive. `{contactEmail}` renders as a mailto link to `site.contactEmail`; `link` is appended
+ * after the answer; `privacyLink` answers get the Política de Privacidade sentence when published.
+ */
 export const FAQ = {
   id: "faq",
   eyebrow: "FAQ",
-  title: "Perguntas frequentes",
+  title: "Tire suas dúvidas.",
   lead: "Respostas curtas, sem promessa de conformidade.",
-  /** Sentence appended to answer 7 once the privacy policy is published (`site.legalReady`). */
+  more: "Não encontrou sua pergunta? Escreva para {contactEmail}.",
   privacyLink: { prefix: "Os detalhes estão na", label: "Política de Privacidade", href: "/privacidade" },
   items: [
     {
+      q: "O que é o Compliance OS?",
+      a: "Uma plataforma de operações de compliance. Você responde a um diagnóstico sobre a sua operação; o sistema transforma as lacunas em riscos com severidade explicada e ajuda você a planejar controles e ações com responsável e prazo, registrar evidências e acompanhar um Score de Compliance que mostra o que puxa a nota para baixo. É uma ferramenta de gestão: não emite parecer, não certifica e não garante conformidade.",
+    },
+    {
+      q: "Posso testar gratuitamente?",
+      a: "Sim: o primeiro mês é grátis em qualquer plano, sem cartão, e nele você usa tudo do Ultimate. Depois, os planos são Standard (R$ 39), Plus (R$ 59) e Ultimate (R$ 89) por mês, por organização; a diferença está no número de usuários, na Sala de compliance e no Resumo executivo. Para assinar, use o botão do plano: o pagamento é processado pela Kiwify e a cobrança começa na data da compra — por isso, para usar o mês grátis, crie a conta primeiro e assine depois. No beta, o upload de arquivos, os convites de equipe e a recuperação de senha por e-mail ainda estão desligados; evidências por nota, link e documento funcionam.",
+    },
+    {
+      q: "Como funciona o suporte?",
+      a: "O suporte é feito por e-mail, pelo endereço {contactEmail}. Informe o nome da organização e descreva o que aconteceu — sem enviar senhas nem dados pessoais além do necessário. No beta, não há chat nem prazo de resposta contratado para o suporte.",
+      link: { prefix: "Pedidos sobre dados pessoais seguem a", label: "Política de Privacidade", href: "/privacidade" },
+    },
+    {
+      q: "Quais são os métodos de pagamento?",
+      // QA 2026-09-28: the checkouts' server state lists only credit card today; legal-review L51
+      // fallback, so the page never names a method Kiwify does not offer.
+      a: "O pagamento é feito no checkout da Kiwify, que mostra as formas de pagamento disponíveis e as condições de cada uma. Na compra, use o mesmo e-mail da sua conta no Compliance OS — é por ele que identificamos a assinatura da sua organização. Os dados de pagamento são tratados pela Kiwify, conforme as políticas dela.",
+    },
+    {
+      q: "Como meus dados são protegidos? Onde ficam?",
+      // Approved FAQ 7 (04-legal-review line 47) + the approved TRUST items (their qualifier kept);
+      // every org-scoped route is in the cross-tenant tests since 2026-09-27 (test_tenancy.py).
+      a: "Afirmamos só o que podemos provar. Cada organização é isolada das demais: nas rotas que tocam dados da organização, um identificador de outra organização responde “não encontrado” — e isso é coberto por testes automatizados. A sessão usa cookies httpOnly, com token de acesso de 15 minutos e renovação rotativa; senhas são armazenadas com Argon2id; papéis e permissões são verificados no servidor; a aplicação usa CSP com nonce e HSTS em produção. Toda mudança relevante fica registrada em uma trilha de auditoria que a aplicação não permite editar. O banco de dados é hospedado em São Paulo (Brasil). O Compliance OS está em beta e não tem certificações. Nenhum sistema conectado à internet oferece segurança absoluta.",
+      privacyLink: true,
+    },
+    {
+      q: "Posso cancelar a qualquer momento?",
+      a: "Sim. Os planos são assinaturas mensais, por organização, pagas pela Kiwify e renovadas automaticamente a cada mês. Para cancelar, use os procedimentos da Kiwify ou fale com a gente pelo e-mail de contato: o cancelamento interrompe as cobranças seguintes e não apaga seus registros.",
+      link: {
+        prefix: "Quando aplicáveis, os direitos de arrependimento e de reembolso previstos na legislação são respeitados, como dizem os",
+        label: "Termos de Uso",
+        href: "/termos",
+        suffix: "; os pedidos podem ser feitos pelos mesmos canais.",
+      },
+    },
+    {
       q: "O Compliance OS substitui advogado, DPO ou consultoria?",
-      // 04-legal-review.md line 41 (REESCREVER) applied.
+      // 04-legal-review.md line 41 (REESCREVER) applied — verbatim. Landing v2 legal review (2026-09-27): KEEP.
       a: "Não. O Compliance OS é uma plataforma de gestão e operação: organiza diagnóstico, riscos, controles, ações, evidências e documentos. Não emite parecer, não certifica e não garante conformidade. Advogados, DPOs e consultores continuam com o papel deles — e trabalham melhor sobre uma operação organizada.",
     },
     {
@@ -358,86 +277,60 @@ export const FAQ = {
     },
     {
       q: "Como funciona o Diagnóstico?",
-      a: "São 42 perguntas em 7 áreas. O modo curto tem 12 perguntas e gera um primeiro Score na mesma sessão. Respostas “não”, “parcial” ou “não sei” viram riscos com probabilidade e impacto explicados. Você pode pausar, retomar, revisar respostas e seguir para o diagnóstico completo.",
+      // Approved FAQ 4 + the approved TRUST methodology sentence (04-legal-review line 34).
+      a: "São 42 perguntas em 7 áreas. O modo curto tem 12 perguntas e gera um primeiro Score na mesma sessão. Respostas “não”, “parcial” ou “não sei” viram riscos com probabilidade e impacto explicados. Você pode pausar, retomar, revisar respostas e seguir para o diagnóstico completo. O Diagnóstico é versionado, construído a partir de fontes primárias e aguarda revisão legal humana. Até essa revisão terminar, o produto não cita base legal.",
     },
     {
       q: "O que é o Score de Compliance? Ele diz se minha empresa está “adequada”?",
-      a: "Não diz. É um indicador de maturidade operacional de 0 a 100, calculado a partir do que a organização registrou, com cinco fatores e pesos visíveis, “O que mais reduz o score” e “Próximos passos”. Não é certificação, auditoria nem atestado de conformidade.",
-    },
-    {
-      q: "Quanto custa? Posso começar gratuitamente?",
-      // 08-plans.md §6, Kiwify version (checkouts live 2026-09-26).
-      a: "Sim: o primeiro mês é grátis em qualquer plano, sem cartão, e nele você usa tudo do Ultimate. Depois, os planos são Standard (R$ 39), Plus (R$ 59) e Ultimate (R$ 89) por mês, por organização; a diferença está no número de usuários, na Sala de compliance e no Resumo executivo. Para assinar, use o botão do plano: o pagamento é processado pela Kiwify. No beta, o upload de arquivos e os convites de equipe por e-mail ainda estão desligados; evidências por nota, link e documento funcionam.",
-    },
-    {
-      q: "Como funciona a assinatura e o cancelamento?",
-      // Coherent with Termos §6–§7 (recurring payment via Kiwify; cancellation stops future charges).
-      a: "Os planos são assinaturas mensais, por organização, pagas pela Kiwify e renovadas automaticamente a cada mês. A cobrança começa na data do pagamento: para usar o mês grátis antes, crie a conta primeiro e assine depois. Na compra, use o mesmo e-mail da sua conta — é por ele que identificamos a assinatura da sua organização. Uma segunda organização é uma segunda assinatura. Para cancelar, use os procedimentos da Kiwify ou fale com a gente pelo e-mail de contato: o cancelamento interrompe as cobranças seguintes e não apaga seus registros.",
-    },
-    {
-      q: "Como meus dados são protegidos? Onde ficam?",
-      // 04-legal-review.md line 47 (REESCREVER) applied; the privacy-notice sentence is conditional.
-      a: "Cada organização é isolada das demais; a sessão usa cookies httpOnly; senhas são armazenadas com Argon2id; toda mudança relevante fica registrada em uma trilha de auditoria que a aplicação não permite editar. O banco de dados é hospedado em São Paulo (Brasil).",
-      privacyLink: true,
+      a: "Não diz. É um indicador de maturidade operacional de 0 a 100, calculado a partir do que a organização registrou, com cinco fatores e pesos visíveis — Riscos (40%), Controles (20%), Execução (15%), Evidências (15%) e Diagnóstico (10%) —, “O que mais reduz o score” e “Próximos passos”. Ele é recalculado quando os registros mudam e guarda o histórico da evolução. Não é certificação, auditoria nem atestado de conformidade.",
     },
     {
       q: "O que é a Sala de compliance?",
-      a: "Um espaço compartilhável por link, com prazo e revogação. O responsável pela organização escolhe quais documentos e controles liberar; quem recebe o link vê, sem criar conta, o que foi liberado e o Score, se ativado. Cada acesso fica registrado. A Sala mostra o que a empresa organizou — não é certificação nem atestado.",
+      a: "Um espaço compartilhável por link, com prazo e revogação. O Proprietário da organização escolhe quais documentos e controles liberar — só documentos existentes e controles implementados ou verificados; riscos, ações, evidências e respostas do diagnóstico nunca aparecem. Quem recebe o link vê, sem criar conta, o que foi liberado e o Score, se ativado. Cada acesso fica registrado. Está nos planos Plus e Ultimate, e no mês grátis. A Sala mostra o que a empresa organizou — não é certificação nem atestado.",
     },
     {
       q: "É só para LGPD?",
-      // 04-legal-review.md line 49 (REESCREVER) applied.
+      // 04-legal-review.md line 49 (REESCREVER) applied — verbatim.
       a: "O Diagnóstico atual cobre proteção de dados pessoais — o campo da LGPD — a partir da sua operação, sem se propor a verificar conformidade com a lei. O modelo risco → controle → ação → evidência não é específico de uma lei: riscos, controles e documentos podem ser criados em qualquer tema. Novos diagnósticos podem ser adicionados, sempre versionados.",
     },
     {
       q: "Minha equipe pode usar junto?",
-      // [PENDENTE D11]: the copy leaves the sentence open; the approved D11 sentence from FAQ 6 is reused verbatim.
-      a: "Sim. Há quatro papéis — Proprietário, Administrador, Membro e Leitura —, responsáveis por risco, ação, controle e documento, e um Histórico de quem mudou o quê. O número de usuários depende do plano: 2 no Standard, 5 no Plus, 15 no Ultimate. Convites de equipe e recuperação de senha por e-mail estão em ativação.",
+      // Product review 2026-09-27 MUST 6: invitations are off in production (D11), so no "Sim.".
+      a: "O produto foi feito para equipes: há quatro papéis — Proprietário, Administrador, Membro e Leitura —, responsáveis por risco, ação, controle e documento, e um Histórico de quem mudou o quê. O número de usuários depende do plano: 2 no Standard, 5 no Plus, 15 no Ultimate. No beta, os convites de equipe e a recuperação de senha por e-mail ainda estão em ativação.",
     },
   ],
 } as const;
 
 export const FINAL = {
   id: "comecar",
-  eyebrow: "The operation",
-  results: ["Mais clareza sobre seus riscos.", "Mais controle sobre sua operação.", "Mais confiança para provar sua maturidade."],
-  title: ["Conheça seus riscos.", "Controle seu negócio."] as const,
-  cta: { label: "Começar gratuitamente", href: "/criar-conta" },
-  microcopy: ["Primeiro mês grátis", "Sem cartão de crédito", "Score explicado na primeira sessão"],
-  loginPrompt: "Já tem conta?",
+  title: "Pronto para conhecer os riscos da sua empresa?",
+  text: "Crie a conta, responda às 12 perguntas do modo curto e veja seu primeiro Score e por onde começar.",
+  microcopy: "Primeiro mês grátis · Sem cartão de crédito",
+  cta: { label: "Comece grátis", href: "/criar-conta" },
+  contact: { label: "Fale com a gente", mailSubject: "Compliance OS — contato" },
+  /** Shown instead of the contact button when there is no mailbox. */
   login: { label: "Entrar", href: "/entrar" },
 } as const;
 
 export const FOOTER = {
   statement: "O Compliance OS é uma plataforma de gestão e operação de compliance. Não emite parecer, não certifica e não substitui advogados, DPOs, consultores nem revisão jurídica.",
-  columns: {
-    product: "Produto",
-    account: "Conta",
-    legal: "Legal",
-    contact: "Contato",
-  },
-  account: [
-    { label: "Entrar", href: "/entrar" },
-    { label: "Criar conta", href: "/criar-conta" },
-  ],
   legal: [
     { label: "Termos de Uso", href: "/termos" },
     { label: "Política de Privacidade", href: "/privacidade" },
   ],
-  contactLabel: "Fale com a gente",
   linkedin: "LinkedIn",
-  instagram: "Instagram",
+  rights: "Todos os direitos reservados.",
 } as const;
 
 export const SEO = {
-  title: "Compliance OS — Plataforma de operações de compliance",
-  description: "Plataforma de operações de compliance: identifique riscos, organize controles, transforme lacunas em ações e prove sua maturidade. Primeiro mês grátis.",
-  ogTitle: "Know your risk. Control your business. — Compliance OS",
-  ogDescription: "Compliance corporativo sem precisar de um departamento de compliance. Riscos, controles, ações e evidências em um único sistema. Primeiro mês grátis.",
+  title: "Compliance OS — Gestão de riscos e compliance para empresas",
+  description: "Diagnóstico, riscos, controles, ações e evidências em um único sistema. Sem precisar de um departamento de compliance. Primeiro mês grátis.",
+  ogTitle: "Conheça seus riscos. Controle seu negócio. — Compliance OS",
+  ogDescription: "Compliance corporativo sem precisar de um departamento de compliance. Veja o risco, corrija a lacuna e prove o controle. Primeiro mês grátis.",
   /** Describes `app/opengraph-image.png` (a brand card, not a screenshot); keep identical to `opengraph-image.alt.txt`. */
   ogImageAlt: "Compliance OS — Know your risk. Control your business. Compliance corporativo sem precisar de um departamento de compliance. Símbolo da marca sobre fundo Obsidian; assinatura “The Control Layer”.",
   softwareDescription:
-    "Plataforma de operações de compliance para empresas: diagnóstico, riscos, controles, ações, evidências, documentos, Score de Compliance explicável e Sala de compliance para demonstrar maturidade a clientes e parceiros. Compliance empresarial sem precisar de um departamento de compliance.",
+    "Plataforma de operações de compliance para empresas: diagnóstico de proteção de dados, riscos, controles, ações, evidências, documentos, Score de Compliance explicável e Sala de compliance para demonstrar maturidade a clientes e parceiros. Compliance corporativo sem precisar de um departamento de compliance.",
   featureList: [
     "Diagnóstico de proteção de dados (42 perguntas em 7 áreas; modo curto de 12)",
     "Riscos com probabilidade, impacto e severidade explicados",
@@ -447,5 +340,8 @@ export const SEO = {
     "Score de Compliance com fatores e pesos visíveis",
     "Sala de compliance com links de prazo limitado",
     "Histórico de alterações",
+    "Perguntas prontas sobre riscos, respondidas a partir dos registros (Risk Brain)",
+    "O que precisa de atenção hoje, com o motivo (Risk Radar)",
+    "Plano de ação em um passo por risco",
   ],
 } as const;

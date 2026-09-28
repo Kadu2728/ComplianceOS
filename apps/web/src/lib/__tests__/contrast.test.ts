@@ -47,6 +47,7 @@ const SURFACES = ["surface-base", "surface-elevated", "surface-hover"];
 const THEMES = {
   dark: colors('html[data-theme="dark"] {'),
   light: colors("@theme {"),
+  landing: colors(":where(.landing) {"),
 };
 
 describe.each(Object.entries(THEMES))("contrast, app %s theme (AA)", (_name, c) => {

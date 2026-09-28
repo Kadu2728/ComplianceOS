@@ -8,17 +8,13 @@ import { BAND_TONE, formatInstantDay } from "@/lib/domain/score";
  * The Compliance Room as a visitor sees it (D36). Server component, no interactivity, no data
  * beyond the public payload. `downloadBase` is the public download prefix; in the owner's
  * preview it is null and files are listed without a link (the preview is not a link holder).
- * `titleTag` lets a page that already has its own <h1> (the landing showcase) embed the room
- * without a second document title; the visitor page keeps the default.
  */
 export function RoomView({
   room,
   downloadBase,
-  titleTag: Title = "h1",
 }: {
   room: RoomPublic;
   downloadBase: string | null;
-  titleTag?: "h1" | "p";
 }) {
   const documents = room.documents;
   const controls = room.controls;
@@ -26,7 +22,7 @@ export function RoomView({
     <article className="flex flex-col gap-8">
       <header className="flex flex-col gap-2">
         <p className="text-label uppercase text-text-secondary">Sala de compliance</p>
-        <Title className="text-h1">{room.title}</Title>
+        <h1 className="text-h1">{room.title}</h1>
         {room.title !== room.organization_name ? <p className="text-body text-text-secondary">{room.organization_name}</p> : null}
         {room.intro ? <p className="mt-2 max-w-[70ch] text-body-lg whitespace-pre-line">{room.intro}</p> : null}
       </header>

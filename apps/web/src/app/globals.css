@@ -4,17 +4,12 @@
  * Design tokens v2 — single source: docs/design/visual-v2.md §2 (decision D39, 2026-09-26), which
  * supersedes docs/design/tokens.md for the app. Components reference tokens, never raw hex.
  *
- * Four colour blocks, every colour in all four (globals-theme.test.ts, contrast.test.ts):
- *   @theme                      app light v2 (also the default for non-colour tokens)
- *   html[data-theme="dark"]     app dark v2 — the default theme (D16 amended)
- *   .theme-light / .theme-dark  landing, brand v1 values, frozen until the landing migrates
+ * Three colour blocks, every colour in all three (globals-theme.test.ts, contrast.test.ts):
+ *   @theme                    app light v2 (also the default for non-colour tokens)
+ *   html[data-theme="dark"]   app dark v2 — the default theme (D16 amended)
+ *   :where(.landing)          landing v2 (D40): app dark with a deeper canvas, for every visitor
  */
 @theme {
-  /* Core brand v1 (landing only) */
-  --color-obsidian: #0b0d0f;
-  --color-off-white: #f4f4f0;
-  --color-electric-blue: #356ae6;
-
   /* App light v2 */
   --color-surface-base: #f5f7fa;
   --color-surface-elevated: #ffffff;
@@ -158,13 +153,7 @@
 
 /* Fluid display sizes (visual-v2 §2.4): floor at 360px, ceiling = the tokens above. */
 @utility text-hero {
-  font-family: var(--font-sans);
-  font-size: clamp(2.25rem, 1.2rem + 3.6vw, var(--text-display-xl));
-  line-height: var(--text-display-xl--line-height);
-  letter-spacing: var(--text-display-xl--letter-spacing);
-  font-weight: var(--text-display-xl--font-weight);
-}
-@utility text-final {
+  /* Landing H1 at display-l (landing-v2 §2.3): each sentence stays on one line in a split hero. */
   font-family: var(--font-sans);
   font-size: clamp(2rem, 1.1rem + 3vw, var(--text-display-l));
   line-height: var(--text-display-l--line-height);
@@ -256,149 +245,69 @@
   }
 
   /*
-   * Landing dark scope (`.theme-dark`, 03-ux-spec §1.8): a section that is Obsidian regardless of
-   * the user's theme. Brand v1 values, frozen until the landing migrates to palette v2 — the
-   * app's theme must never leak into it (globals-theme.test.ts).
+   * Landing v2 (docs/design/landing-v2.md §2.1, D40): dark for every visitor, whatever the app
+   * theme. The app-dark v2 colours verbatim (hex, never var(): it would resolve to the html theme),
+   * with one deeper canvas. Screen only: printing /termos and /privacidade uses the light values.
+   * `:where()` keeps zero specificity — a property declared on the wrapper still wins over html.
    */
-  .theme-dark {
-    color-scheme: dark;
+  @media screen {
+    :where(.landing) {
+      color-scheme: dark;
+      --shadow-popover: 0 8px 24px rgb(0 0 0 / 0.45), 0 2px 6px rgb(0 0 0 / 0.3);
+      --shadow-modal: 0 24px 56px rgb(0 0 0 / 0.6);
+      --m-glow: rgb(6 182 212 / 0.14);
+      --m-wash: rgb(6 182 212 / 0.07);
 
-    --color-surface-base: #0b0d0f;
-    --color-surface-elevated: #111416;
-    --color-surface-hover: #161a1d;
-    --color-border: #292e32;
-    --color-border-strong: #292e32;
-    --color-border-input: #858b91;
-    --color-text-primary: #f4f4f0;
-    --color-text-secondary: #b7bcc1;
-    --color-text-muted: #858b91;
-
-    --color-primary: #356ae6;
-    --color-primary-foreground: #ffffff;
-    --color-primary-hover: #3263d5;
-    --color-primary-active: #2e5bc4;
-    --color-primary-text: #b7c9ff;
-    --color-primary-text-hover: #6c93f4;
-    --color-primary-tint: #1b2948;
-    --color-outline: #f4f4f0;
-    --color-outline-hover: #161a1d;
-    --color-focus: #356ae6;
-    --color-on-fill: #ffffff;
-
-    --color-info-fill: #6c93f4;
-    --color-info-text: #b7c9ff;
-    --color-info-tint: #1b2948;
-    --color-info-border: #526da9;
-    --color-success-fill: #48b980;
-    --color-success-text: #94e0b6;
-    --color-success-tint: #173a2b;
-    --color-success-border: #4b9870;
-    --color-warning-fill: #e6ad4d;
-    --color-warning-text: #f3cd85;
-    --color-warning-tint: #3e3018;
-    --color-warning-border: #9f7835;
-    --color-danger-fill: #e46d6d;
-    --color-danger-text: #ffb5b5;
-    --color-danger-tint: #432425;
-    --color-danger-border: #a65d60;
-
-    --color-sev-critical: #e46d6d;
-    --color-sev-high: #e6ad4d;
-    --color-sev-medium: #6c93f4;
-    --color-sev-low: #858b91;
-    --color-score-fill: #6c93f4;
-    --color-score-track: #161a1d;
-    --color-backdrop: rgb(11 13 15 / 0.4);
-  }
-
-  /*
-   * Landing light scope: brand v1 light values, so the landing ignores the app's theme and
-   * palette. globals-theme.test.ts fails if any colour the app themes set is missing here.
-   */
-  .theme-light {
-    color-scheme: light;
-
-    --color-surface-base: #f4f4f0;
-    --color-surface-elevated: #ffffff;
-    --color-surface-hover: #ebebe7;
-    --color-border: #d9d9d3;
-    --color-border-strong: #d9d9d3;
-    --color-border-input: #73787d;
-    --color-text-primary: #0b0d0f;
-    --color-text-secondary: #52575c;
-    --color-text-muted: #73787d;
-
-    --color-primary: #356ae6;
-    --color-primary-foreground: #ffffff;
-    --color-primary-hover: #3263d5;
-    --color-primary-active: #2e5bc4;
-    --color-primary-text: #3264d9;
-    --color-primary-text-hover: #356ae6;
-    --color-primary-tint: #ebf0fc;
-    --color-outline: #0b0d0f;
-    --color-outline-hover: #ebebe7;
-    --color-focus: #356ae6;
-    --color-on-fill: #ffffff;
-
-    --color-info-fill: #356ae6;
-    --color-info-text: #3264d9;
-    --color-info-tint: #ebf0fc;
-    --color-info-border: #aec3f5;
-    --color-success-fill: #28a36a;
-    --color-success-text: #207c52;
-    --color-success-tint: #eaf6f0;
-    --color-success-border: #a9dac3;
-    --color-warning-fill: #d99a2b;
-    --color-warning-text: #8f6721;
-    --color-warning-tint: #fbf5ea;
-    --color-warning-border: #f0d7aa;
-    --color-danger-fill: #d95757;
-    --color-danger-text: #b44a4a;
-    --color-danger-tint: #fbeeee;
-    --color-danger-border: #f0bcbc;
-
-    --color-sev-critical: #d95757;
-    --color-sev-high: #d99a2b;
-    --color-sev-medium: #356ae6;
-    --color-sev-low: #73787d;
-    --color-score-fill: #356ae6;
-    --color-score-track: #ebebe7;
-    --color-backdrop: rgb(11 13 15 / 0.4);
-  }
-
-  /* Landing non-colour pins (visual-v2 §2.8): only the family and display sizes change there. */
-  .landing {
-    --radius-md: 6px;
-    --radius-lg: 8px;
-    --radius-xl: 12px;
-    --radius-2xl: 16px;
-    --text-h1: 2rem;
-    --text-h1--line-height: 1.18;
-    --text-h1--letter-spacing: -0.02em;
-    --text-h2: 1.5rem;
-    --text-h2--line-height: 1.25;
-    --text-h2--letter-spacing: -0.02em;
-    --text-h3: 1.125rem;
-    --text-h3--line-height: 1.4;
-    --text-h3--letter-spacing: -0.01em;
-    --text-score: 3rem;
-    --text-score--letter-spacing: -0.03em;
-    --text-body-lg--line-height: 1.55;
-    --text-body--line-height: 1.5;
-    --text-body-sm--line-height: 1.45;
-    --text-label--line-height: 1.3;
-    --text-caption: 0.6875rem;
-    --text-caption--line-height: 1.3;
-    --shadow-popover: 0 4px 12px rgb(11 13 15 / 0.08), 0 1px 2px rgb(11 13 15 / 0.06);
-    --shadow-modal: 0 16px 40px rgb(11 13 15 / 0.16);
-    --score-glow: 0 0 0 transparent;
-  }
-  /* The landing page chrome stays light while the app default is dark. */
-  html:has(.landing) {
-    color-scheme: light;
-  }
-  body:has(.landing) {
-    background: var(--color-off-white);
+      --color-surface-base: #030712; /* Canvas: gray-950, one step below the app's #0b0f14 */
+      --color-surface-elevated: #111827;
+      --color-surface-hover: #18212f;
+      --color-border: #1f2937;
+      --color-border-strong: #374151;
+      --color-border-input: #6b7280;
+      --color-text-primary: #f3f4f6;
+      --color-text-secondary: #b4bdca;
+      --color-text-muted: #8a94a6;
+      --color-primary: #06b6d4;
+      --color-primary-foreground: #0b0f14;
+      --color-primary-hover: #22d3ee;
+      --color-primary-active: #0891b2;
+      --color-primary-text: #22d3ee;
+      --color-primary-text-hover: #67e8f9;
+      --color-primary-tint: #0a2d37;
+      --color-outline: #22d3ee;
+      --color-outline-hover: #0a2d37;
+      --color-focus: #22d3ee;
+      --color-on-fill: #0b0f14;
+      --color-info-fill: #06b6d4;
+      --color-info-text: #22d3ee;
+      --color-info-tint: #0a2d37;
+      --color-info-border: #095a6a;
+      --color-success-fill: #10b981;
+      --color-success-text: #34d399;
+      --color-success-tint: #0c2e28;
+      --color-success-border: #0d5c45;
+      --color-warning-fill: #f59e0b;
+      --color-warning-text: #fbbf24;
+      --color-warning-tint: #352912;
+      --color-warning-border: #744f10;
+      --color-danger-fill: #ef4444;
+      --color-danger-text: #f87171;
+      --color-danger-tint: #34191d;
+      --color-danger-border: #72272a;
+      --color-sev-critical: #ef4444;
+      --color-sev-high: #f97316;
+      --color-sev-medium: #facc15;
+      --color-sev-low: #2dd4bf;
+      --color-score-fill: #2dd4bf;
+      --color-score-track: #15343e;
+      --color-backdrop: rgb(0 0 0 / 0.6);
+    }
+    html:has(.landing) {
+      color-scheme: dark;
+    }
+    body:has(.landing) {
+      background: #030712;
+    }
   }
   /* In-page anchors (#radar, #agente, #por-que) clear the sticky 56–64px header. */
   html:not(:has(.landing)) {
@@ -525,13 +434,17 @@
   .landing summary::-webkit-details-marker {
     display: none;
   }
-  /* Colour set here (not via utility) so the reveal rule below can override it. */
-  .m-dot-fill {
-    background-color: var(--color-electric-blue);
+  /* The closed list of landing glows (landing-v2 §0-10): static radial gradients, never blur. */
+  .m-glow {
+    background: radial-gradient(60% 55% at 45% 55%, var(--m-glow), transparent);
+  }
+  .m-wash {
+    background-image: radial-gradient(80% 140% at 0% 0%, var(--m-wash), transparent 70%);
   }
   .m-node,
   .m-draw-x,
-  .m-draw-y {
+  .m-draw-y,
+  svg .m-rise {
     transform-box: fill-box;
   }
 
@@ -573,25 +486,15 @@
       animation: m-drawer var(--duration-base) var(--ease-out);
     }
 
-    /* Hero load sequence: each direct child sets --i; the stage and its panels set --delay/--dur. */
-    .hero-seq > * {
-      animation: m-rise var(--duration-complex) var(--ease-out) both;
-      animation-delay: calc(var(--i, 0) * 80ms);
+    /* Hero (landing-v2 §6.2): text and laptop are static (LCP); the phone, then the callout,
+       layer onto the laptop. Keyframes on load, not observer-driven. */
+    .hero-phone {
+      --rise: 12px;
+      animation: m-rise var(--duration-complex) var(--ease-out) 200ms both;
     }
-    .hero-frame {
-      --rise: 24px;
-      animation: m-rise var(--duration-story) var(--ease-out) both;
-      animation-delay: 300ms;
-    }
-    .hero-stage > * {
-      --rise: 16px;
-      animation: m-rise var(--duration-story) var(--ease-out) both;
-      animation-delay: var(--delay, 0ms);
-    }
-    @media (width < 64rem) {
-      .hero-stage > * {
-        animation: none;
-      }
+    .hero-callout {
+      --rise: 12px;
+      animation: m-rise var(--duration-complex) var(--ease-out) 320ms both;
     }
 
     /* Scroll reveal (one IntersectionObserver, `is-visible` once). */
@@ -608,7 +511,7 @@
     }
 
     /* Parts inside a revealed block: rise, pop (nodes), draw (scaleX/scaleY), arc, weight bar. */
-    html.js [data-reveal]:not(.is-visible) :is(.m-rise, .m-node, .m-bar, .m-draw-x, .m-draw-y, .m-arc) {
+    html.js [data-reveal]:not(.is-visible) :is(.m-rise, .m-node, .m-draw-x, .m-draw-y, .m-fade) {
       animation: m-settle 1ms linear 3s forwards;
     }
     html.js [data-reveal]:not(.is-visible) .m-rise {
@@ -619,14 +522,14 @@
       opacity: 0;
       transform: scale(0.8);
     }
-    html.js [data-reveal]:not(.is-visible) :is(.m-bar, .m-draw-x) {
+    html.js [data-reveal]:not(.is-visible) .m-draw-x {
       transform: scaleX(0);
+    }
+    html.js [data-reveal]:not(.is-visible) .m-fade {
+      opacity: 0;
     }
     html.js [data-reveal]:not(.is-visible) .m-draw-y {
       transform: scaleY(0);
-    }
-    html.js [data-reveal]:not(.is-visible) .m-arc {
-      stroke-dashoffset: var(--arc-length, 1000);
     }
     .m-rise,
     .m-node {
@@ -638,7 +541,6 @@
     .m-node {
       transition-duration: var(--duration-base);
     }
-    .m-bar,
     .m-draw-x {
       transform-origin: left;
       transition: transform var(--duration-complex) var(--ease-out);
@@ -652,17 +554,8 @@
       transition: transform var(--duration-complex) var(--ease-out);
       transition-delay: var(--d, 0ms);
     }
-    .m-arc {
-      stroke-dasharray: var(--arc-length, 1000);
-      transition: stroke-dashoffset var(--duration-story) var(--ease-out);
-      transition-delay: var(--d, 0ms);
-    }
-    /* Steps ledger: the blue centre appears with the reveal (PROGRESS). */
-    html.js [data-reveal]:not(.is-visible) .m-dot-fill {
-      background-color: transparent;
-    }
-    .m-dot-fill {
-      transition: background-color var(--duration-fast) linear;
+    .m-fade {
+      transition: opacity var(--duration-slow) var(--ease-out);
       transition-delay: var(--d, 0ms);
     }
   }
