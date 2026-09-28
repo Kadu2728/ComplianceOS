@@ -217,9 +217,9 @@ Surface luminance: Canvas `#030712` = 0.00215; elevated `#111827` = 0.00919; hov
   - Bottom border: `border-transparent` at scroll 0, then `border-border` once a 1 px sentinel at the top of `main` leaves the viewport (`data-scrolled`, the same IntersectionObserver instance as the existing hero sentinel, 150 ms colour transition).
   - Never translucent, never `backdrop-filter`.
 - **Left:**
-  - `Lockup`: symbol 24 in **`text-primary-text`**, wordmark 16/600 `text-primary`, gap 8, link `/`, accessible name "Compliance OS — início".
-  - The wordmark shows from **390 px** (`min-[390px]:inline`); below that the symbol shows alone.
-    - Width check at 390: lockup 152 + CTA "Comece grátis" 132 + menu 44 + gaps 24 = 352 ≤ 358.
+  - `Lockup` (**amended by D41, 2026-09-28**): the official horizontal logo `BrandLogo size="md"` — symbol 24 and "COMPLIANCE" 15/700 caps in `text-primary`, superscript "OS" 9/700 in `primary-text`, gap 10; link `/`, accessible name "Compliance OS — início".
+  - The wordmark shows from **390 px** (`min-[390px]:inline-flex`, prop `symbolOnlyNarrow`); below that the symbol shows alone.
+    - Width check at 390 (measured): lockup 149 + gap 16 + CTA "Comece grátis" 130 + 8 + menu 44 = 347 ≤ 358.
     - At 375 the same total does not fit in 343.
   - At ≥ 1024: `nav aria-label="Principal"` 40 px after the lockup. Links are h 40, padding-inline 12, `text-body-sm` 500 `text-secondary`, hover `text-primary`, 150 ms.
   - Items, in Marketing's order: **Produto** `#produto` · **Como funciona** `#como-funciona` · **Planos** `#planos` · **Dúvidas** `#faq`. "Segurança" is removed with its section.
@@ -653,7 +653,7 @@ There is no `figcaption` and no alt. The labels are real text, so Marketing's fi
 | M, L | `auto 1px minmax(0,1fr)`: lockup · divider · (text, then the buttons row mt 20) |
 | S | Column, gap 20: lockup · text · buttons stacked, full width |
 
-- **Lockup:** `BrandSymbol` 40 `primary-text` + "Compliance OS" 20/600 `text-primary` (at S: 32 + 18), gap 12, **`aria-hidden`**. It is not a link and not read aloud: the h2 follows.
+- **Lockup** (amended by D41): `BrandLogo size="xl"` (symbol 40 + "COMPLIANCE" 23/700 + "OS" 13/700 cyan; at S `size="lg"`, 28 + 17), **`aria-hidden`**. It is not a link and not read aloud: the h2 follows.
 - **Divider:** 1 px `border-strong`, `align-self: stretch`. Hidden at S.
 - **Text:**
   - h2 `text-h1-compact` (XL `text-h1`) `text-primary`: "Pronto para conhecer os riscos da sua empresa?"
@@ -669,7 +669,7 @@ This follows the reference's one-row footer, plus a legal row that Marketing's c
 
 - **Frame:** `footer`, `border-t border-border`, pt 40 (48 at ≥ 1024), pb 32. `theme-dark` removed.
 - **Row 1** (≥ 768: `flex items-center justify-between gap-6 flex-wrap`):
-  - `Lockup` (symbol 24 cyan, wordmark 16).
+  - `Lockup` (official horizontal logo, `md`; D41).
   - `nav aria-label="Rodapé"`: inline `ul`, gap 24, with Produto · Como funciona · Planos · Dúvidas (the header anchors, `/#…` on the legal pages). Links are `text-body-sm text-secondary`, hover `text-primary`, h 40.
   - **Instagram icon link:** 40 × 40 (44 < 1024), radius 8, hover `surface-hover`, `aria-label="Instagram do Compliance OS"`, `rel="noopener"`, href `site.instagramUrl`; rendered only when set.
     - The glyph is an **inline SVG** drawn in the Lucide idiom: 20 px, stroke 1.5, round caps, `currentColor` `text-secondary` → hover `text-primary`. It is a rounded square (rx 5), a centre circle (r 4) and a 1.5 px dot at the top right.
@@ -935,7 +935,7 @@ Human legal review of the new visitor-facing copy is a gate before release (CLAU
 | `primitives.tsx` | **Update**: `Section` (no tone; padding 48/64/80; `border-t`), `SectionIntro` replaces `SectionHeading`, `Eyebrow` (cyan, no dot), `ControlDot` (v2 colours; plans only), `Container` unchanged. |
 | `cta.tsx` | **Update** (§4.2): `outline` replaces `secondary`; sizes; `arrow` prop; tertiary hover fix. |
 | `reveal.tsx` | **Keep** unchanged. |
-| `components/ui/brand-symbol.tsx` | `Lockup` gains `symbolClassName` (default `""`; the landing passes `text-primary-text`). No change for app callers. |
+| `components/ui/brand-symbol.tsx` | `Lockup` gains `symbolClassName` (default `""`; the landing passes `text-primary-text`). No change for app callers. **Superseded by D41:** `BrandLogo` / `Lockup` render the official logo; `symbolClassName` removed. |
 
 ### 10.3 `lib/`, tests, CSS
 
@@ -1011,7 +1011,7 @@ Human legal review of the new visitor-facing copy is a gate before release (CLAU
    - Trust: "beta, declarado", residency.
 
    The FAQ (answers 5, 8, 9) and the plan footnotes still carry them. **Marketing + Compliance Researcher** confirm nothing legally reviewed is lost.
-4. **Open Graph image** is still the v1 Obsidian card (`SEO.ogImageAlt` says so). Out of scope; regenerate in v2 later.
+4. ~~**Open Graph image** is still the v1 Obsidian card.~~ Regenerated in v2 with the official logo (D41, 2026-09-28).
 5. **Screenshot privacy:** the delivered captures show only Acme Tecnologia Ltda. and "Ana Souza" (checked, §8.3). Keep the rule for re-captures.
 6. **Human legal review** of the new copy before release (D37 gate), especially "Menos trabalho manual" and the FAQ compositions (Marketing §13).
 7. **Blocking before commit: alt texts vs the capture.** Marketing's alts say 74 / +6. The capture shows 69 / +5 desde 08/09/2026 (§7.4). Marketing corrects them. Marketing's claim note ("fixtures.ts demoScore, coherence test") is obsolete: the fixtures are deleted and the capture is now the source.

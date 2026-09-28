@@ -67,7 +67,7 @@ export function SiteHeader({
     >
       <Container className="flex h-14 items-center justify-between gap-4 md:h-16">
         <div className="flex items-center gap-10">
-          <Lockup symbolOnlyBelowSm symbolClassName="text-primary-text" />
+          <Lockup symbolOnlyNarrow />
           <nav aria-label="Principal" className="hidden lg:block">
             <ul className="flex items-center">
               {items.map((item) => (
@@ -115,7 +115,7 @@ export function SiteHeader({
         className="m-drawer m-0 ml-auto h-dvh max-h-none w-[300px] max-w-[85vw] bg-surface-elevated p-0 text-text-primary shadow-modal open:flex open:flex-col"
       >
         <div className="flex h-14 items-center justify-between border-b border-border pr-2 pl-4">
-          <Lockup symbolClassName="text-primary-text" />
+          <Lockup />
           <button type="button" onClick={close} aria-label="Fechar navegação" className="flex size-11 items-center justify-center rounded-md text-text-secondary hover:bg-surface-hover hover:text-text-primary">
             <X aria-hidden size={20} strokeWidth={1.5} />
           </button>

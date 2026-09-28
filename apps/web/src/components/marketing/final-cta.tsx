@@ -1,4 +1,4 @@
-import { BrandSymbol } from "@/components/ui/brand-symbol";
+import { BrandLogo } from "@/components/ui/brand-symbol";
 import { FINAL } from "@/lib/marketing/copy";
 import { contactMailto } from "@/lib/marketing/site";
 import { CtaLink } from "./cta";
@@ -6,8 +6,8 @@ import { Container, Section } from "./primitives";
 import { Reveal } from "./reveal";
 
 /**
- * Final CTA card (landing-v2 §4.11): lockup · divider · text · buttons in one card with a faint
- * cyan wash. The lockup is decorative (the h2 follows). Without a mailbox the secondary button
+ * Final CTA card (landing-v2 §4.11): official logo · divider · text · buttons in one card with a
+ * faint cyan wash. The logo is decorative (the h2 follows). Without a mailbox the secondary button
  * becomes "Entrar".
  */
 export function FinalCta() {
@@ -16,12 +16,13 @@ export function FinalCta() {
     <Section id={FINAL.id}>
       <Container>
         <Reveal className="m-wash grid grid-cols-1 gap-5 rounded-xl border border-border-strong bg-surface-elevated p-6 md:grid-cols-[auto_1px_minmax(0,1fr)] md:items-center md:gap-x-8 md:p-8 lg:px-10 xl:grid-cols-[auto_1px_minmax(0,1fr)_auto]">
-          <span aria-hidden className="flex items-center gap-3 text-text-primary">
-            <span className="text-primary-text">
-              <BrandSymbol size={32} className="md:hidden" />
-              <BrandSymbol size={40} className="hidden md:inline-block" />
+          <span aria-hidden className="flex items-center">
+            <span className="md:hidden">
+              <BrandLogo size="lg" />
             </span>
-            <span className="text-[18px] font-semibold tracking-[-0.012em] whitespace-nowrap md:text-[20px]">Compliance OS</span>
+            <span className="hidden md:inline-flex">
+              <BrandLogo size="xl" />
+            </span>
           </span>
           <span aria-hidden className="hidden self-stretch bg-border-strong md:block" />
           <div className="min-w-0">

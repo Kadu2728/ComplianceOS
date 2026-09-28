@@ -1,6 +1,6 @@
 # COMPLIANCE OS — BRAND SYSTEM
 
-Version: 2.1 (2026-09-27 — D40: the landing joins palette v2; 2026-09-26 — D39: palette v2, dark default, Inter only; see §08–§17, §39, §41, §50, §80)
+Version: 2.2 (2026-09-28 — D41: official logo sheet, vector symbol, wordmark with superscript OS; see §07. 2026-09-27 — D40: the landing joins palette v2; 2026-09-26 — D39: palette v2, dark default, Inter only; see §08–§17, §39, §41, §50, §80)
 Status: Official
 Authority: Brand Source of Truth
 
@@ -8,6 +8,8 @@ Version 2.0 was decided by the owner from two official visual references (dashbo
 sheet). Implementation values live in `docs/design/visual-v2.md` and `apps/web/src/app/globals.css`.
 Version 2.1 moves the public landing to v2 as well (dark for every visitor, cyan accent, canvas
 #030712; `docs/design/landing-v2.md`, D40). The v1 palette is retired everywhere.
+Version 2.2 applies the owner's logo sheet (D41): symbol as a vector master, the wordmark
+"COMPLIANCE" with a superscript "OS" in the accent, app icon and optimized favicon (§07).
 
 ---
 
@@ -238,41 +240,61 @@ The symbol intentionally avoids literal compliance symbolism so the brand can ex
 
 ## Logo Versions
 
-### Primary Lockup
+Source: the owner's logo sheet (D41, 2026-09-28) — primary logo, isolated symbol, wordmark, small
+sizes, app icon and favicon. Its blue accent maps to the v2 cyan.
 
-Symbol + Compliance OS wordmark
+### Primary Lockup (stacked)
 
-Use for:
+Symbol above the wordmark, centred. Use for presentations, documents, sales material, social
+images and any place with room to breathe.
 
-- Website
-- Presentations
-- Marketing
-- Documents
-- Sales material
+### Horizontal Lockup
+
+Symbol left, wordmark right, vertically centred. The product and the website use this version
+(sidebar, top bars, drawer, auth pages, landing header and footer, final CTA). Proportions:
+
+- wordmark cap height ≈ 0.45 × symbol height;
+- gap symbol → wordmark ≈ 0.4 × symbol height;
+- sizes in code (`BrandLogo`): 24/15px (md), 28/17px (lg), 40/23px (xl) — symbol/wordmark.
+
+### Wordmark
+
+"COMPLIANCE" in Inter Bold (700), capitals, tracking −0.005em, followed by a superscript "OS":
+Inter Bold at 0.6 of the wordmark size (never below 9px), cap tops aligned, a 0.3em gap. "OS" is
+the only accent in the logo. Never lowercase ("Compliance OS" is the name in running text, not the
+wordmark), never another typeface, never "OS" on the baseline.
 
 ### Symbol
 
-Symbol only.
+Symbol only. Three concentric strokes; the inner two form one hairpin; all cut on a radial line at
+±28°. Vector master: `apps/web/public/brand/symbol.svg` (outer radius 50, stroke 7.8, ring
+centres 20.7 / 33.3 / 46.1, bridge 7.5), rebuilt from the approved raster; the product renders the
+same path inline (`components/ui/brand-geometry.ts`).
 
 Use for:
 
 - Favicon
 - App icon
-- Mobile interfaces
+- Mobile interfaces (the landing header under 380px)
 - Avatars
 - Small spaces
 
-### Monochrome Dark
+### App icon and favicon
 
-Obsidian logo.
+App icon: Off-white symbol (#F3F4F6) at about 60% of a Dark (#0B0F14) square; iOS applies its own
+mask, so the file is full-bleed (`app/apple-icon.png`). Favicon: the same tile with rounded corners
+in `app/favicon.ico` at 16, 32 and 48px. The 16px size is optically optimized — 1px strokes and 1px
+gaps on the pixel grid, the hole enlarged — because the master geometry turns to grey below 20px.
 
-### Monochrome Light
+### Colour versions
 
-Off-white logo.
+- **On dark (default):** symbol and "COMPLIANCE" Off-white (`text-primary` #F3F4F6), "OS" in cyan
+  `primary-text` #22D3EE.
+- **On light:** symbol and "COMPLIANCE" Dark (#0B0F14), "OS" in `primary-text` #0E7490.
+- **Monochrome:** everything in one neutral (Dark or Off-white) — print, stamps, partner pages.
+- **Accent:** an all-cyan logo only when strategically justified (never on a cyan surface).
 
-### Blue Accent
-
-Electric Blue may be used selectively.
+The v1 "Blue Accent" (Electric Blue #356AE6) is retired.
 
 ---
 
@@ -288,9 +310,9 @@ No typography, graphics, buttons, borders, or other elements may enter this prot
 
 Symbol:
 
-24px minimum.
+24px minimum (the favicon's optimized 16px drawing is the only exception).
 
-Primary lockup:
+Horizontal lockup:
 
 120px minimum width.
 
@@ -300,17 +322,15 @@ Below this size, use the symbol only.
 
 ## Approved Backgrounds
 
-Primary:
+Primary (product and landing):
 
-Off-white #F4F4F0 with Obsidian logo.
+Dark #0B0F14 / landing canvas #030712 with the Off-white logo and cyan "OS".
 
 Secondary:
 
-Obsidian #0B0D0F with Off-white logo.
+Light surfaces (#F5F7FA, white) with the Dark logo and `primary-text` "OS".
 
-Accent:
-
-Electric Blue #356AE6 only when strategically justified.
+Never on photographs, gradients or busy backgrounds.
 
 ---
 

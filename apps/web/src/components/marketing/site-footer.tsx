@@ -29,7 +29,7 @@ export function SiteFooter({ productItems }: { productItems: NavItem[] }) {
     <footer id="rodape" className="border-t border-border pt-10 pb-8 text-text-primary lg:pt-12 print:hidden">
       <Container>
         <div className="flex flex-col gap-6 md:flex-row md:flex-wrap md:items-center md:justify-between">
-          <Lockup symbolClassName="text-primary-text" />
+          <Lockup />
           <nav aria-label="Rodapé">
             <ul className="grid grid-cols-2 gap-x-6 md:flex md:gap-6">
               {productItems.map((item) => (

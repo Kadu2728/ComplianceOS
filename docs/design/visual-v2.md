@@ -282,8 +282,9 @@ Rules:
   - `aside`, `sticky top-0 h-dvh w-[240px]`, background `surface-base`, 1px right `border`.
   - Three zones: top (fixed), nav (scrolls if needed), bottom (fixed).
 - **Logo row** (64 tall, padding-inline 24):
-  - `BrandSymbol` **28px**, colour **`text-primary-text`** (cyan in dark, cyan-700 in light).
-  - Then "Compliance OS" Inter **18/600/−0.012em**, `text-primary`, gap 10. The whole row is a link to `/`.
+  - **Amended by D41 (2026-09-28):** the official horizontal lockup `BrandLogo size="lg"` — symbol
+    28px and "COMPLIANCE" Inter 17/700 caps in `text-primary`, superscript "OS" 10/700 in
+    `primary-text`, gap 12 (brand-system §07). The whole row is a link to `/`.
   - The real symbol replaces the mockup hexagon.
   - No glow, no gradient (brand §7). Clear space ≥ 8px.
 - **Organization** (owner decision of 2026-09-17, kept):
@@ -342,11 +343,11 @@ Rules:
   - The mockup's third icon (square with dot) is **not** implemented (no product function).
 - **Tablet top bar (768–1023):**
   - Height 64; the same classes as the header plus `Menu` 44 at the left (opens the drawer, `aria-haspopup="dialog"`).
-  - Logo: symbol 24 + wordmark 16/600.
+  - Logo: `BrandLogo size="md"` — symbol 24 + "COMPLIANCE" 15/700 + "OS" 9/700 cyan (D41).
   - Then search, bell, avatar link (32-avatar only).
 - **Mobile top bar (< 768):**
   - Height 56, padding-inline 16, background `surface-base`, bottom `border`, `sticky top-0 z-30`.
-  - Left: logo (symbol 24 + "Compliance OS" 16/600, link `/`).
+  - Left: logo (`BrandLogo size="md"`, D41; link `/`).
   - Right: `Search` 44 (opens the full-screen search, §5.10) and bell 44.
   - No hamburger: "Mais" in the tab bar opens the same drawer.
 
@@ -1022,7 +1023,7 @@ Legacy scopes keep the figures in `tokens.md` §2 and §8.
 | Radar left borders `-border` | Too dim in dark | `-fill` (§5.9). |
 | Sidebar at ≥ 1024 (was ≥ 768) | Tablet loses the permanent sidebar | By design (§3.1). QA at 768 and 1023. |
 | `/resumo` (now "Relatórios") | Nav label ≠ page title | Add eyebrow "RELATÓRIOS" to its `PageHeader`; keep the title "Resumo executivo". Confirm print output is light (§2.1). |
-| Auth pages, public room | Now dark by default | QA only; logo `Lockup` in `text-primary` reads correctly in both. |
+| Auth pages, public room | Now dark by default | QA only; the logo (`BrandLogo`, D41) reads correctly in both. |
 
 ### 8.2 Landing
 

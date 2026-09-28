@@ -328,7 +328,7 @@ export const SEO = {
   ogTitle: "Conheça seus riscos. Controle seu negócio. — Compliance OS",
   ogDescription: "Compliance corporativo sem precisar de um departamento de compliance. Veja o risco, corrija a lacuna e prove o controle. Primeiro mês grátis.",
   /** Describes `app/opengraph-image.png` (a brand card, not a screenshot); keep identical to `opengraph-image.alt.txt`. */
-  ogImageAlt: "Compliance OS — Know your risk. Control your business. Compliance corporativo sem precisar de um departamento de compliance. Símbolo da marca sobre fundo Obsidian; assinatura “The Control Layer”.",
+  ogImageAlt: "Compliance OS — Know your risk. Control your business. Compliance corporativo sem precisar de um departamento de compliance. Logotipo e símbolo da marca sobre fundo escuro; assinatura “The Control Layer”.",
   softwareDescription:
     "Plataforma de operações de compliance para empresas: diagnóstico de proteção de dados, riscos, controles, ações, evidências, documentos, Score de Compliance explicável e Sala de compliance para demonstrar maturidade a clientes e parceiros. Compliance corporativo sem precisar de um departamento de compliance.",
   featureList: [
